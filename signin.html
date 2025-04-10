@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RiSync Sign-In</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-image: url('image.png');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background-color: rgba(0, 51, 102, 0.8);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 350px;
+      text-align: center;
+    }
+    .logo img {
+      width: 100px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: bold;
+      color: #FFFFFF;
+      margin-bottom: 20px;
+    }
+    label {
+      font-size: 14px;
+      font-weight: bold;
+      display: block;
+      text-align: left;
+      color: white;
+      margin-bottom: 5px;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+    input:focus {
+      outline: none;
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+    .signin-button, .go-back-button {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+    .signin-button {
+      background-color: #FF5722;
+      color: white;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    .signin-button:hover {
+      background-color: #002244;
+      transform: scale(1.05);
+    }
+    .go-back-button {
+      background-color: #004AAD;
+      color: white;
+      margin-top: 10px;
+    }
+    .go-back-button:hover {
+      background-color: #003a87;
+    }
+    .create-account {
+      text-align: center;
+      margin-top: 15px;
+    }
+    .create-account a {
+      color: #FF5722;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .create-account a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <img src="logo.png" alt="RiSync Logo">
+    </div>
+    <h1>RiSync Sign-In</h1>
+    <form id="signinForm">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      <div id="emailError" class="error"></div>
+      
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <div id="passwordError" class="error"></div>
+      <input type="checkbox" id="showPassword" onclick="togglePassword()"> Show Password
+      
+      <button type="button" class="signin-button" onclick="validateAndRedirect()">Sign In</button>
+    </form>
+    <div class="create-account">
+      <p>New to RiSync? <a href="signup.html" target="_blank">Create your account</a>.</p>
+    </div>
+    <button type="button" class="go-back-button" onclick="window.open('real.html', '_blank')">GO BACK TO THE MAIN PAGE</button>
+  </div>
+
+  <script>
+            function togglePassword() {
+            const passwordField = document.getElementById("password");
+            passwordField.type = passwordField.type === "password" ? "text" : "password";
+        }
+
+	function validateAndRedirect() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const validEmail = localStorage.getItem("existingEmail");
+      const validPassword = localStorage.getItem("signupPassword");
+
+      document.getElementById("emailError").textContent = "";
+      document.getElementById("passwordError").textContent = "";
+
+      let isValid = true;
+
+      if (!validEmail || !validPassword) {
+        document.getElementById("emailError").textContent = "No account found. Please sign up first.";
+        return;
+      }
+
+      if (email !== validEmail) {
+        document.getElementById("emailError").textContent = "Invalid email address.";
+        isValid = false;
+      }
+
+      if (password !== validPassword) {
+        document.getElementById("passwordError").textContent = "Incorrect password.";
+        isValid = false;
+      }
+
+      if (isValid) {
+        openNewTab("index.html");
+      }
+    }
+
+    function openNewTab(url) {
+      window.open(url, '_blank');
+    }
+  </script>
+</body>
+</html>

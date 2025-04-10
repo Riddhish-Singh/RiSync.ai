@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiSync Chat</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #chat-container {
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        #header {
+            background: #003366;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            position: relative;
+        }
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+        .sent {
+            align-self: flex-end;
+            background: #DCF8C6;
+        }
+        .received {
+            align-self: flex-start;
+            background: #EAEAEA;
+        }
+        #typing {
+            font-style: italic;
+            color: grey;
+            padding: 5px;
+        }
+        #input-container {
+            display: flex;
+            align-items: center;
+            background: #ECE5DD;
+            padding: 10px;
+        }
+        #input-container input {
+            flex-grow: 1;
+            padding: 10px;
+            border-radius: 20px;
+            border: none;
+            font-size: 16px;
+        }
+        .icon-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            margin: 0 10px;
+        }
+        .icon-button:hover {
+            opacity: 0.7;
+        }
+        #fileList {
+            list-style: none;
+            padding: 10px;
+            margin: 0;
+        }
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #EAEAEA;
+            padding: 5px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .remove-btn {
+            background: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            font-size: 14px;
+        }
+    .sent {
+    align-self: flex-end;
+    background: #DCF8C6; /* Light green for sender */
+    color: black;
+}
+
+    .received {
+    align-self: flex-start;
+    background: #EAEAEA; /* Grey for receiver */
+    color: black;
+}
+
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="header">
+            <img src="logo.png" alt="RiSync Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
+            RiSync Chat
+        </div>
+        <div id="messages"></div>
+        <p id="typing"></p>
+        <ul id="fileList"></ul>
+        <div id="input-container">
+            <button class="icon-button">😊</button>
+            <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
+            <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
+            <input type="text" id="message" placeholder="Type a message" oninput="notifyTyping()" onkeydown="if(event.key==='Enter') sendMessage()">
+            <button class="icon-button" onclick="sendMessage()">➡️</button>
+            <button class="icon-button">🎤</button>
+        </div>
+    </div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io("http://localhost:3000");
+    
+    // Ask for username if not stored
+    let username = localStorage.getItem("username") || prompt("Enter your name:") || "User";
+    localStorage.setItem("username", username);
+
+    function sendMessage() {
+        const messageInput = document.getElementById("message");
+        const message = messageInput.value.trim();
+        
+        if (message) {
+            const messageData = { username, message };
+
+            socket.emit("message", messageData); // Send message to server
+            appendMessage(username, message, 'sent'); // Show user's message
+
+            messageInput.value = "";
+        }
+    }
+
+    function appendMessage(user, message, type) {
+        const messagesContainer = document.getElementById("messages");
+        const messageElement = document.createElement("div");
+
+        messageElement.classList.add("message", type);
+        messageElement.innerHTML = `<strong>${user}:</strong> ${message}`;
+
+        messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    socket.on("message", (data) => {
+        if (data.username !== username) {
+            appendMessage(data.username, data.message, 'received');
+        }
+    });
+</script>
+</body>
+</html>
