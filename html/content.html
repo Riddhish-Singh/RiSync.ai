@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiSync UI</title>
+  <style>
+    html, body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #ffffff;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .top-bar {
+      background-color: #0c0c2d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 20px;
+      position: relative;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+    }
+    .logo img {
+      width: 60px;
+      height: auto;
+      margin-right: 10px;
+    }
+    .settings-container {
+      position: relative;
+    }
+    .settings-icon {
+      font-size: 24px;
+      cursor: pointer;
+      margin-left: 15px;
+    }
+    .settings-menu {
+      display: none;
+      position: absolute;
+      top: 40px;
+      right: 0;
+      background: white;
+      border: 1px solid #ccc;
+      padding: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .settings-menu button {
+      background-color: #f58220;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    .settings-menu button:hover {
+      background-color: #d96d1a;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 60px);
+    }
+    .sidebar {
+      background-color: #ffffff;
+      padding: 20px;
+      width: 30%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      justify-content: flex-start;
+      align-items: center;
+    }
+    .button {
+      background-color: #f58220;
+      color: white;
+      border: none;
+      padding: 20px;
+      text-align: center;
+      border-radius: 20px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+      width: 80%;
+      position: relative;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.3);
+    }
+    .button:hover {
+      box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
+    }
+    .content-area {
+      flex-grow: 1;
+      padding: 20px;
+      background-color: #ffffff;
+    }
+    .profile-upload {
+      display: none;
+    }
+    .profile-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div class="logo">
+      <img src="logo.png" alt="RiSync Logo" />
+      <div>
+        <h2>RiSync</h2>
+        <p>Let's Re Sync With RiSync</p>
+      </div>
+    </div>
+    <div class="settings-container">
+      <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
+      <img src="user-icon.png" alt="Profile" class="profile-icon" id="profileIcon" style="width: 70px; height: 70px;" />
+      <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
+      <div class="settings-menu" id="settingsMenu">
+        <button id="logoutButton" onclick="logout()">Log Out</button>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="sidebar">
+      <button class="button" onclick="navigateTo('RiSync-CHAT.html')">RiSync Chat</button>
+      <button class="button">Schedule Meeting</button>
+      <button class="button">Calendar</button>
+      <button class="button">Database</button>
+      <button class="button" onclick="navigateTo('gpt.html')">Chat Bot</button>
+      <button class="button" onclick="navigateTo('subjects.html')">Subjects</button>
+    </div>
+
+    <div class="content-area">
+      <h3>Welcome to RiSync</h3>
+      <p>Select an option from the left menu to get started.</p>
+    </div>
+  </div>
+  <script>
+    function toggleSettings() {
+      var menu = document.getElementById("settingsMenu");
+      menu.style.display = menu.style.display === "block" ? "none" : "block";
+    }
+    function logout() {
+      window.location.href = "index.html";
+    }
+    function navigateTo(page) {
+      window.open(page, "_blank");
+    }
+    document.getElementById("profileIcon").addEventListener("click", function () {
+      document.getElementById("profileUpload").click();
+    });
+    document.getElementById("profileUpload").addEventListener("change", function (event) {
+      var file = event.target.files[0];
+      if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          document.getElementById("profileIcon").src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert("Please upload a .png or .jpg image file.");
+      }
+    });
+    document.addEventListener("click", function (event) {
+      var settingsMenu = document.getElementById("settingsMenu");
+      var logoutButton = document.getElementById("logoutButton");
+      if (settingsMenu.style.display === "block" && event.target !== logoutButton && event.target !== settingsMenu && event.target !== document.querySelector(".settings-icon")) {
+        logoutButton.style.display = "block";
+        settingsMenu.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>
