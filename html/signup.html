@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-image: url('image.png');
+      background-image: url('../assets/image.png');
       background-size: cover;
       background-position: center;
       color: #add8e6;
@@ -115,7 +115,7 @@
 <body>
   <div class="container">
     <div class="logo">
-      <img src="logo.png" alt="RiSync Logo">
+      <img src="../assets/logo.png" alt="RiSync Logo">
     </div>
     <h1>RiSync Sign-Up</h1>
     <form id="signupForm">
@@ -148,7 +148,7 @@
     <div class="signin-link">
       <p>Already have an account? <a href="signin.html" target="_blank">Sign In</a>.</p>
     </div>
-    <button type="button" class="go-back-button" onclick="window.open('content.html', '_blank')">GO BACK TO THE MAIN PAGE</button>
+    <button type="button" class="go-back-button" onclick="window.open('../index.html', '_blank')">GO BACK TO THE MAIN PAGE</button>
   </div>
 
   <script>
@@ -169,7 +169,7 @@
         localStorage.setItem("existingEmail", email);
         localStorage.setItem("signupPassword", password);
         alert("Account created successfully!");
-        window.open("index.html", "_blank"); 
+        window.open("content.html", "_blank"); 
       } else {
         alert("Please fill in all fields.");
       }
