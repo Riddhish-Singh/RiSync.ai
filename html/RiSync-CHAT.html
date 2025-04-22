@@ -124,13 +124,15 @@
 <body>
     <div id="chat-container">
         <div id="header">
-            <img src="logo.png" alt="RiSync Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
+            <img src="../assets/logo.png" alt="RiSync Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
             RiSync Chat
         </div>
         <div id="messages"></div>
         <p id="typing"></p>
         <ul id="fileList"></ul>
         <div id="input-container">
+		<script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
+
             <button class="icon-button">😊</button>
             <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
             <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
@@ -138,7 +140,12 @@
             <button class="icon-button" onclick="sendMessage()">➡️</button>
             <button class="icon-button">🎤</button>
         </div>
+  <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
+    ← Back to Content
+  </button>
+
     </div>
+
 
 <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>

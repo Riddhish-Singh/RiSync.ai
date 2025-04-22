@@ -10,22 +10,86 @@
       margin: 0;
       padding: 20px;
       background-color: #f9f9f9;
+      color: #000;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background-color: #121212;
+      color: #f1f1f1;
     }
     h1 {
       color: #004aad;
     }
-    .back-button {
-      display: inline-block;
-      margin-bottom: 15px;
-      padding: 8px 16px;
-      background-color: #004aad;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 14px;
+    .dark-mode h1 {
+      color: #5da9ff;
     }
-    .back-button:hover {
-      background-color: #00337a;
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 24px;
+    }
+    .switch input { display: none; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0;
+      right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: 0.4s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+    input:checked + .slider {
+      background-color: #004aad;
+    }
+    input:checked + .slider:before {
+      transform: translateX(26px);
+    }
+    .subject-card {
+      background-color: #ff914d;
+      color: white;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.3s, background-color 0.3s;
+    }
+    .subject-card:hover {
+      transform: scale(1.03);
+      background-color: #e67c3e;
+    }
+    .emoji {
+      font-size: 24px;
+      margin-right: 10px;
+    }
+    .star {
+      cursor: pointer;
+      font-size: 20px;
+      color: grey;
+      transition: color 0.3s;
+    }
+    .favorite::before {
+      content: "\2605";
+      color: gold;
+    }
+    .star::before {
+      content: "\2606";
+    }
+    .favorite.star::before {
+      content: "\2605";
     }
     #searchInput {
       width: 100%;
@@ -34,56 +98,153 @@
       font-size: 16px;
       border: 1px solid #ccc;
       border-radius: 8px;
-      margin-bottom: 20px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin: 20px 0;
     }
-    #subjectList {
-      list-style: none;
-      padding: 0;
-    }
-    #subjectList li {
+    #microphoneBtn {
+      margin-left: 10px;
       padding: 10px;
-      margin-bottom: 10px;
-      background-color: #ff914d;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      background-color: #004aad;
       color: white;
-      border-radius: 6px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.2s;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
     }
-    #subjectList li:hover {
-      background-color: #e67c3e;
+    #microphoneBtn.listening {
+      box-shadow: 0 0 10px 2px #00e5ff;
+      background-color: #0077cc;
+    }
+    #factBox {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #004aad;
+      color: white;
+      border-radius: 8px;
+    }
+    #showFavoritesBtn {
+      margin: 10px 0 20px 0;
+      padding: 10px 20px;
+      background-color: #004aad;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    #showFavoritesBtn:hover {
+      background-color: #00337a;
     }
   </style>
 </head>
 <body>
-  <img src="../assets/logo.png" alt="Logo" style="height: 50px; margin-bottom: 20px;" />
-  <a href="content.html" class="back-button">&larr; Back</a>
-  <h1>Subjects</h1>
-  <input type="text" id="searchInput" placeholder="Search for a subject..." />
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Subjects</h1>
+    <label class="switch">
+      <input type="checkbox" id="darkModeToggle">
+      <span class="slider round"></span>
+    </label>
+  </div>
 
-  <ul id="subjectList">
-    <li>Mathematics</li>
-    <li>Science</li>
-    <li>Social Studies</li>
-    <li>Language Arts - English</li>
-    <li>Language Arts - Hindi</li>
-    <li>Computer Science</li>
-    <li>Art</li>
-    <li>Physical Education</li>
-    <li>Creative Arts</li>
-  </ul>
+  <div style="display: flex; align-items: center;">
+    <input type="text" id="searchInput" placeholder="Search for a subject or use your voice... 🎤" />
+    <button id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
+  </div>
+
+  <button id="showFavoritesBtn" onclick="toggleFavoriteView()">Show Favorites ⭐</button>
+
+  <div id="subjectList">
+    <div class="subject-card"><span class="emoji">🧮</span> Mathematics <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🇮🇳</span> Hindi <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🏃‍♂️</span> Physical Education <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card"><span class="emoji">🎭</span> Creative Arts <span class="star" onclick="toggleFavorite(this)"></span></div>
+  </div>
+
+  <div id="factBox"></div>
+  <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
+    ← Back to Content
+  </button>
 
   <script>
+    const darkToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
     const input = document.getElementById('searchInput');
-    const subjects = document.querySelectorAll('#subjectList li');
+    const cards = document.querySelectorAll('.subject-card');
+    const factBox = document.getElementById('factBox');
+    const showFavoritesBtn = document.getElementById('showFavoritesBtn');
+    const micBtn = document.getElementById('microphoneBtn');
+    let showingFavorites = false;
+
+    darkToggle.addEventListener('change', () => {
+      body.classList.toggle('dark-mode');
+    });
 
     input.addEventListener('input', () => {
       const query = input.value.toLowerCase();
-      subjects.forEach(subject => {
-        const text = subject.textContent.toLowerCase();
-        subject.style.display = text.includes(query) ? 'list-item' : 'none';
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? 'flex' : 'none';
       });
     });
+
+    function toggleFavorite(el) {
+      el.classList.toggle('favorite');
+    }
+
+    function toggleFavoriteView() {
+      showingFavorites = !showingFavorites;
+      showFavoritesBtn.textContent = showingFavorites ? "Don't Show Favorites" : "Show Favorites ⭐";
+      cards.forEach(card => {
+        const star = card.querySelector('.star');
+        card.style.display = showingFavorites ? (star.classList.contains('favorite') ? 'flex' : 'none') : 'flex';
+      });
+    }
+
+    const facts = [
+      "Math was used to land on the moon! 🌕",
+      "Your body has more bacteria than cells. 🦠",
+      "Hindi is one of the oldest languages. 🕉️",
+      "Art helps boost memory and creativity. 🎨",
+      "Computer Science powers your games! 🕹️"
+    ];
+    factBox.textContent = facts[Math.floor(Math.random() * facts.length)];
+
+    function startVoiceSearch() {
+      if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        micBtn.classList.add('listening');
+        recognition.start();
+
+        recognition.onresult = function(event) {
+          let interim = '';
+          for (let i = 0; i < event.results.length; ++i) {
+            interim += event.results[i][0].transcript;
+          }
+          input.value = interim;
+          input.dispatchEvent(new Event('input'));
+        };
+
+        recognition.onend = function() {
+          micBtn.classList.remove('listening');
+        };
+
+        recognition.onerror = function(event) {
+          micBtn.classList.remove('listening');
+          alert('Voice recognition error: ' + event.error);
+        };
+      } else {
+        alert('Speech recognition not supported in this browser.');
+      }
+    }
   </script>
 </body>
 </html>
