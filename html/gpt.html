@@ -156,72 +156,83 @@
   </button>
   </div>
 
-    <script>
-        const socket = new WebSocket("wss://your-cloud-run-websocket-url");
+<script>
+    const socket = new WebSocket("wss://your-cloud-run-websocket-url");
 
-        socket.onmessage = async (event) => {
-            const message = JSON.parse(event.data);
-            if (message.sender === "AI") message.text = await getBotResponse(message.text);
-            displayMessage(message.sender, message.text);
-        };
+    socket.onmessage = async (event) => {
+        const message = JSON.parse(event.data);
+        if (message.sender === "AI") message.text = await getBotResponse(message.text);
+        displayMessage(message.sender, message.text);
+    };
 
-        function sendMessage() {
-            const input = document.getElementById("user-input");
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = "";
-            displayMessage("You", text);
-            socket.send(JSON.stringify({ sender: "You", text }));
-            showTyping();
+    function sendMessage() {
+        const input = document.getElementById("user-input");
+        const text = input.value.trim();
+        if (!text) return;
+        input.value = "";
+        displayMessage("You", text);
+        socket.send(JSON.stringify({ sender: "You", text }));
+        showTyping();
+    }
+
+    function displayMessage(sender, text) {
+        const chat = document.getElementById("chat-messages");
+        const msg = document.createElement("div");
+        msg.classList.add("message", sender === "You" ? "user" : "bot");
+
+        const profileImage = sender === "You"
+            ? (localStorage.getItem("profileImage") || "../assets/user-icon.png")
+            : "../assets/logo.png";
+
+        msg.innerHTML = `
+            <img src="${profileImage}" style="width:30px; height:30px; border-radius:50%; margin:0 10px;">
+            <div class="message-content"><strong>${sender}:</strong> ${text}</div>
+        `;
+        chat.appendChild(msg);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTyping() {
+        const chat = document.getElementById("chat-messages");
+        const indicator = document.createElement("div");
+        indicator.classList.add("typing-indicator");
+        indicator.textContent = "AI is typing...";
+        chat.appendChild(indicator);
+        setTimeout(() => indicator.remove(), 2000);
+    }
+
+    function handleKeyPress(e) {
+        if (e.key === "Enter") sendMessage();
+    }
+
+    async function getBotResponse(message) {
+        const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=AIzaSyCGS79Ndnz9Cn604YNDeRjdjYiHxgmgbEY", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: { text: message } })
+        });
+        const data = await res.json();
+        return data.candidates?.[0]?.output || "Sorry, I don't know yet!";
+    }
+
+    function toggleSettings() {
+        const isDark = document.body.classList.toggle("dark-mode");
+        localStorage.setItem("darkMode", isDark);
+        document.getElementById("mode-toggle").textContent = isDark ? "Light Mode☀️" : "Dark Mode🌙";
+    }
+
+    window.onload = () => {
+        const darkModePref = localStorage.getItem("darkMode") === "true";
+        if (darkModePref) {
+            document.body.classList.add("dark-mode");
+            document.getElementById("mode-toggle").textContent = "Light Mode☀️";
+        } else {
+            document.getElementById("mode-toggle").textContent = "Dark Mode🌙";
         }
 
-        function displayMessage(sender, text) {
-            const chat = document.getElementById("chat-messages");
-            const msg = document.createElement("div");
-            msg.classList.add("message", sender === "You" ? "user" : "bot");
-            msg.innerHTML = `<div class="message-content"><strong>${sender}:</strong> ${text}</div>`;
-            chat.appendChild(msg);
-            chat.scrollTop = chat.scrollHeight;
-        }
-
-        function showTyping() {
-            const chat = document.getElementById("chat-messages");
-            const indicator = document.createElement("div");
-            indicator.classList.add("typing-indicator");
-            indicator.textContent = "AI is typing...";
-            chat.appendChild(indicator);
-            setTimeout(() => indicator.remove(), 2000);
-        }
-
-        function handleKeyPress(e) {
-            if (e.key === "Enter") sendMessage();
-        }
-
-        async function getBotResponse(message) {
-            const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateText?key=AIzaSyCGS79Ndnz9Cn604YNDeRjdjYiHxgmgbEY", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ prompt: { text: message } })
-            });
-            const data = await res.json();
-            return data.candidates?.[0]?.output || "Sorry, I don't know yet!";
-        }
-
-        function toggleSettings() {
-            const isDark = document.body.classList.toggle("dark-mode");
-            localStorage.setItem("darkMode", isDark);
-            document.getElementById("mode-toggle").textContent = isDark ? "Light Mode☀️" : "Dark Mode🌙";
-        }
-
-        window.onload = () => {
-            const darkModePref = localStorage.getItem("darkMode") === "true";
-            if (darkModePref) {
-                document.body.classList.add("dark-mode");
-                document.getElementById("mode-toggle").textContent = "Light Mode☀️";
-            } else {
-                document.getElementById("mode-toggle").textContent = "Dark Mode🌙";
-            }
-        };
-    </script>
+        const img = localStorage.getItem("profileImage") || "user-icon.png";
+        console.log("Loaded profile image:", img);
+    };
+</script>
 </body>
 </html>

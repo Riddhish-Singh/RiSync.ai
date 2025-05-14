@@ -141,40 +141,65 @@
       <p>Select an option from the left menu to get started.</p>
     </div>
   </div>
-  <script>
-    function toggleSettings() {
-      var menu = document.getElementById("settingsMenu");
-      menu.style.display = menu.style.display === "block" ? "none" : "block";
+<script>
+  // Load stored profile image on page load
+  window.addEventListener("load", function () {
+    const savedImage = localStorage.getItem("profileImage");
+    if (savedImage) {
+      document.getElementById("profileIcon").src = savedImage;
     }
-    function logout() {
-      window.location.href = "../index.html";
+  });
+
+  // Trigger upload dialog
+  document.getElementById("profileIcon").addEventListener("click", function () {
+    document.getElementById("profileUpload").click();
+  });
+
+  // Handle image upload
+  document.getElementById("profileUpload").addEventListener("change", function (event) {
+    var file = event.target.files[0];
+    if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        const imageSrc = e.target.result;
+        document.getElementById("profileIcon").src = imageSrc;
+        localStorage.setItem("profileImage", imageSrc); // Save image to localStorage
+      };
+      reader.readAsDataURL(file);
+    } else {
+      alert("Please upload a .png or .jpg image file.");
     }
-    function navigateTo(page) {
-      window.open(page, "_blank");
+  });
+
+  // Toggle settings menu
+  function toggleSettings() {
+    var menu = document.getElementById("settingsMenu");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  }
+
+  // Navigate and logout functions
+  function logout() {
+    window.location.href = "../index.html";
+  }
+
+  function navigateTo(page) {
+    window.open(page, "_blank");
+  }
+
+  // Close settings menu when clicking outside
+  document.addEventListener("click", function (event) {
+    var settingsMenu = document.getElementById("settingsMenu");
+    var logoutButton = document.getElementById("logoutButton");
+    if (
+      settingsMenu.style.display === "block" &&
+      event.target !== logoutButton &&
+      event.target !== settingsMenu &&
+      event.target !== document.querySelector(".settings-icon")
+    ) {
+      logoutButton.style.display = "block";
+      settingsMenu.style.display = "none";
     }
-    document.getElementById("profileIcon").addEventListener("click", function () {
-      document.getElementById("profileUpload").click();
-    });
-    document.getElementById("profileUpload").addEventListener("change", function (event) {
-      var file = event.target.files[0];
-      if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          document.getElementById("profileIcon").src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert("Please upload a .png or .jpg image file.");
-      }
-    });
-    document.addEventListener("click", function (event) {
-      var settingsMenu = document.getElementById("settingsMenu");
-      var logoutButton = document.getElementById("logoutButton");
-      if (settingsMenu.style.display === "block" && event.target !== logoutButton && event.target !== settingsMenu && event.target !== document.querySelector(".settings-icon")) {
-        logoutButton.style.display = "block";
-        settingsMenu.style.display = "none";
-      }
-    });
-  </script>
+  });
+</script>
 </body>
 </html>
