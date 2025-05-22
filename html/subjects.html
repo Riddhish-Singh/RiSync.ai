@@ -139,7 +139,7 @@
 </head>
 <body>
   <div style="display: flex; justify-content: space-between; align-items: center;">
-    <h1>Subjects</h1>
+    <h1 id="pageTitle">Subjects</h1>
     <label class="switch">
       <input type="checkbox" id="darkModeToggle">
       <span class="slider round"></span>
@@ -166,11 +166,43 @@
   </div>
 
   <div id="factBox"></div>
-  <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
+  <button id="backButton" onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
     ← Back to Content
   </button>
 
   <script>
+    const translations = {
+      hi: {
+        title: "विषय",
+        searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
+        showFavorites: "पसंदीदा दिखाएँ ⭐",
+        dontShowFavorites: "पसंदीदा न दिखाएँ",
+        backButton: "← सामग्री पर वापस जाएँ"
+      },
+      fr: {
+        title: "Sujets",
+        searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
+        showFavorites: "Afficher les favoris ⭐",
+        dontShowFavorites: "Ne pas afficher les favoris",
+        backButton: "← Retour au contenu"
+      },
+      en: {
+        title: "Subjects",
+        searchPlaceholder: "Search for a subject or use your voice... 🎤",
+        showFavorites: "Show Favorites ⭐",
+        dontShowFavorites: "Don't Show Favorites",
+        backButton: "← Back to Content"
+      }
+    };
+
+    const preferredLang = localStorage.getItem("preferredLanguage") || "en";
+    const dict = translations[preferredLang];
+
+    document.getElementById("pageTitle").textContent = dict.title;
+    document.getElementById("searchInput").placeholder = dict.searchPlaceholder;
+    document.getElementById("showFavoritesBtn").textContent = dict.showFavorites;
+    document.getElementById("backButton").textContent = dict.backButton;
+
     const darkToggle = document.getElementById('darkModeToggle');
     const body = document.body;
     const input = document.getElementById('searchInput');
@@ -198,7 +230,7 @@
 
     function toggleFavoriteView() {
       showingFavorites = !showingFavorites;
-      showFavoritesBtn.textContent = showingFavorites ? "Don't Show Favorites" : "Show Favorites ⭐";
+      showFavoritesBtn.textContent = showingFavorites ? dict.dontShowFavorites : dict.showFavorites;
       cards.forEach(card => {
         const star = card.querySelector('.star');
         card.style.display = showingFavorites ? (star.classList.contains('favorite') ? 'flex' : 'none') : 'flex';
