@@ -169,6 +169,14 @@
     document.getElementById("classDisplay").innerText = `Class ${userClass}`;
 
     socket.emit("joinRoom", { username, room });
+// 🧠 Load previous messages when joining room
+socket.on("loadMessages", (messages) => {
+  messages.forEach(msg => {
+    const type = msg.username === username ? 'sent' : 'received';
+    appendMessage(msg.username, msg.message, type);
+  });
+});
+
 
     function sendMessage() {
       const messageInput = document.getElementById("message");
