@@ -255,9 +255,19 @@
     menu.style.display = menu.style.display === "block" ? "none" : "block";
   }
 
-  function logout() {
-    window.location.href = "../index.html";
-  }
+function logout() {
+  // Clear all relevant localStorage data
+  localStorage.removeItem("preferredLanguage");
+  localStorage.removeItem("profileImage");
+  localStorage.removeItem("username");
+  localStorage.removeItem("signupClass");
+  localStorage.removeItem("existingEmail");
+  localStorage.removeItem("signupPassword");
+  localStorage.removeItem("darkMode");
+  localStorage.removeItem("users");
+
+  window.location.href = "../index.html"; 
+}
 
   function navigateTo(page) {
     window.open(page, "_blank");
