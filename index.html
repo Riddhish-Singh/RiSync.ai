@@ -248,18 +248,18 @@
         <p>© 2025 P2P Tutoring Platform. All rights reserved.</p>
         <p><a href="Terms of Service.html" target="_blank">Terms of Service</a> | <a href="Privacy Policy.html" target="_blank">Privacy Policy</a></p>
     </footer>
-	<video id="bg-audio" autoplay loop muted playsinline style="display: none;">
-  <source src="logo.mp4" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+<audio id="bg-music" autoplay loop>
+  <source src="assets/music.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+
 
 <script>
-  const video = document.getElementById('bg-audio');
-  video.muted = false; // unmute to hear the audio
-  video.play().catch((e) => {
-    // autoplay fallback
+  const audio = document.getElementById('bg-music');
+  audio.volume = 0.2; // optional: lower the volume
+  audio.play().catch(() => {
     document.addEventListener('click', () => {
-      video.play();
+      audio.play();
     }, { once: true });
   });
 </script>

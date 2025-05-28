@@ -146,7 +146,7 @@
       <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
       <input type="text" id="message" placeholder="Type a message" oninput="notifyTyping()" onkeydown="if(event.key==='Enter') sendMessage()">
       <button class="icon-button" onclick="sendMessage()">➡️</button>
-      <button class="icon-button">🎤</button>
+      <button id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
     </div>
 
     <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
@@ -155,8 +155,29 @@
   </div>
 
   <script>
-    const socket = io("http://localhost:3000");
+    document.addEventListener('DOMContentLoaded', () => {
+    const emojiTrigger = document.querySelector('#emoji-button');
+    const messageInput = document.querySelector('#message');
 
+    const picker = new window.EmojiButton({
+      position: 'bottom-start',
+      autoHide: true,
+      showPreview: false,
+      showRecents: true,
+      theme: 'light',
+      zIndex: 10000
+    });
+
+    picker.on('emoji', emoji => {
+      messageInput.value += emoji.emoji;
+      messageInput.focus();
+    });
+
+    emojiTrigger.addEventListener('click', () => {
+      picker.togglePicker(emojiTrigger);
+    });
+  });
+    const socket = io("http://localhost:3000");
     const username = localStorage.getItem("username") || prompt("Enter your name:") || "User";
     const userClass = localStorage.getItem("signupClass") || prompt("Enter your class:") || "default";
     const room = `class-${userClass}`;
@@ -224,6 +245,37 @@ socket.on("loadMessages", (messages) => {
         li.textContent = file.name;
         list.appendChild(li);
       });
+    }
+      function startVoiceSearch() {
+      if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        micBtn.classList.add('listening');
+        recognition.start();
+
+        recognition.onresult = function(event) {
+          let interim = '';
+          for (let i = 0; i < event.results.length; ++i) {
+            interim += event.results[i][0].transcript;
+          }
+          input.value = interim;
+          input.dispatchEvent(new Event('input'));
+        };
+
+        recognition.onend = function() {
+          micBtn.classList.remove('listening');
+        };
+
+        recognition.onerror = function(event) {
+          micBtn.classList.remove('listening');
+          alert('Voice recognition error: ' + event.error);
+        };
+      } else {
+        alert('Speech recognition not supported in this browser.');
+      }
     }
   </script>
 </body>
