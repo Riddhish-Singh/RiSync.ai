@@ -157,6 +157,17 @@
   </div>
 
 <script>
+// 🔐 AUTH GUARD
+(function () {
+  const email = localStorage.getItem("existingEmail");
+  const password = localStorage.getItem("signupPassword");
+
+  if (!email || !password) {
+    // Not signed in → go to signup
+    window.location.href = "signup.html";
+  }
+})();
+
     const socket = new WebSocket("wss://your-cloud-run-websocket-url");
 
     socket.onmessage = async (event) => {

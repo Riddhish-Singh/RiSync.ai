@@ -170,7 +170,19 @@
     ← Back to Content
   </button>
 
-  <script>
+<script>
+// 🔐 AUTH GUARD
+(function () {
+  const email = localStorage.getItem("existingEmail");
+  const password = localStorage.getItem("signupPassword");
+
+  if (!email || !password) {
+    // Not signed in → go to signup
+    window.location.href = "signup.html";
+  }
+})();
+
+
     const translations = {
       hi: {
         title: "विषय",

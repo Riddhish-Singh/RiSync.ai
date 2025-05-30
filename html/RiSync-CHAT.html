@@ -154,7 +154,19 @@
     </button>
   </div>
 
-  <script>
+<script>
+// 🔐 AUTH GUARD
+(function () {
+  const email = localStorage.getItem("existingEmail");
+  const password = localStorage.getItem("signupPassword");
+
+  if (!email || !password) {
+    // Not signed in → go to signup
+    window.location.href = "signup.html";
+  }
+})();
+
+
     document.addEventListener('DOMContentLoaded', () => {
     const emojiTrigger = document.querySelector('#emoji-button');
     const messageInput = document.querySelector('#message');
