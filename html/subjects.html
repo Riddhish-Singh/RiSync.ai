@@ -161,7 +161,12 @@
     <div class="subject-card"><span class="emoji">🇮🇳</span> Hindi <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">🏃‍♂️</span> Physical Education <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <a href="sports.html" target="_blank" style="text-decoration: none; color: inherit;">
+  <div class="subject-card" onclick="">
+    <span class="emoji">🏃‍♂️</span> Physical Education 
+    <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
+  </div>
+</a>
     <div class="subject-card"><span class="emoji">🎭</span> Creative Arts <span class="star" onclick="toggleFavorite(this)"></span></div>
   </div>
 
@@ -171,44 +176,45 @@
   </button>
 
 <script>
-// 🔐 AUTH GUARD
-(function () {
-  const email = localStorage.getItem("existingEmail");
-  const password = localStorage.getItem("signupPassword");
 
-  if (!email || !password) {
-    // Not signed in → go to signup
-    window.location.href = "signup.html";
-  }
+
 })();
 
 
-    const translations = {
-      hi: {
-        title: "विषय",
-        searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
-        showFavorites: "पसंदीदा दिखाएँ ⭐",
-        dontShowFavorites: "पसंदीदा न दिखाएँ",
-        backButton: "← सामग्री पर वापस जाएँ"
-      },
-      fr: {
-        title: "Sujets",
-        searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
-        showFavorites: "Afficher les favoris ⭐",
-        dontShowFavorites: "Ne pas afficher les favoris",
-        backButton: "← Retour au contenu"
-      },
-      en: {
-        title: "Subjects",
-        searchPlaceholder: "Search for a subject or use your voice... 🎤",
-        showFavorites: "Show Favorites ⭐",
-        dontShowFavorites: "Don't Show Favorites",
-        backButton: "← Back to Content"
-      }
-    };
+const translations = {
+  hi: {
+    title: "विषय",
+    searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
+    showFavorites: "पसंदीदा दिखाएँ ⭐",
+    dontShowFavorites: "पसंदीदा न दिखाएँ",
+    backButton: "← सामग्री पर वापस जाएँ"
+  },
+  fr: {
+    title: "Sujets",
+    searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
+    showFavorites: "Afficher les favoris ⭐",
+    dontShowFavorites: "Ne pas afficher les favoris",
+    backButton: "← Retour au contenu"
+  },
+  en: {
+    title: "Subjects",
+    searchPlaceholder: "Search for a subject or use your voice... 🎤",
+    showFavorites: "Show Favorites ⭐",
+    dontShowFavorites: "Don't Show Favorites",
+    backButton: "← Back to Content"
+  }
+};
 
-    const preferredLang = localStorage.getItem("preferredLanguage") || "en";
-    const dict = translations[preferredLang];
+// Safe language resolution with fallback to English
+const preferredLang = localStorage.getItem("preferredLanguage") || "en";
+const dict = translations[preferredLang] || translations["en"];
+
+// Example usage
+document.querySelector('[data-i18n="title"]').textContent = dict.title;
+document.querySelector('[data-i18n="searchPlaceholder"]').setAttribute("placeholder", dict.searchPlaceholder);
+document.querySelector('[data-i18n="showFavorites"]').textContent = dict.showFavorites;
+document.querySelector('[data-i18n="dontShowFavorites"]').textContent = dict.dontShowFavorites;
+document.querySelector('[data-i18n="backButton"]').textContent = dict.backButton;
 
     document.getElementById("pageTitle").textContent = dict.title;
     document.getElementById("searchInput").placeholder = dict.searchPlaceholder;

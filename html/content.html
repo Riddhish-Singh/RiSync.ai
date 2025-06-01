@@ -150,154 +150,162 @@
     </div>
   </div>
 
+  <!-- ✅ Corrected audio path -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="../assets/logo.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+  <button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
+
 <script>
-// 🔐 AUTH GUARD
-(function () {
-  const email = localStorage.getItem("existingEmail");
-  const password = localStorage.getItem("signupPassword");
+const translations = {
+  hi: { title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", subjects: "विषय", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।" },
+  fr: { title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", subjects: "Sujets", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer." },
+  en: { title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", subjects: "Subjects", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started." },
+  pu: { title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", subjects: "ਵਿਸ਼ੇ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।" }
+};
 
-  if (!email || !password) {
-    // Not signed in → go to signup
-    window.location.href = "signup.html";
-  }
-})();
-
-
-  const translations = {
-    hi: {
-      title: "RiSync",
-      tagline: "RiSync के साथ फिर से सिंक करें",
-      chat: "RiSync चैट",
-      schedule: "बैठक शेड्यूल करें",
-      calendar: "कैलेंडर",
-      database: "डेटाबेस",
-      chatbot: "चैट बोट",
-      subjects: "विषय",
-      welcome: "RiSync में आपका स्वागत है",
-      instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।"
-    },
-    fr: {
-      title: "RiSync",
-      tagline: "Resynchronisez avec RiSync",
-      chat: "Chat RiSync",
-      schedule: "Planifier une réunion",
-      calendar: "Calendrier",
-      database: "Base de données",
-      chatbot: "Chat Bot",
-      subjects: "Sujets",
-      welcome: "Bienvenue à RiSync",
-      instruction: "Sélectionnez une option dans le menu de gauche pour commencer."
-    },
-    en: {
-      title: "RiSync",
-      tagline: "Let's Re Sync With RiSync",
-      chat: "RiSync Chat",
-      schedule: "Schedule Meeting",
-      calendar: "Calendar",
-      database: "Database",
-      chatbot: "Chat Bot",
-      subjects: "Subjects",
-      welcome: "Welcome to RiSync",
-      instruction: "Select an option from the left menu to get started."
-    }
-  };
-
-  function applyLanguage(lang) {
-    const dict = translations[lang];
-    if (!dict) return;
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key = el.getAttribute('data-i18n');
-      if (dict[key]) el.textContent = dict[key];
-    });
-  }
-
-  const languageSelector = document.getElementById("languageSelector");
-  const savedLang = localStorage.getItem("preferredLanguage");
-  const availableLangs = { en: "English", hi: "Hindi", fr: "French" };
-
-  for (const [code, name] of Object.entries(availableLangs)) {
-    const opt = document.createElement("option");
-    opt.value = code;
-    opt.textContent = name;
-    languageSelector.appendChild(opt);
-  }
-
-  if (savedLang) {
-    languageSelector.value = savedLang;
-    applyLanguage(savedLang);
-  } else {
-    applyLanguage('en');
-  }
-
-  languageSelector.addEventListener("change", () => {
-    const selected = languageSelector.value;
-    localStorage.setItem("preferredLanguage", selected);
-    applyLanguage(selected);
+function applyLanguage(lang) {
+  const dict = translations[lang];
+  if (!dict) return;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
   });
-
-  // Profile logic
-  window.addEventListener("load", function () {
-    const savedImage = localStorage.getItem("profileImage");
-    if (savedImage) {
-      document.getElementById("profileIcon").src = savedImage;
-    }
-  });
-
-  document.getElementById("profileIcon").addEventListener("click", function () {
-    document.getElementById("profileUpload").click();
-  });
-
-  document.getElementById("profileUpload").addEventListener("change", function (event) {
-    var file = event.target.files[0];
-    if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-      var reader = new FileReader();
-      reader.onload = function (e) {
-        const imageSrc = e.target.result;
-        document.getElementById("profileIcon").src = imageSrc;
-        localStorage.setItem("profileImage", imageSrc);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      alert("Please upload a .png or .jpg image file.");
-    }
-  });
-
-  function toggleSettings() {
-    var menu = document.getElementById("settingsMenu");
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  }
-
-function logout() {
-  // Clear all relevant localStorage data
-  localStorage.removeItem("preferredLanguage");
-  localStorage.removeItem("profileImage");
-  localStorage.removeItem("username");
-  localStorage.removeItem("signupClass");
-  localStorage.removeItem("existingEmail");
-  localStorage.removeItem("signupPassword");
-  localStorage.removeItem("darkMode");
-  localStorage.removeItem("users");
-
-  window.location.href = "../index.html"; 
 }
 
-  function navigateTo(page) {
-    window.open(page, "_blank");
+const languageSelector = document.getElementById("languageSelector");
+const savedLang = localStorage.getItem("preferredLanguage");
+const availableLangs = { en: "English", hi: "Hindi", fr: "French", pu: "Punjabi" };
+
+for (const [code, name] of Object.entries(availableLangs)) {
+  const opt = document.createElement("option");
+  opt.value = code;
+  opt.textContent = name;
+  languageSelector.appendChild(opt);
+}
+if (savedLang) {
+  languageSelector.value = savedLang;
+  applyLanguage(savedLang);
+} else {
+  applyLanguage('en');
+}
+languageSelector.addEventListener("change", () => {
+  const selected = languageSelector.value;
+  localStorage.setItem("preferredLanguage", selected);
+  applyLanguage(selected);
+});
+
+window.addEventListener("load", function () {
+  const savedImage = localStorage.getItem("profileImage");
+  if (savedImage) {
+    document.getElementById("profileIcon").src = savedImage;
+  }
+});
+document.getElementById("profileIcon").addEventListener("click", function () {
+  document.getElementById("profileUpload").click();
+});
+document.getElementById("profileUpload").addEventListener("change", function (event) {
+  var file = event.target.files[0];
+  if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+    var reader = new FileReader();
+    reader.onload = function (e) {
+      const imageSrc = e.target.result;
+      document.getElementById("profileIcon").src = imageSrc;
+      localStorage.setItem("profileImage", imageSrc);
+    };
+    reader.readAsDataURL(file);
+  } else {
+    alert("Please upload a .png or .jpg image file.");
+  }
+});
+function toggleSettings() {
+  var menu = document.getElementById("settingsMenu");
+  menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+function logout() {
+  localStorage.clear();
+  window.location.href = "../index.html"; 
+}
+function navigateTo(page) {
+  window.open(page, "_blank");
+}
+document.addEventListener("click", function (event) {
+  var settingsMenu = document.getElementById("settingsMenu");
+  var logoutButton = document.getElementById("logoutButton");
+  if (
+    settingsMenu.style.display === "block" &&
+    event.target !== logoutButton &&
+    event.target !== settingsMenu &&
+    event.target !== document.querySelector(".settings-icon")
+  ) {
+    logoutButton.style.display = "block";
+    settingsMenu.style.display = "none";
+  }
+});
+
+// 🎵 Background Music Controls
+const audio = document.getElementById('bg-music');
+const button = document.getElementById('music-btn');
+let hasInteracted = false;
+
+function toggleMusic() {
+  if (!hasInteracted) {
+    audio.volume = 0.5;
+    audio.play().then(() => {
+      hasInteracted = true;
+      updateIcon();
+    }).catch(err => {
+      console.warn("Autoplay blocked:", err);
+    });
+  } else {
+    if (audio.paused) {
+      audio.play();
+    } else {
+      audio.pause();
+    }
+  }
+  updateIcon();
+}
+
+function updateIcon() {
+  if (!button) return;
+  button.textContent = audio.paused ? '🔇' : '🔊';
+}
+
+document.addEventListener('click', () => {
+  if (!hasInteracted) {
+    toggleMusic();
+  }
+}, { once: true });
+
+audio.onplay = updateIcon;
+audio.onpause = updateIcon;
+</script>
+
+<style>
+  #music-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #004aad;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
   }
 
-  document.addEventListener("click", function (event) {
-    var settingsMenu = document.getElementById("settingsMenu");
-    var logoutButton = document.getElementById("logoutButton");
-    if (
-      settingsMenu.style.display === "block" &&
-      event.target !== logoutButton &&
-      event.target !== settingsMenu &&
-      event.target !== document.querySelector(".settings-icon")
-    ) {
-      logoutButton.style.display = "block";
-      settingsMenu.style.display = "none";
-    }
-  });
-</script>
+  #music-btn:hover {
+    background-color: #f28b30;
+  }
+</style>
 </body>
 </html>

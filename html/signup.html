@@ -165,37 +165,38 @@
     <button type="button" class="go-back-button" onclick="window.open('../index.html', '_blank')">GO BACK TO THE MAIN PAGE</button>
   </div>
 
-  <script>
-    function togglePassword() {
-      const passwordField = document.getElementById("password");
-      passwordField.type = passwordField.type === "password" ? "text" : "password";
-    }
+<script>
+  function togglePassword() {
+    const passwordField = document.getElementById("password");
+    passwordField.type = passwordField.type === "password" ? "text" : "password";
+  }
 
-    function saveUser() {
-      const fullname = document.getElementById("fullname").value;
-      const branch = document.getElementById("branch").value;
-      const userClass = document.getElementById("class").value;
-      const email = document.getElementById("email").value.toLowerCase();
-      const password = document.getElementById("password").value;
+  function saveUser() {
+    const fullname = document.getElementById("fullname").value;
+    const branch = document.getElementById("branch").value;
+    const userClass = document.getElementById("class").value;
+    const email = document.getElementById("email").value.toLowerCase();
+    const password = document.getElementById("password").value;
 
-      if (fullname && branch && userClass && email && password) {
-        let users = JSON.parse(localStorage.getItem("users")) || [];
+    if (fullname && branch && userClass && email && password) {
+      let users = JSON.parse(localStorage.getItem("users")) || [];
 
-        const userExists = users.some(user => user.email === email);
-        if (userExists) {
-          alert("Account already exists from this email");
-          return;
-        }
-
-        users.push({ fullname, branch, class: userClass, email, password });
-        localStorage.setItem("users", JSON.stringify(users));
-
-        alert("Account created successfully!");
-        window.open("content.html", "_blank");
-      } else {
-        alert("Please fill in all fields.");
+      const userExists = users.some(user => user.email === email);
+      if (userExists) {
+        alert("Account already exists from this email");
+        return;
       }
+
+      users.push({ fullname, branch, class: userClass, email, password });
+      localStorage.setItem("users", JSON.stringify(users));
+      localStorage.setItem("currentUserEmail", email);
+
+      alert("Account created successfully!");
+      window.open("content.html", "_blank");
+    } else {
+      alert("Please fill in all fields.");
     }
-  </script>
+  }
+</script>
 </body>
 </html>

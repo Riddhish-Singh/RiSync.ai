@@ -4,9 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RiSync Chat</title>
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <!-- Removed Socket.IO script since we won't use backend -->
+  <!-- <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> -->
   <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
   <style>
+    /* ... same styles as before ... */
     body {
       font-family: Arial, sans-serif;
       background-color: #f0f0f0;
@@ -76,7 +78,7 @@
       background: #ECE5DD;
       padding: 10px;
     }
-    #input-container input {
+    #input-container input[type="text"] {
       flex-grow: 1;
       padding: 10px;
       border-radius: 20px;
@@ -141,12 +143,13 @@
     <ul id="fileList"></ul>
 
     <div id="input-container">
-      <button class="icon-button">😊</button>
+      <!-- Added missing id for emoji button -->
+      <button class="icon-button" id="emoji-button">😊</button>
       <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
       <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
       <input type="text" id="message" placeholder="Type a message" oninput="notifyTyping()" onkeydown="if(event.key==='Enter') sendMessage()">
       <button class="icon-button" onclick="sendMessage()">➡️</button>
-      <button id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
+      <button class="icon-button" id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
     </div>
 
     <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
@@ -157,8 +160,8 @@
 <script>
 // 🔐 AUTH GUARD
 (function () {
-  const email = localStorage.getItem("existingEmail");
-  const password = localStorage.getItem("signupPassword");
+localStorage.setItem("existingEmail", userEmail);
+localStorage.setItem("signupPassword", userPassword);
 
   if (!email || !password) {
     // Not signed in → go to signup
@@ -166,129 +169,118 @@
   }
 })();
 
+const username = localStorage.getItem("username") || prompt("Enter your name:") || "User";
+const userClass = localStorage.getItem("signupClass") || prompt("Enter your class:") || "default";
 
-    document.addEventListener('DOMContentLoaded', () => {
-    const emojiTrigger = document.querySelector('#emoji-button');
-    const messageInput = document.querySelector('#message');
+localStorage.setItem("username", username);
+localStorage.setItem("signupClass", userClass);
 
-    const picker = new window.EmojiButton({
-      position: 'bottom-start',
-      autoHide: true,
-      showPreview: false,
-      showRecents: true,
-      theme: 'light',
-      zIndex: 10000
-    });
+const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
 
-    picker.on('emoji', emoji => {
-      messageInput.value += emoji.emoji;
-      messageInput.focus();
-    });
+document.getElementById("classDisplay").innerText = `Class ${userClass}`;
 
-    emojiTrigger.addEventListener('click', () => {
-      picker.togglePicker(emojiTrigger);
-    });
-  });
-    const socket = io("http://localhost:3000");
-    const username = localStorage.getItem("username") || prompt("Enter your name:") || "User";
-    const userClass = localStorage.getItem("signupClass") || prompt("Enter your class:") || "default";
-    const room = `class-${userClass}`;
+// ====== LOCALSTORAGE-BASED CHAT LOGIC ======
 
-    localStorage.setItem("username", username);
-    localStorage.setItem("signupClass", userClass);
+// Retrieve saved messages or initialize empty array
+let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 
-    const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
-
-    document.getElementById("classDisplay").innerText = `Class ${userClass}`;
-
-    socket.emit("joinRoom", { username, room });
-// 🧠 Load previous messages when joining room
-socket.on("loadMessages", (messages) => {
+// Append messages on load to DOM
+window.addEventListener('DOMContentLoaded', () => {
   messages.forEach(msg => {
-    const type = msg.username === username ? 'sent' : 'received';
-    appendMessage(msg.username, msg.message, type);
+    const type = msg.user === username ? 'sent' : 'received';
+    appendMessage(msg.user, msg.text, type);
   });
 });
 
+// Send message and save in localStorage
+function sendMessage() {
+  const messageInput = document.getElementById("message");
+  const message = messageInput.value.trim();
+  if (message) {
+    const msg = { user: username, text: message };
+    messages.push(msg);
+    localStorage.setItem("chatMessages", JSON.stringify(messages));
+    appendMessage(msg.user, msg.text, 'sent');
+    messageInput.value = "";
+  }
+}
 
-    function sendMessage() {
-      const messageInput = document.getElementById("message");
-      const message = messageInput.value.trim();
-      if (message) {
-        socket.emit("message", { username, message, room });
-        appendMessage(username, message, 'sent');
-        messageInput.value = "";
+// Append message to the messages container
+function appendMessage(user, message, type) {
+  const messagesContainer = document.getElementById("messages");
+  const messageElement = document.createElement("div");
+  messageElement.classList.add("message", type);
+  const isCurrentUser = user === username;
+  const imageSrc = isCurrentUser ? profileImage : "../assets/logo.png";
+
+  messageElement.innerHTML = `
+    <img src="${imageSrc}" class="profile-img" alt="profile image">
+    <div><strong>${user}:</strong> ${message}</div>
+  `;
+
+  messagesContainer.appendChild(messageElement);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+}
+
+// Placeholder for typing notification
+function notifyTyping() {
+  // Future enhancement: Implement typing status with localStorage events or broadcast channel
+}
+
+// File input handler
+function handleFileSelection() {
+  const input = document.getElementById("fileInput");
+  const list = document.getElementById("fileList");
+  list.innerHTML = "";
+  Array.from(input.files).forEach(file => {
+    const li = document.createElement("li");
+    li.className = "file-item";
+    li.textContent = file.name;
+    list.appendChild(li);
+  });
+}
+
+// Voice input logic with fixed variable references
+function startVoiceSearch() {
+  const micBtn = document.getElementById("microphoneBtn");
+  const input = document.getElementById("message");
+
+  if ('webkitSpeechRecognition' in window) {
+    const recognition = new webkitSpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    micBtn.classList.add('listening');
+    recognition.start();
+
+    recognition.onresult = function(event) {
+      let interim = '';
+      for (let i = 0; i < event.results.length; ++i) {
+        interim += event.results[i][0].transcript;
       }
-    }
+      input.value = interim;
+      input.dispatchEvent(new Event('input'));
+    };
 
-    function appendMessage(user, message, type) {
-      const messagesContainer = document.getElementById("messages");
-      const messageElement = document.createElement("div");
-      messageElement.classList.add("message", type);
-      const isCurrentUser = user === username;
-      const imageSrc = isCurrentUser ? profileImage : "../assets/logo.png";
+    recognition.onend = function() {
+      micBtn.classList.remove('listening');
+    };
 
-      messageElement.innerHTML = `
-        <img src="${imageSrc}" class="profile-img">
-        <div><strong>${user}:</strong> ${message}</div>
-      `;
+    recognition.onerror = function(event) {
+      micBtn.classList.remove('listening');
+      alert('Voice recognition error: ' + event.error);
+    };
+  } else {
+    alert('Speech recognition not supported in this browser.');
+  }
+}
 
-      messagesContainer.appendChild(messageElement);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+// ======= SOCKET.IO CODE REMOVED / COMMENTED OUT =======
+// const socket = io("http://localhost:3000");
+// socket.emit(...);
+// socket.on(...);
 
-    socket.on("message", (data) => {
-      if (data.username !== username || data.system) {
-        appendMessage(data.username, data.message, 'received');
-      }
-    });
-
-    function notifyTyping() {
-      // Optional enhancement
-    }
-
-    function handleFileSelection() {
-      const input = document.getElementById("fileInput");
-      const list = document.getElementById("fileList");
-      list.innerHTML = "";
-      Array.from(input.files).forEach(file => {
-        const li = document.createElement("li");
-        li.className = "file-item";
-        li.textContent = file.name;
-        list.appendChild(li);
-      });
-    }
-      function startVoiceSearch() {
-      if ('webkitSpeechRecognition' in window) {
-        const recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
-
-        micBtn.classList.add('listening');
-        recognition.start();
-
-        recognition.onresult = function(event) {
-          let interim = '';
-          for (let i = 0; i < event.results.length; ++i) {
-            interim += event.results[i][0].transcript;
-          }
-          input.value = interim;
-          input.dispatchEvent(new Event('input'));
-        };
-
-        recognition.onend = function() {
-          micBtn.classList.remove('listening');
-        };
-
-        recognition.onerror = function(event) {
-          micBtn.classList.remove('listening');
-          alert('Voice recognition error: ' + event.error);
-        };
-      } else {
-        alert('Speech recognition not supported in this browser.');
-      }
-    }
-  </script>
+</script>
 </body>
 </html>
