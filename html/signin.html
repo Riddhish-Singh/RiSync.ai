@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RiSync Sign-In</title>
   <style>
     body {
@@ -15,6 +15,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
     .container {
       background-color: rgba(0, 51, 102, 0.8);
@@ -43,19 +44,32 @@
       color: white;
       margin-bottom: 5px;
     }
-    input {
+    input[type="email"],
+    input[type="password"] {
       width: 100%;
       padding: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 5px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
       background-color: rgba(255, 255, 255, 0.2);
       color: white;
     }
-    input:focus {
+    input[type="email"]::placeholder,
+    input[type="password"]::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+    input[type="email"]:focus,
+    input[type="password"]:focus {
       outline: none;
       background-color: rgba(255, 255, 255, 0.3);
+    }
+    .error {
+      color: #FF6F61;
+      font-size: 12px;
+      margin-bottom: 10px;
+      text-align: left;
+      min-height: 18px;
     }
     .signin-button, .go-back-button {
       width: 100%;
@@ -71,6 +85,7 @@
       background-color: #FF5722;
       color: white;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-top: 10px;
     }
     .signin-button:hover {
       background-color: #002244;
@@ -79,7 +94,7 @@
     .go-back-button {
       background-color: #004AAD;
       color: white;
-      margin-top: 10px;
+      margin-top: 15px;
     }
     .go-back-button:hover {
       background-color: #003a87;
@@ -96,71 +111,90 @@
     .create-account a:hover {
       text-decoration: underline;
     }
+    #showPasswordContainer {
+      text-align: left;
+      margin-bottom: 15px;
+      color: white;
+      font-size: 14px;
+    }
+    #showPassword {
+      vertical-align: middle;
+      margin-right: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo">
-      <img src="../assets/logo.png" alt="RiSync Logo">
+      <img src="../assets/logo.png" alt="RiSync Logo" />
     </div>
     <h1>RiSync Sign-In</h1>
-    <form id="signinForm">
+    <form id="signinForm" onsubmit="event.preventDefault(); validateAndRedirect();">
       <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" placeholder="Enter your email" required>
+      <input type="email" id="email" name="email" placeholder="Enter your email" required />
       <div id="emailError" class="error"></div>
-      
+
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required />
       <div id="passwordError" class="error"></div>
-      <input type="checkbox" id="showPassword" onclick="togglePassword()"> Show Password
-      
-      <button type="button" class="signin-button" onclick="validateAndRedirect()">Sign In</button>
+
+      <div id="showPasswordContainer">
+        <input type="checkbox" id="showPassword" onclick="togglePassword()" />
+        <label for="showPassword" style="display: inline;">Show Password</label>
+      </div>
+
+      <button type="submit" class="signin-button">Sign In</button>
     </form>
+
     <div class="create-account">
       <p>New to RiSync? <a href="signup.html" target="_blank">Create your account</a>.</p>
     </div>
-    <button type="button" class="go-back-button" onclick="window.open('../index.html', '_blank')">GO BACK TO THE MAIN PAGE</button>
+
+    <button type="button" class="go-back-button" onclick="goBack()">GO BACK TO THE MAIN PAGE</button>
   </div>
 
   <script>
-            function togglePassword() {
-            const passwordField = document.getElementById("password");
-            passwordField.type = passwordField.type === "password" ? "text" : "password";
-        }
+    function togglePassword() {
+      const pwField = document.getElementById("password");
+      pwField.type = pwField.type === "password" ? "text" : "password";
+    }
 
-	function validateAndRedirect() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const validEmail = localStorage.getItem("existingEmail");
-      const validPassword = localStorage.getItem("signupPassword");
-
+    function validateAndRedirect() {
+      // Clear previous errors
       document.getElementById("emailError").textContent = "";
       document.getElementById("passwordError").textContent = "";
 
-      let isValid = true;
+      const emailInput = document.getElementById("email").value.trim().toLowerCase();
+      const passwordInput = document.getElementById("password").value;
 
-      if (!validEmail || !validPassword) {
+      const storedEmailRaw = localStorage.getItem("existingEmail");
+      const storedPassword = localStorage.getItem("signupPassword");
+
+      // Basic validation on storage presence
+      if (!storedEmailRaw || storedEmailRaw.trim() === "" || !storedPassword || storedPassword === "") {
         document.getElementById("emailError").textContent = "No account found. Please sign up first.";
         return;
       }
 
-      if (email !== validEmail) {
+      const storedEmail = storedEmailRaw.trim().toLowerCase();
+
+      if (emailInput !== storedEmail) {
         document.getElementById("emailError").textContent = "Invalid email address.";
-        isValid = false;
+        return;
       }
 
-      if (password !== validPassword) {
+      if (passwordInput !== storedPassword) {
         document.getElementById("passwordError").textContent = "Incorrect password.";
-        isValid = false;
+        return;
       }
 
-      if (isValid) {
-        openNewTab("content.html");
-      }
+      // Successful login → redirect in same tab for better UX
+      window.location.href = "content.html";
     }
 
-    function openNewTab(url) {
-      window.open(url, '_blank');
+    function goBack() {
+      window.location.href = "../index.html";
     }
   </script>
 </body>

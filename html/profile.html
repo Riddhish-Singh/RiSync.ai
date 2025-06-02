@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiSync Profile</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #f5f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .profile-card {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      padding: 30px;
+      width: 360px;
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .profile-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+    }
+    .logo {
+      width: 60px;
+      margin-bottom: 20px;
+    }
+    .profile-pic {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #f58220;
+      margin-bottom: 15px;
+    }
+    .username {
+      font-size: 22px;
+      font-weight: 600;
+      color: #333;
+    }
+    .details {
+      text-align: left;
+      margin-top: 20px;
+    }
+    .details p {
+      margin: 8px 0;
+      font-size: 15px;
+      color: #555;
+    }
+    .details span {
+      font-weight: 600;
+      color: #222;
+    }
+    .back-btn {
+      margin-top: 25px;
+      padding: 12px 20px;
+      background-color: #f58220;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .back-btn:hover {
+      background-color: #d96d1a;
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+    <img src="../assets/logo.png" alt="RiSync Logo" class="logo">
+    <img src="../assets/user-icon.png" id="profileImage" class="profile-pic" alt="Profile Picture">
+    <div class="username" id="profileName">Loading...</div>
+    <div class="details">
+      <p><span>Branch:</span> <span id="profileBranch"></span></p>
+      <p><span>Class:</span> <span id="profileClass"></span></p>
+      <p><span>Email:</span> <span id="profileEmail"></span></p>
+    </div>
+    <button class="back-btn" onclick="window.location.href='content.html'">Back to Main Page</button>
+  </div>
+
+  <script>
+    // Load current user
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const currentUserEmail = localStorage.getItem("currentUserEmail");
+    const currentUser = users.find(user => user.email === currentUserEmail);
+
+    if (currentUser) {
+      document.getElementById("profileName").textContent = currentUser.fullname;
+      document.getElementById("profileBranch").textContent = currentUser.branch;
+      document.getElementById("profileClass").textContent = currentUser.class;
+      document.getElementById("profileEmail").textContent = currentUser.email;
+    } else {
+      alert("No user is currently logged in.");
+      window.location.href = "signup.html";
+    }
+
+    // Load profile image
+    const savedImage = localStorage.getItem("profileImage");
+    if (savedImage) {
+      document.getElementById("profileImage").src = savedImage;
+    }
+  </script>
+</body>
+</html>

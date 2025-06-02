@@ -130,9 +130,11 @@
       <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
       <img src="../assets/user-icon.png" alt="Profile" class="profile-icon" id="profileIcon" style="width: 70px; height: 70px;" />
       <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
-      <div class="settings-menu" id="settingsMenu">
-        <button id="logoutButton" onclick="logout()">Log Out</button>
-      </div>
+<div class="settings-menu" id="settingsMenu">
+  <button onclick="openProfilePage()">Profile</button>
+  <button id="logoutButton" onclick="logout()">Log Out</button>
+</div>
+
     </div>
   </div>
   <div class="container">
@@ -158,6 +160,10 @@
   <button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
 
 <script>
+function openProfilePage() {
+  window.open("profile.html", "_blank");
+}
+
 const translations = {
   hi: { title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", subjects: "विषय", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।" },
   fr: { title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", subjects: "Sujets", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer." },
