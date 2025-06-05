@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Real-time Wallet Payments</title>
+  <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+  <h2>Pay Instantly with GPay / Apple Pay / UPI</h2>
+  <div id="payment-request-button"></div>
+
+  <script>
+    const stripe = Stripe("pk_test_...your_publishable_key...");
+
+    // Create payment request with amount and currency
+    const paymentRequest = stripe.paymentRequest({
+      country: 'IN',
+      currency: 'inr',
+      total: {
+        label: 'Demo Payment',
+        amount: 49900, // ₹499.00 in paise
+      },
+      requestPayerName: true,
+      requestPayerEmail: true,
+      requestPayerPhone: true,
+      // Enable UPI method as well
+      paymentMethodTypes: ['card', 'upi', 'paynow', 'google_pay', 'apple_pay'],
+    });
+
+    // Check if the Payment Request is available in this browser
+    paymentRequest.canMakePayment().then(function(result) {
+      if (result) {
+        // Mount the native wallet button (Apple Pay, GPay, etc.)
+        const prButton = stripe.elements().create('paymentRequestButton', {
+          paymentRequest,
+        });
+        prButton.mount('#payment-request-button');
+      } else {
+        document.getElementById('payment-request-button').style.display = 'none';
+        document.body.insertAdjacentHTML('beforeend', '<p>Your device/browser does not support these payment methods.</p>');
+      }
+    });
+
+    paymentRequest.on('paymentmethod', async (ev) => {
+      // Call your backend to create PaymentIntent
+      const response = await fetch('/create-payment-intent', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ amount: 49900 }),
+      });
+      const { clientSecret } = await response.json();
+
+      // Confirm the PaymentIntent without handling the next actions
+      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
+        clientSecret,
+        { payment_method: ev.paymentMethod.id },
+        { handleActions: false }
+      );
+
+      if (confirmError) {
+        ev.complete('fail');
+        console.error(confirmError.message);
+      } else {
+        ev.complete('success');
+        if (paymentIntent.status === "requires_action") {
+          // Handle next actions (e.g. 3D Secure)
+          const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
+          if (actionError) {
+            // Payment failed
+            console.error(actionError.message);
+          } else {
+            alert('Payment successful!');
+          }
+        } else {
+          alert('Payment successful!');
+        }
+      }
+    });
+  </script>
+</body>
+</html>
