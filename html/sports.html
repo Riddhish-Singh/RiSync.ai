@@ -229,20 +229,37 @@ body.dark-theme footer {
 <input type="text" id="searchInput" placeholder="Search events..." 
        style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 1rem; border-radius: 8px; border: none;" />
 
-<section class="event">
+<section class="event" id="basketball-section" style="position: relative; max-width: 900px; margin: auto;">
   <h3>🏀 Basketball</h3>
-  <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; margin-top:10px;">
-    <iframe 
-      src="	https://www.youtube.com/embed/6unK5AR1lSI?cc_load_policy=0" 
+
+  <div id="video-carousel" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-top: 10px;">
+    <!-- Arrows -->
+    <button id="prevBtn" aria-label="Previous Video" 
+      style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; padding: 8px 12px; cursor: pointer; border-radius: 50%; z-index: 10;">
+      &#8592;
+    </button>
+
+    <button id="nextBtn" aria-label="Next Video" 
+      style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; padding: 8px 12px; cursor: pointer; border-radius: 50%; z-index: 10;">
+      &#8594;
+    </button>
+
+    <!-- Iframe container -->
+    <iframe id="basketball-video" 
+      src="https://www.youtube.com/embed/6unK5AR1lSI?cc_load_policy=0" 
       frameborder="0" 
       allowfullscreen 
-      style="position:absolute; top:0; left:0; width:100%; height:100%;">
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
     </iframe>
   </div>
+
   <p><strong>Final Score:</strong> 78 - 44</p>
   <p><strong>Highlights:</strong> Riddhish delivered a buzzer-beater to secure the win after several lead changes.</p>
   <p><strong>Our Thoughts:</strong> The high-energy match showcased excellent teamwork and focus from Riddhish.</p>
 </section>
+
+
 
 <section class="event">
   <h3>🚴🏻‍♂️ Cycling</h3>
@@ -285,19 +302,37 @@ body.dark-theme footer {
       <p><strong>Our Thoughts:</strong> Fast-paced and thrilling, this match reflected their competitive spirit and skill.</p>
     </section>
 
-    <section class="event">
-      <h3>🧘 Yoga Session</h3>
-      <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; border-radius:8px; margin-top:10px;">
-        <iframe 
-          src="https://www.youtube.com/embed/vW7j0WtdkgM" 
-          frameborder="0" 
-          allowfullscreen 
-          style="position:absolute; top:0; left:0; width:100%; height:100%;">
-        </iframe>
-      </div>
-      <p><strong>Highlights:</strong> Riddhish led a calming session that enhanced concentration and flexibility.</p>
-      <p><strong>Our Thoughts:</strong> This session was a perfect blend of mindfulness and physical wellness.</p>
-    </section>
+<section class="event" id="yoga-section" style="position: relative; max-width: 900px; margin: 50px auto;">
+  <h3>🧘 Yoga</h3>
+
+  <div id="yoga-carousel" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; border-radius: 8px; margin-top: 10px;">
+    <!-- Arrows -->
+    <button id="prevYogaBtn" aria-label="Previous Video" 
+      style="position: absolute; top: 50%; left: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; padding: 8px 12px; cursor: pointer; border-radius: 50%; z-index: 10;">
+      &#8592;
+    </button>
+
+    <button id="nextYogaBtn" aria-label="Next Video" 
+      style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%); background: rgba(0,0,0,0.5); border: none; color: white; font-size: 2rem; padding: 8px 12px; cursor: pointer; border-radius: 50%; z-index: 10;">
+      &#8594;
+    </button>
+
+    <!-- Iframe container -->
+    <iframe id="yoga-video" 
+      src="https://www.youtube.com/embed/vW7j0WtdkgM?cc_load_policy=0" 
+      frameborder="0" 
+      allowfullscreen 
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+      style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+    </iframe>
+  </div>
+
+  <p><strong>Yoga Benefits:</strong> Enhances flexibility, focus, and physical balance.</p>
+  <p><strong>Highlights:</strong> Includes breathing exercises, guided posture flows, and calming sequences suitable for students.</p>
+</section>
+
+
+
 
     <section class="event">
       <h3>♟️ Chess Tournament</h3>
@@ -442,5 +477,80 @@ body.dark-theme footer {
       }
     }
   </script>
+<script>
+  (function() {
+    const videoIds = [
+      "6unK5AR1lSI",
+      "xvFZjo5PgG0",  // add your basketball video IDs here
+      "dQw4w9WgXcQ"
+    ];
+
+    let currentIndex = 0;
+    const iframe = document.getElementById('basketball-video');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    function loadVideo(index) {
+      const videoId = videoIds[index];
+      iframe.src = `https://www.youtube.com/embed/${videoId}?cc_load_policy=0&autoplay=1&rel=0`;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + videoIds.length) % videoIds.length;
+      loadVideo(currentIndex);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % videoIds.length;
+      loadVideo(currentIndex);
+    });
+
+    // Optional: arrow key navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === "ArrowLeft") {
+        prevBtn.click();
+      } else if (e.key === "ArrowRight") {
+        nextBtn.click();
+      }
+    });
+  })();
+</script>
+<script>
+  (function() {
+    const yogaVideos = [
+      "vW7j0WtdkgM",
+      "eDw07Ex73Ck",
+      "Qn2fVmJ6mcc"
+    ];
+
+    let currentYogaIndex = 0;
+    const yogaIframe = document.getElementById('yoga-video');
+    const prevYogaBtn = document.getElementById('prevYogaBtn');
+    const nextYogaBtn = document.getElementById('nextYogaBtn');
+
+    function loadYogaVideo(index) {
+      const videoId = yogaVideos[index];
+      yogaIframe.src = `https://www.youtube.com/embed/${videoId}?cc_load_policy=0&autoplay=1&rel=0`;
+    }
+
+    prevYogaBtn.addEventListener('click', () => {
+      currentYogaIndex = (currentYogaIndex - 1 + yogaVideos.length) % yogaVideos.length;
+      loadYogaVideo(currentYogaIndex);
+    });
+
+    nextYogaBtn.addEventListener('click', () => {
+      currentYogaIndex = (currentYogaIndex + 1) % yogaVideos.length;
+      loadYogaVideo(currentYogaIndex);
+    });
+
+    // Optional: arrow key support for yoga too
+    document.addEventListener('keydown', (e) => {
+      if (document.activeElement.tagName !== 'INPUT') {
+        if (e.key === "ArrowLeft") prevYogaBtn.click();
+        else if (e.key === "ArrowRight") nextYogaBtn.click();
+      }
+    });
+  })();
+</script>
 </body>
 </html>
