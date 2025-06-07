@@ -2,80 +2,105 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Real-time Wallet Payments</title>
-  <script src="https://js.stripe.com/v3/"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RiSync Plans</title>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-  <h2>Pay Instantly with GPay / Apple Pay / UPI</h2>
-  <div id="payment-request-button"></div>
+<body class="bg-gray-50 font-sans antialiased">
 
+  <!-- Logo Section -->
+  <div class="text-center py-4">
+    <img src="../assets/logo.png" alt="RiSync Logo" class="mx-auto w-24" />
+  </div>
+
+  <!-- Pricing Section -->
+  <section class="max-w-7xl mx-auto px-4 py-10">
+    <div class="text-center mb-12">
+      <h2 class="text-4xl font-bold text-blue-800 mb-3">Flexible Pricing for Every Learner</h2>
+      <p class="text-gray-600 text-lg">Powerful AI + Peer Learning. Empowering peer-powered learning, guided by AI.</p>
+    </div>
+
+    <div class="grid gap-8 md:grid-cols-4">
+      
+      <!-- Free Trial Plan -->
+      <div id="free-trial-box" class="bg-white border rounded-2xl shadow-md p-6 flex flex-col hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-blue-700">Free Trial</h3>
+        <p class="text-lg font-medium text-gray-600 mt-1">7 days · No card needed</p>
+        <ul class="mt-6 text-sm text-gray-700 space-y-2 mb-8">
+          <li>✔ 150 AI chats (one-time)</li>
+          <li>✔ 2 peer sessions (one-time)</li>
+          <li>✔ Basic AI Help</li>
+          <li>❌ No certificate</li>
+        </ul>
+        <button onclick="window.open('signin.html', '_blank')" class="mt-auto bg-blue-100 text-blue-700 font-semibold py-2 rounded hover:bg-blue-200 transition">
+          Start Trial
+        </button>
+      </div>
+
+      <!-- Basic Plan -->
+      <div class="bg-white border-2 border-blue-500 rounded-2xl shadow-lg p-6 flex flex-col hover:shadow-xl transition">
+        <h3 class="text-xl font-semibold text-blue-700">Basic</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">₹200<span class="text-base font-normal text-gray-500"> /month</span></p>
+        <ul class="mt-6 text-sm text-gray-700 space-y-2 mb-8">
+          <li>✔ 600 AI chats/month</li>
+          <li>✔ 5 peer sessions/month</li>
+          <li>✔ Smart AI Assist for doubt-solving & revision tips</li>
+          <li>✔ 📄 Certificate of Participation</li>
+        </ul>
+        <button onclick="window.open('price.html', '_blank')" class="mt-auto bg-blue-600 text-white font-semibold py-2 rounded hover:bg-blue-700 transition">
+          Choose Basic
+        </button>
+      </div>
+
+      <!-- Advanced Plan -->
+      <div class="bg-white border border-orange-400 rounded-2xl shadow-md p-6 flex flex-col hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-orange-600">Advanced</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">₹350<span class="text-base font-normal text-gray-500"> /month</span></p>
+        <ul class="mt-6 text-sm text-gray-700 space-y-2 mb-8">
+          <li>✔ 1200 AI chats/month</li>
+          <li>✔ 10 peer sessions/month</li>
+          <li>✔ Access to AI Practice Sheets</li>
+          <li>✔ 🏅 Certificate of Achievement</li>
+        </ul>
+        <button onclick="window.open('price.html', '_blank')" class="mt-auto bg-orange-500 text-white font-semibold py-2 rounded hover:bg-orange-600 transition">
+          Choose Advanced
+        </button>
+      </div>
+
+      <!-- Pro Plan -->
+      <div class="bg-white border border-gray-700 rounded-2xl shadow-md p-6 flex flex-col hover:shadow-lg transition">
+        <h3 class="text-xl font-semibold text-gray-800">Pro</h3>
+        <p class="text-3xl font-bold text-gray-800 mt-2">₹500<span class="text-base font-normal text-gray-500"> /month</span></p>
+        <ul class="mt-6 text-sm text-gray-700 space-y-2 mb-8">
+          <li>✔ 2000 AI chats/month</li>
+          <li>✔ 15 peer sessions/month</li>
+          <li>✔ Early access to new features</li>
+          <li>✔ 🥇 Certificate of Excellence</li>
+        </ul>
+        <button onclick="window.open('price.html', '_blank')" class="mt-auto bg-gray-800 text-white font-semibold py-2 rounded hover:bg-gray-900 transition">
+          Go Pro
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- JavaScript for Trial Check -->
   <script>
-    const stripe = Stripe("pk_test_...your_publishable_key...");
+    const trialStart = localStorage.getItem("trialStartDate");
+    const trialBox = document.getElementById("free-trial-box");
 
-    // Create payment request with amount and currency
-    const paymentRequest = stripe.paymentRequest({
-      country: 'IN',
-      currency: 'inr',
-      total: {
-        label: 'Demo Payment',
-        amount: 49900, // ₹499.00 in paise
-      },
-      requestPayerName: true,
-      requestPayerEmail: true,
-      requestPayerPhone: true,
-      // Enable UPI method as well
-      paymentMethodTypes: ['card', 'upi', 'paynow', 'google_pay', 'apple_pay'],
-    });
+    if (trialStart) {
+      const trialStartDate = new Date(trialStart);
+      const now = new Date();
+      const diffInDays = (now - trialStartDate) / (1000 * 60 * 60 * 24);
 
-    // Check if the Payment Request is available in this browser
-    paymentRequest.canMakePayment().then(function(result) {
-      if (result) {
-        // Mount the native wallet button (Apple Pay, GPay, etc.)
-        const prButton = stripe.elements().create('paymentRequestButton', {
-          paymentRequest,
-        });
-        prButton.mount('#payment-request-button');
-      } else {
-        document.getElementById('payment-request-button').style.display = 'none';
-        document.body.insertAdjacentHTML('beforeend', '<p>Your device/browser does not support these payment methods.</p>');
+      // If trial expired, hide the trial plan
+      if (diffInDays > 7 && trialBox) {
+        trialBox.style.display = "none";
       }
-    });
-
-    paymentRequest.on('paymentmethod', async (ev) => {
-      // Call your backend to create PaymentIntent
-      const response = await fetch('/create-payment-intent', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ amount: 49900 }),
-      });
-      const { clientSecret } = await response.json();
-
-      // Confirm the PaymentIntent without handling the next actions
-      const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(
-        clientSecret,
-        { payment_method: ev.paymentMethod.id },
-        { handleActions: false }
-      );
-
-      if (confirmError) {
-        ev.complete('fail');
-        console.error(confirmError.message);
-      } else {
-        ev.complete('success');
-        if (paymentIntent.status === "requires_action") {
-          // Handle next actions (e.g. 3D Secure)
-          const { error: actionError } = await stripe.confirmCardPayment(clientSecret);
-          if (actionError) {
-            // Payment failed
-            console.error(actionError.message);
-          } else {
-            alert('Payment successful!');
-          }
-        } else {
-          alert('Payment successful!');
-        }
-      }
-    });
+    }
   </script>
+
 </body>
 </html>

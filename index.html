@@ -178,6 +178,40 @@
     #music-btn:hover {
       background-color: #f28b30;
     }
+.subject {
+  background-color: #f28b30;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  cursor: default; /* not clickable */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.subject:hover {
+  box-shadow: 0 0 12px rgba(242, 139, 48, 0.7); /* soft glow effect */
+}
+
+.classes {
+  background-color: #004aad;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  cursor: default; /* not clickable */
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.classes:hover {
+  box-shadow: 0 0 12px rgba(0, 74, 173, 0.7); /* soft glow effect */
+}
+
+
   </style>
 </head>
 <body>
@@ -195,29 +229,32 @@
   </nav>
 
   <main>
-    <section id="subjects">
-      <h2>Core Subjects</h2>
-      <div class="subject-grid">
-        <div class="subject">Math</div>
-        <div class="subject">Science</div>
-        <div class="subject">IT</div>
-        <div class="subject">Social Sciences</div>
-      </div>
-    </section>
+<!-- Replace your section from <section id="subjects"> to </section> and <section id="classes"> to </section> with this updated version -->
 
-    <section id="classes">
-      <h2>Classes Covered</h2>
-      <div class="subject-grid">
-        <div class="classes">1st</div>
-        <div class="classes">2nd</div>
-        <div class="classes">3rd</div>
-        <div class="classes">4th</div>
-        <div class="classes">5th</div>
-        <div class="classes">6th</div>
-        <div class="classes">7th</div>
-        <div class="classes">8th</div>
-      </div>
-    </section>
+<section id="subjects">
+  <h2>Core Subjects</h2>
+  <div class="subject-grid">
+    <div class="subject inactive">Math</div>
+    <div class="subject inactive">Science</div>
+    <div class="subject inactive">IT</div>
+    <div class="subject inactive">Social Sciences</div>
+  </div>
+</section>
+
+<section id="classes">
+  <h2>Classes Covered</h2>
+  <div class="subject-grid">
+    <div class="classes inactive">1st</div>
+    <div class="classes inactive">2nd</div>
+    <div class="classes inactive">3rd</div>
+    <div class="classes inactive">4th</div>
+    <div class="classes inactive">5th</div>
+    <div class="classes inactive">6th</div>
+    <div class="classes inactive">7th</div>
+    <div class="classes inactive">8th</div>
+  </div>
+</section>
+
 
     <section id="self-learning">
       <h2>Encouraging Self-Learning</h2>
