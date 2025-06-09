@@ -81,15 +81,14 @@
       color: grey;
       transition: color 0.3s;
     }
-    .favorite::before {
-      content: "\2605";
+    .favorite.star {
       color: gold;
     }
     .star::before {
-      content: "\2606";
+      content: "\2606"; /* empty star */
     }
     .favorite.star::before {
-      content: "\2605";
+      content: "\2605"; /* filled star */
     }
     #searchInput {
       width: 100%;
@@ -135,6 +134,20 @@
     #showFavoritesBtn:hover {
       background-color: #00337a;
     }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+	#factBox {
+  display: flex;
+  justify-content: center;  /* horizontal center */
+  align-items: center;      /* vertical center */
+  white-space: nowrap;
+  overflow: hidden;
+  animation: marquee-text 10s linear infinite;
+  height: 40px; /* or your preferred height */
+}
+
   </style>
 </head>
 <body>
@@ -154,20 +167,27 @@
   <button id="showFavoritesBtn" onclick="toggleFavoriteView()">Show Favorites ⭐</button>
 
   <div id="subjectList">
-    <div class="subject-card"><span class="emoji">🧮</span> Mathematics <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">🇮🇳</span> Hindi <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Mathematics"><span class="emoji">🧮</span> Mathematics <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Science"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Social Studies"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="English"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Hindi"><span class="emoji">🇮🇳</span> Hindi <span class="star" onclick="toggleFavorite(this)"></span></div>
+	<div class="subject-card" data-subject="Punjabi"><span class="emoji">🦁</span> Punjabi <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Computer Science"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
+    <div class="subject-card" data-subject="Art"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
     <a href="sports.html" target="_blank" style="text-decoration: none; color: inherit;">
-  <div class="subject-card" onclick="">
-    <span class="emoji">🏃‍♂️</span> Physical Education 
-    <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
-  </div>
-</a>
-    <div class="subject-card"><span class="emoji">🎭</span> Creative Arts <span class="star" onclick="toggleFavorite(this)"></span></div>
+      <div class="subject-card" data-subject="Physical Education">
+        <span class="emoji">🏃‍♂️</span> Physical Education
+        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
+      </div>
+    </a>
+    <a href="astronomy.html" target="_blank" style="text-decoration: none; color: inherit;">
+      <div class="subject-card" data-subject="Astronomy">
+        <span class="emoji">🔭</span> Astronomy
+        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
+      </div>
+    </a>
+    <div class="subject-card" data-subject="Creative Arts"><span class="emoji">🎭</span> Creative Arts <span class="star" onclick="toggleFavorite(this)"></span></div>
   </div>
 
   <div id="factBox"></div>
@@ -176,125 +196,153 @@
   </button>
 
 <script>
+  // Language translations (kept from your original)
+  const translations = {
+    hi: {
+      title: "विषय",
+      searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
+      showFavorites: "पसंदीदा दिखाएँ ⭐",
+      dontShowFavorites: "पसंदीदा न दिखाएँ",
+      backButton: "← सामग्री पर वापस जाएँ"
+    },
+    fr: {
+      title: "Sujets",
+      searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
+      showFavorites: "Afficher les favoris ⭐",
+      dontShowFavorites: "Ne pas afficher les favoris",
+      backButton: "← Retour au contenu"
+    },
+    en: {
+      title: "Subjects",
+      searchPlaceholder: "Search for a subject or use your voice... 🎤",
+      showFavorites: "Show Favorites ⭐",
+      dontShowFavorites: "Don't Show Favorites",
+      backButton: "← Back to Content"
+    }
+  };
 
+  // Setup translation
+  const preferredLang = localStorage.getItem("preferredLanguage") || "en";
+  const dict = translations[preferredLang] || translations["en"];
+  document.getElementById("pageTitle").textContent = dict.title;
+  document.getElementById("searchInput").placeholder = dict.searchPlaceholder;
+  document.getElementById("showFavoritesBtn").textContent = dict.showFavorites;
+  document.getElementById("backButton").textContent = dict.backButton;
 
-})();
+  // Dark mode toggle
+  const darkToggle = document.getElementById('darkModeToggle');
+  const body = document.body;
+  const input = document.getElementById('searchInput');
+  const cards = document.querySelectorAll('.subject-card');
+  const factBox = document.getElementById('factBox');
+  const showFavoritesBtn = document.getElementById('showFavoritesBtn');
+  const micBtn = document.getElementById('microphoneBtn');
+  let showingFavorites = false;
 
+  darkToggle.addEventListener('change', () => {
+    body.classList.toggle('dark-mode');
+  });
 
-const translations = {
-  hi: {
-    title: "विषय",
-    searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
-    showFavorites: "पसंदीदा दिखाएँ ⭐",
-    dontShowFavorites: "पसंदीदा न दिखाएँ",
-    backButton: "← सामग्री पर वापस जाएँ"
-  },
-  fr: {
-    title: "Sujets",
-    searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
-    showFavorites: "Afficher les favoris ⭐",
-    dontShowFavorites: "Ne pas afficher les favoris",
-    backButton: "← Retour au contenu"
-  },
-  en: {
-    title: "Subjects",
-    searchPlaceholder: "Search for a subject or use your voice... 🎤",
-    showFavorites: "Show Favorites ⭐",
-    dontShowFavorites: "Don't Show Favorites",
-    backButton: "← Back to Content"
+  // Search filter
+  input.addEventListener('input', () => {
+    const query = input.value.toLowerCase();
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.style.display = text.includes(query) ? 'flex' : 'none';
+    });
+  });
+
+  // Toggle favorite star and save to localStorage
+  function toggleFavorite(el) {
+    const subject = el.parentElement.getAttribute('data-subject');
+    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+    if (el.classList.contains("favorite")) {
+      el.classList.remove("favorite");
+      favorites = favorites.filter(item => item !== subject);
+    } else {
+      el.classList.add("favorite");
+      favorites.push(subject);
+    }
+
+    localStorage.setItem("favorites", JSON.stringify(favorites));
   }
-};
 
-// Safe language resolution with fallback to English
-const preferredLang = localStorage.getItem("preferredLanguage") || "en";
-const dict = translations[preferredLang] || translations["en"];
+  // Restore favorites from localStorage on load
+  function restoreFavorites() {
+    let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
 
-// Example usage
-document.querySelector('[data-i18n="title"]').textContent = dict.title;
-document.querySelector('[data-i18n="searchPlaceholder"]').setAttribute("placeholder", dict.searchPlaceholder);
-document.querySelector('[data-i18n="showFavorites"]').textContent = dict.showFavorites;
-document.querySelector('[data-i18n="dontShowFavorites"]').textContent = dict.dontShowFavorites;
-document.querySelector('[data-i18n="backButton"]').textContent = dict.backButton;
-
-    document.getElementById("pageTitle").textContent = dict.title;
-    document.getElementById("searchInput").placeholder = dict.searchPlaceholder;
-    document.getElementById("showFavoritesBtn").textContent = dict.showFavorites;
-    document.getElementById("backButton").textContent = dict.backButton;
-
-    const darkToggle = document.getElementById('darkModeToggle');
-    const body = document.body;
-    const input = document.getElementById('searchInput');
-    const cards = document.querySelectorAll('.subject-card');
-    const factBox = document.getElementById('factBox');
-    const showFavoritesBtn = document.getElementById('showFavoritesBtn');
-    const micBtn = document.getElementById('microphoneBtn');
-    let showingFavorites = false;
-
-    darkToggle.addEventListener('change', () => {
-      body.classList.toggle('dark-mode');
-    });
-
-    input.addEventListener('input', () => {
-      const query = input.value.toLowerCase();
-      cards.forEach(card => {
-        const text = card.textContent.toLowerCase();
-        card.style.display = text.includes(query) ? 'flex' : 'none';
-      });
-    });
-
-    function toggleFavorite(el) {
-      el.classList.toggle('favorite');
-    }
-
-    function toggleFavoriteView() {
-      showingFavorites = !showingFavorites;
-      showFavoritesBtn.textContent = showingFavorites ? dict.dontShowFavorites : dict.showFavorites;
-      cards.forEach(card => {
+    cards.forEach(card => {
+      const subject = card.getAttribute('data-subject');
+      if (storedFavorites.includes(subject)) {
         const star = card.querySelector('.star');
-        card.style.display = showingFavorites ? (star.classList.contains('favorite') ? 'flex' : 'none') : 'flex';
+        if (star) star.classList.add("favorite");
+      }
+    });
+  }
+
+  restoreFavorites();
+
+  // Show favorites toggle button
+  function toggleFavoriteView() {
+    showingFavorites = !showingFavorites;
+    if (showingFavorites) {
+      showFavoritesBtn.textContent = dict.dontShowFavorites;
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      cards.forEach(card => {
+        const subject = card.getAttribute('data-subject');
+        card.style.display = favorites.includes(subject) ? 'flex' : 'none';
+      });
+    } else {
+      showFavoritesBtn.textContent = dict.showFavorites;
+      cards.forEach(card => {
+        card.style.display = 'flex';
       });
     }
+  }
 
-    const facts = [
-      "Math was used to land on the moon! 🌕",
-      "Your body has more bacteria than cells. 🦠",
-      "Hindi is one of the oldest languages. 🕉️",
-      "Art helps boost memory and creativity. 🎨",
-      "Computer Science powers your games! 🕹️"
-    ];
-    factBox.textContent = facts[Math.floor(Math.random() * facts.length)];
+  // Random fact display
+  const facts = [
+    "Math was used to land on the moon! 🌕",
+    "Your body has more bacteria than cells. 🦠",
+    "Hindi is one of the oldest languages. 🕉️",
+    "Art helps boost memory and creativity. 🎨",
+    "Computer Science powers your games! 🕹️"
+  ];
+  factBox.textContent = facts[Math.floor(Math.random() * facts.length)];
 
-    function startVoiceSearch() {
-      if ('webkitSpeechRecognition' in window) {
-        const recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
-        recognition.lang = 'en-US';
+  // Voice search functionality
+  function startVoiceSearch() {
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
-        micBtn.classList.add('listening');
-        recognition.start();
+      micBtn.classList.add('listening');
+      recognition.start();
 
-        recognition.onresult = function(event) {
-          let interim = '';
-          for (let i = 0; i < event.results.length; ++i) {
-            interim += event.results[i][0].transcript;
-          }
-          input.value = interim;
-          input.dispatchEvent(new Event('input'));
-        };
+      recognition.onresult = function(event) {
+        let interim = '';
+        for (let i = 0; i < event.results.length; ++i) {
+          interim += event.results[i][0].transcript;
+        }
+        input.value = interim;
+        input.dispatchEvent(new Event('input'));
+      };
 
-        recognition.onend = function() {
-          micBtn.classList.remove('listening');
-        };
+      recognition.onend = function() {
+        micBtn.classList.remove('listening');
+      };
 
-        recognition.onerror = function(event) {
-          micBtn.classList.remove('listening');
-          alert('Voice recognition error: ' + event.error);
-        };
-      } else {
-        alert('Speech recognition not supported in this browser.');
-      }
+      recognition.onerror = function(event) {
+        micBtn.classList.remove('listening');
+        alert('Voice recognition error: ' + event.error);
+      };
+    } else {
+      alert('Speech recognition not supported in this browser.');
     }
-  </script>
+  }
+</script>
 </body>
 </html>
