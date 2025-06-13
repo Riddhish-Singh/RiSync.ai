@@ -54,6 +54,7 @@
       background: transparent;
       border: none;
       color: white;
+      margin-left: 10px;
     }
     .chat-messages {
       flex: 1;
@@ -119,18 +120,26 @@
         font-size: 14px;
       }
     }
+    body.dark-mode .message-content a {
+      color: #ffffff;
+    }
+    body.light-mode .message-content a {
+      color: #000000;
+    }
   </style>
 </head>
 <body>
   <div class="chat-container">
     <div class="chat-header">
-      <img src="../assets/logo.png" alt="Logo">
-      RiSync GPT
-      <button class="chat-settings" id="mode-toggle" onclick="toggleSettings()">Dark Mode🌙</button>
+      <img src="../assets/logo.png" alt="RiSync Logo" />
+      <div>
+        <button class="chat-settings" onclick="toggleSettings()">🌙 Dark Mode</button>
+        <button class="chat-settings" onclick="clearChat()">🧹 Clear Chat</button>
+      </div>
     </div>
     <div class="chat-messages" id="chat-messages"></div>
     <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Type a message..." onkeypress="handleKeyPress(event)">
+      <input type="text" id="user-input" placeholder="Ask anything..." onkeypress="handleKeyPress(event)">
       <button onclick="sendMessage()">Send</button>
     </div>
     <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
@@ -145,32 +154,34 @@
       if (!text) return;
       input.value = "";
       displayMessage("You", text);
+      saveContext("Q: " + text);
       showTyping();
-      setTimeout(() => displayMessage("AI", getBotResponse(text)), 1000); // Simulated delay
+      setTimeout(() => getBotResponse(text), 1000);
     }
 
-    function displayMessage(sender, text) {
+    function displayMessage(sender, text, isHTML = false) {
       const chat = document.getElementById("chat-messages");
       const msg = document.createElement("div");
       msg.classList.add("message", sender === "You" ? "user" : "bot");
 
       const profileImage = sender === "You"
-        ? (localStorage.getItem("profileImage") || "../assets/user-icon.png")
-        : "../assets/logo.png";
+        ? "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+        : "../assets/logo-bot.png";
 
       msg.innerHTML = `
         <img src="${profileImage}" style="width:30px; height:30px; border-radius:50%; margin:0 10px;">
-        <div class="message-content"><strong>${sender}:</strong> ${text}</div>
+        <div class="message-content"><strong>${sender}:</strong> ${isHTML ? text : escapeHTML(text)}</div>
       `;
       chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
+      saveChat();
     }
 
     function showTyping() {
       const chat = document.getElementById("chat-messages");
       const indicator = document.createElement("div");
       indicator.classList.add("typing-indicator");
-      indicator.textContent = "AI is typing...";
+      indicator.textContent = "RiSync Bot is analyzing your question...";
       chat.appendChild(indicator);
       setTimeout(() => indicator.remove(), 900);
     }
@@ -179,32 +190,65 @@
       if (e.key === "Enter") sendMessage();
     }
 
-    // Dummy AI response (you can connect your own WebSocket/REST API here)
-    function getBotResponse(input) {
-      const answers = {
-        "hello": "Hi there! How can I help you today?",
-        "what is ai": "AI stands for Artificial Intelligence — machines that mimic human thinking.",
-        "who are you": "I'm RiSync GPT, your learning buddy!",
-        "bye": "Goodbye! Have a great day!"
-      };
-      input = input.toLowerCase();
-      return answers[input] || "Sorry, I’m still learning and don't know the answer to that yet.";
+    function escapeHTML(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML;
     }
 
     function toggleSettings() {
       const isDark = document.body.classList.toggle("dark-mode");
       localStorage.setItem("darkMode", isDark);
-      document.getElementById("mode-toggle").textContent = isDark ? "Light Mode☀️" : "Dark Mode🌙";
+      document.querySelector("button[onclick='toggleSettings()']").textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+    }
+
+    function saveChat() {
+      localStorage.setItem("chatHistory", document.getElementById("chat-messages").innerHTML);
+    }
+
+    function clearChat() {
+      localStorage.removeItem("chatHistory");
+      localStorage.removeItem("chatContext");
+      document.getElementById("chat-messages").innerHTML = "";
+    }
+
+    function saveContext(line) {
+      let ctx = localStorage.getItem("chatContext") || "";
+      ctx += "\n" + line;
+      localStorage.setItem("chatContext", ctx.trim());
+    }
+
+    function getBotResponse(userQuestion) {
+      const predefined = {
+        "hello": "Hi! How can I assist you?",
+        "who are you": "I’m RiSync Chatbot — always here to support you.",
+        "hi": "Hey there! Ask me anything."
+      };
+      const input = userQuestion.toLowerCase().trim();
+      if (predefined[input]) {
+        displayMessage("AI", predefined[input]);
+        saveContext("A: " + predefined[input]);
+        return;
+      }
+
+      const context = localStorage.getItem("chatContext") || "";
+      const query = encodeURIComponent(context);
+      const copilotURL = `https://www.bing.com/copilotsearch?q=${query}`;
+      const reply = `See the result. <a href="${copilotURL}" target="_blank"><u>Here’s what I found</u></a>.`;
+      displayMessage("AI", reply, true);
+      saveContext("A: See Copilot link.");
     }
 
     window.onload = () => {
-      const darkModePref = localStorage.getItem("darkMode") === "true";
-      if (darkModePref) {
+      if (localStorage.getItem("darkMode") === "true") {
         document.body.classList.add("dark-mode");
-        document.getElementById("mode-toggle").textContent = "Light Mode☀️";
+        document.querySelector("button[onclick='toggleSettings()']").textContent = "☀️ Light Mode";
       } else {
-        document.getElementById("mode-toggle").textContent = "Dark Mode🌙";
+        document.querySelector("button[onclick='toggleSettings()']").textContent = "🌙 Dark Mode";
       }
+
+      const history = localStorage.getItem("chatHistory");
+      if (history) document.getElementById("chat-messages").innerHTML = history;
     };
   </script>
 </body>

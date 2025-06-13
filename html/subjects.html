@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -160,7 +161,7 @@
   </div>
 
   <div style="display: flex; align-items: center;">
-    <input type="text" id="searchInput" placeholder="Search for a subject or use your voice... 🎤" />
+    <input type="text" id="searchInput" placeholder="Search for a subject or use your voice." />
     <button id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
   </div>
 
@@ -171,8 +172,6 @@
     <div class="subject-card" data-subject="Science"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="Social Studies"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="English"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card" data-subject="Hindi"><span class="emoji">🇮🇳</span> Hindi <span class="star" onclick="toggleFavorite(this)"></span></div>
-	<div class="subject-card" data-subject="Punjabi"><span class="emoji">🦁</span> Punjabi <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="Computer Science"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="Art"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
     <a href="sports.html" target="_blank" style="text-decoration: none; color: inherit;">
@@ -200,24 +199,31 @@
   const translations = {
     hi: {
       title: "विषय",
-      searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें... 🎤",
+      searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें।",
       showFavorites: "पसंदीदा दिखाएँ ⭐",
       dontShowFavorites: "पसंदीदा न दिखाएँ",
       backButton: "← सामग्री पर वापस जाएँ"
     },
     fr: {
       title: "Sujets",
-      searchPlaceholder: "Recherchez un sujet ou utilisez votre voix... 🎤",
+      searchPlaceholder: "Recherchez un sujet ou utilisez votre voix.",
       showFavorites: "Afficher les favoris ⭐",
       dontShowFavorites: "Ne pas afficher les favoris",
       backButton: "← Retour au contenu"
     },
     en: {
       title: "Subjects",
-      searchPlaceholder: "Search for a subject or use your voice... 🎤",
+      searchPlaceholder: "Search for a subject or use your voice.",
       showFavorites: "Show Favorites ⭐",
       dontShowFavorites: "Don't Show Favorites",
       backButton: "← Back to Content"
+    },
+	 pu: {
+      title: "ਵਿਸ਼ੇ",
+      searchPlaceholder: "ਕਿਸੇ ਵਿਸ਼ੇ ਦੀ ਖੋਜ ਕਰੋ ਜਾਂ ਆਪਣੀ ਆਵਾਜ਼ ਦੀ ਵਰਤੋਂ ਕਰੋ।",
+      showFavorites: "ਮਨਪਸੰਦ ਦਿਖਾਓ ⭐",
+      dontShowFavorites: "ਮਨਪਸੰਦ ਨਾ ਦਿਖਾਓ",
+      backButton: "← ਸਮੱਗਰੀ ਤੇ ਵਾਪਸ ਜਾਓ"
     }
   };
 
@@ -239,9 +245,22 @@
   const micBtn = document.getElementById('microphoneBtn');
   let showingFavorites = false;
 
-  darkToggle.addEventListener('change', () => {
-    body.classList.toggle('dark-mode');
-  });
+// Initialize dark mode from localStorage
+if (localStorage.getItem("darkMode") === "enabled") {
+  body.classList.add("dark-mode");
+  darkToggle.checked = true;
+}
+
+darkToggle.addEventListener("change", () => {
+  if (darkToggle.checked) {
+    body.classList.add("dark-mode");
+    localStorage.setItem("darkMode", "enabled");
+  } else {
+    body.classList.remove("dark-mode");
+    localStorage.setItem("darkMode", "disabled");
+  }
+});
+
 
   // Search filter
   input.addEventListener('input', () => {
