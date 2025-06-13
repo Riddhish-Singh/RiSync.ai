@@ -158,33 +158,28 @@
   </div>
 
 <script>
-// 🔐 AUTH GUARD
-(function () {
-localStorage.setItem("existingEmail", userEmail);
-localStorage.setItem("signupPassword", userPassword);
-
-  if (!email || !password) {
-    // Not signed in → go to signup
-    window.location.href = "signup.html";
-  }
-})();
-
+// ======== GET/SET USER INFO FIRST ========
 const username = localStorage.getItem("username") || prompt("Enter your name:") || "User";
 const userClass = localStorage.getItem("signupClass") || prompt("Enter your class:") || "default";
+const email = localStorage.getItem("existingEmail") || prompt("Enter your email:");
+const password = localStorage.getItem("signupPassword") || prompt("Enter your password:");
+const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
 
 localStorage.setItem("username", username);
 localStorage.setItem("signupClass", userClass);
-
-const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
+localStorage.setItem("existingEmail", email);
+localStorage.setItem("signupPassword", password);
 
 document.getElementById("classDisplay").innerText = `Class ${userClass}`;
 
-// ====== LOCALSTORAGE-BASED CHAT LOGIC ======
+// ======== BASIC AUTH GUARD =========
+if (!email || !password) {
+  window.location.href = "signup.html";
+}
 
-// Retrieve saved messages or initialize empty array
+// ====== LOCALSTORAGE-BASED CHAT LOGIC ======
 let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
 
-// Append messages on load to DOM
 window.addEventListener('DOMContentLoaded', () => {
   messages.forEach(msg => {
     const type = msg.user === username ? 'sent' : 'received';
@@ -192,7 +187,6 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-// Send message and save in localStorage
 function sendMessage() {
   const messageInput = document.getElementById("message");
   const message = messageInput.value.trim();
@@ -205,7 +199,6 @@ function sendMessage() {
   }
 }
 
-// Append message to the messages container
 function appendMessage(user, message, type) {
   const messagesContainer = document.getElementById("messages");
   const messageElement = document.createElement("div");
@@ -217,17 +210,14 @@ function appendMessage(user, message, type) {
     <img src="${imageSrc}" class="profile-img" alt="profile image">
     <div><strong>${user}:</strong> ${message}</div>
   `;
-
   messagesContainer.appendChild(messageElement);
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Placeholder for typing notification
 function notifyTyping() {
-  // Future enhancement: Implement typing status with localStorage events or broadcast channel
+  // Future enhancement
 }
 
-// File input handler
 function handleFileSelection() {
   const input = document.getElementById("fileInput");
   const list = document.getElementById("fileList");
@@ -240,7 +230,6 @@ function handleFileSelection() {
   });
 }
 
-// Voice input logic with fixed variable references
 function startVoiceSearch() {
   const micBtn = document.getElementById("microphoneBtn");
   const input = document.getElementById("message");
@@ -275,12 +264,6 @@ function startVoiceSearch() {
     alert('Speech recognition not supported in this browser.');
   }
 }
-
-// ======= SOCKET.IO CODE REMOVED / COMMENTED OUT =======
-// const socket = io("http://localhost:3000");
-// socket.emit(...);
-// socket.on(...);
-
 </script>
 </body>
 </html>
