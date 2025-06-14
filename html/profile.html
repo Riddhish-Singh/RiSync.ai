@@ -80,26 +80,31 @@
     <img src="../assets/user-icon.png" id="profileImage" class="profile-pic" alt="Profile Picture">
     <div class="username" id="profileName">Loading...</div>
     <div class="details">
-      <p><span>Branch:</span> <span id="profileBranch"></span></p>
-      <p><span>Class:</span> <span id="profileClass"></span></p>
-      <p><span>Email:</span> <span id="profileEmail"></span></p>
+      <p><span>Branch:</span> <span id="profileBranch">-</span></p>
+      <p><span>Class:</span> <span id="profileClass">-</span></p>
+      <p><span>Email:</span> <span id="profileEmail">-</span></p>
     </div>
     <button class="back-btn" onclick="window.location.href='content.html'">Back to Main Page</button>
   </div>
 
   <script>
-    // Load current user
+    // Load and debug current user
     const users = JSON.parse(localStorage.getItem("users")) || [];
     const currentUserEmail = localStorage.getItem("currentUserEmail");
+    
+    console.log("🔍 Debug - Current Email from Local Storage:", currentUserEmail);
+    console.log("🔍 Debug - All Users:", users);
+
     const currentUser = users.find(user => user.email === currentUserEmail);
 
-    if (currentUser) {
-      document.getElementById("profileName").textContent = currentUser.fullname;
-      document.getElementById("profileBranch").textContent = currentUser.branch;
-      document.getElementById("profileClass").textContent = currentUser.class;
+    if (currentUser && currentUser.email === currentUserEmail) {
+      document.getElementById("profileName").textContent = currentUser.fullname || "Name not set";
+      document.getElementById("profileBranch").textContent = currentUser.branch || "-";
+      document.getElementById("profileClass").textContent = currentUser.class || "-";
       document.getElementById("profileEmail").textContent = currentUser.email;
     } else {
-      alert("No user is currently logged in.");
+      alert("Mismatch or no user found for the signed-in email.");
+      localStorage.removeItem("currentUserEmail");
       window.location.href = "signup.html";
     }
 
