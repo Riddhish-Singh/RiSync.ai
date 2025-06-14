@@ -87,32 +87,32 @@
     <button class="back-btn" onclick="window.location.href='content.html'">Back to Main Page</button>
   </div>
 
-  <script>
-    // Load and debug current user
-    const users = JSON.parse(localStorage.getItem("users")) || [];
-    const currentUserEmail = localStorage.getItem("currentUserEmail");
-    
-    console.log("🔍 Debug - Current Email from Local Storage:", currentUserEmail);
-    console.log("🔍 Debug - All Users:", users);
+<script>
+  // Step 1: Get the signed-in email from signin.html
+  const signedInEmail = localStorage.getItem("currentUserEmail");
 
-    const currentUser = users.find(user => user.email === currentUserEmail);
+  // Step 2: Get all users (created in signup.html)
+  const users = JSON.parse(localStorage.getItem("users")) || [];
 
-    if (currentUser && currentUser.email === currentUserEmail) {
-      document.getElementById("profileName").textContent = currentUser.fullname || "Name not set";
-      document.getElementById("profileBranch").textContent = currentUser.branch || "-";
-      document.getElementById("profileClass").textContent = currentUser.class || "-";
-      document.getElementById("profileEmail").textContent = currentUser.email;
-    } else {
-      alert("Mismatch or no user found for the signed-in email.");
-      localStorage.removeItem("currentUserEmail");
-      window.location.href = "signup.html";
-    }
+  // Step 3: Match user based on signed-in email
+  const matchedUser = users.find(user => user.email === signedInEmail);
 
-    // Load profile image
-    const savedImage = localStorage.getItem("profileImage");
-    if (savedImage) {
-      document.getElementById("profileImage").src = savedImage;
-    }
-  </script>
+  if (matchedUser) {
+    document.getElementById("profileName").textContent = matchedUser.fullname || "Name not set";
+    document.getElementById("profileBranch").textContent = matchedUser.branch || "-";
+    document.getElementById("profileClass").textContent = matchedUser.class || "-";
+    document.getElementById("profileEmail").textContent = signedInEmail;
+  } else {
+    alert("User details not found. Please sign up.");
+    window.location.href = "signup.html";
+  }
+
+  // Load profile image
+  const savedImage = localStorage.getItem("profileImage");
+  if (savedImage) {
+    document.getElementById("profileImage").src = savedImage;
+  }
+</script>
+>
 </body>
 </html>
