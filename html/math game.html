@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Tic Tac Toe with Math Modes and AI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background-color: #001f3f;
+      color: white;
+    }
+
+    h1 {
+      color: white;
+      margin-top: 20px;
+    }
+
+    #game-status, #difficulty {
+      margin: 10px;
+      font-size: 1.2em;
+    }
+
+    #game-board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      gap: 5px;
+      margin: 20px auto;
+      width: max-content;
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      background-color: #fff;
+      border: 2px solid #003366;
+      font-size: 2.5em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      color: black;
+    }
+
+    .cell:hover {
+      background-color: #cce6ff;
+    }
+
+    .cell.win {
+      background-color: #90ee90;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 1em;
+      background-color: #003366;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #0059b3;
+    }
+
+    #scoreboard {
+      margin-top: 20px;
+      font-size: 1em;
+    }
+
+    #difficulty, #mode {
+      margin: 20px auto;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      color: #ffffff;
+      background-color: #001f3f;
+      padding: 20px;
+      border-radius: 12px;
+      max-width: 300px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      background-color: #ffffff;
+      color: #00274d;
+      border: 2px solid #ff6f00;
+      border-radius: 8px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg fill='orange' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #ff9900;
+      box-shadow: 0 0 0 3px rgba(255, 111, 0, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>Tic Tac Toe</h1>
+
+  <div id="mode">
+    Game Mode:
+    <select id="mode-select">
+      <option value="pvp">Player vs Player</option>
+      <option value="pve">Player vs AI</option>
+    </select>
+  </div>
+
+  <div id="difficulty">
+    Choose Math Mode:
+    <select id="difficulty-select">
+      <option value="easy">Easy</option>
+      <option value="hard">Hard</option>
+    </select>
+  </div>
+
+  <div id="game-status">Player X's Turn</div>
+
+  <div id="game-board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+  </div>
+
+  <button id="reset-btn">Reset Game</button>
+
+  <div id="scoreboard">
+    Score - X: <span id="scoreX">0</span> | O: <span id="scoreO">0</span>
+  </div>
+
+<button class="back-btn" onclick="window.location.href='content.html'">Back to Main Page</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const cells = document.querySelectorAll('.cell');
+      const statusText = document.getElementById('game-status');
+      const resetBtn = document.getElementById('reset-btn');
+      const scoreXEl = document.getElementById('scoreX');
+      const scoreOEl = document.getElementById('scoreO');
+      const difficultySelect = document.getElementById('difficulty-select');
+      const modeSelect = document.getElementById('mode-select');
+
+      let board = Array(9).fill('');
+      let currentPlayer = 'X';
+      let gameActive = true;
+      let score = { X: 0, O: 0 };
+      let mode = modeSelect.value;
+
+      const winCombos = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+
+      const grade6Questions = [
+        { q: "Place value of 5 in 5,29,381?", a: "500000" },
+        { q: "3 lakh + 2 thousand + 70 + 5 = ?", a: "302075" },
+        { q: "Successor of 99999?", a: "100000" },
+        { q: "HCF of 45 and 60?", a: "15" },
+        { q: "2.75 as a fraction?", a: "11/4" },
+        { q: "3.6 + 4.35 = ?", a: "7.95" },
+        { q: "Simplify 12/16.", a: "3/4" },
+        { q: "3/4 of 100?", a: "75" },
+        { q: "Sides in a pentagon?", a: "5" },
+        { q: "Perimeter of square (side 5)?", a: "20" },
+        { q: "If x = 4, 2x + 3 = ?", a: "11" },
+        { q: "Solve: x + 7 = 12", a: "5" }
+      ];
+
+      function getEasyQuestion() {
+        const n1 = Math.floor(Math.random() * 10 + 1);
+        const n2 = Math.floor(Math.random() * 10 + 1);
+        const ops = ['+', '-', '*'];
+        const op = ops[Math.floor(Math.random() * ops.length)];
+        let answer;
+        if (op === '+') answer = n1 + n2;
+        else if (op === '-') answer = n1 - n2;
+        else answer = n1 * n2;
+
+        const userAnswer = prompt(`Player ${currentPlayer}, solve: ${n1} ${op} ${n2}`);
+        return parseInt(userAnswer) === answer;
+      }
+
+      function getHardQuestion() {
+        const question = grade6Questions[Math.floor(Math.random() * grade6Questions.length)];
+        const userAnswer = prompt(`Player ${currentPlayer}, solve: ${question.q}`);
+        return userAnswer && userAnswer.trim() === question.a;
+      }
+
+      function askQuestion() {
+        const difficulty = difficultySelect.value;
+        return difficulty === 'easy' ? getEasyQuestion() : getHardQuestion();
+      }
+
+      function checkWinner(player) {
+        return winCombos.some(combo => {
+          if (combo.every(i => board[i] === player)) {
+            combo.forEach(i => document.querySelector(`.cell[data-index="${i}"]`).classList.add('win'));
+            return true;
+          }
+        });
+      }
+
+      function updateScore() {
+        scoreXEl.textContent = score.X;
+        scoreOEl.textContent = score.O;
+      }
+
+      function resetGame() {
+        board.fill('');
+        gameActive = true;
+        currentPlayer = 'X';
+        statusText.textContent = `Player X's Turn`;
+        cells.forEach(cell => {
+          cell.textContent = '';
+          cell.classList.remove('win');
+        });
+      }
+
+      function aiMove() {
+        if (!gameActive || currentPlayer !== 'O') return;
+
+        // AI auto solves math
+        const isCorrect = true;
+
+        if (!isCorrect) {
+          statusText.textContent = `AI failed! Turn skipped. Player X's Turn`;
+          currentPlayer = 'X';
+          return;
+        }
+
+        const emptyIndices = board.map((val, i) => val === '' ? i : null).filter(i => i !== null);
+        if (emptyIndices.length === 0) return;
+
+        const move = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+        board[move] = 'O';
+        const cell = document.querySelector(`.cell[data-index="${move}"]`);
+        cell.textContent = 'O';
+
+        if (checkWinner('O')) {
+          statusText.textContent = `AI (O) Wins!`;
+          score.O++;
+          updateScore();
+          gameActive = false;
+          return;
+        }
+
+        if (board.every(cell => cell !== '')) {
+          statusText.textContent = "It's a Draw!";
+          gameActive = false;
+          return;
+        }
+
+        currentPlayer = 'X';
+        statusText.textContent = `Player X's Turn`;
+      }
+
+      function handleClick(e) {
+        const index = parseInt(e.target.dataset.index);
+        if (board[index] || !gameActive || (mode === 'pve' && currentPlayer === 'O')) return;
+
+        if (!askQuestion()) {
+          statusText.textContent = `Wrong answer! Turn skipped. Player ${currentPlayer === 'X' ? 'O' : 'X'}'s Turn`;
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          if (mode === 'pve' && currentPlayer === 'O') setTimeout(aiMove, 1000);
+          return;
+        }
+
+        board[index] = currentPlayer;
+        e.target.textContent = currentPlayer;
+
+        if (checkWinner(currentPlayer)) {
+          statusText.textContent = `Player ${currentPlayer} Wins!`;
+          score[currentPlayer]++;
+          updateScore();
+          gameActive = false;
+          return;
+        }
+
+        if (board.every(cell => cell !== '')) {
+          statusText.textContent = "It's a Draw!";
+          gameActive = false;
+          return;
+        }
+
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        statusText.textContent = `Player ${currentPlayer}'s Turn`;
+
+        if (mode === 'pve' && currentPlayer === 'O') {
+          setTimeout(aiMove, 1000);
+        }
+      }
+
+      cells.forEach(cell => cell.addEventListener('click', handleClick));
+      resetBtn.addEventListener('click', resetGame);
+      difficultySelect.addEventListener('change', resetGame);
+      modeSelect.addEventListener('change', () => {
+        mode = modeSelect.value;
+        resetGame();
+      });
+    });
+  </script>
+</body>
+</html>

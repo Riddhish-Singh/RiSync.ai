@@ -168,7 +168,12 @@
   <button id="showFavoritesBtn" onclick="toggleFavoriteView()">Show Favorites ⭐</button>
 
   <div id="subjectList">
-    <div class="subject-card" data-subject="Mathematics"><span class="emoji">🧮</span> Mathematics <span class="star" onclick="toggleFavorite(this)"></span></div>
+	    <a href="math game.html" target="_blank" style="text-decoration: none; color: inherit;">
+      <div class="subject-card" data-subject="Mathematics">
+        <span class="emoji">🧮</span> Mathematics
+        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
+      </div>
+    </a>
     <div class="subject-card" data-subject="Science"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="Social Studies"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
     <div class="subject-card" data-subject="English"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
