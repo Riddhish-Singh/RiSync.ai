@@ -181,7 +181,7 @@
       const chat = document.getElementById("chat-messages");
       const indicator = document.createElement("div");
       indicator.classList.add("typing-indicator");
-      indicator.textContent = "RiSync Bot is analyzing your question...";
+      indicator.textContent = "RiSync Bot is thinking...";
       chat.appendChild(indicator);
       setTimeout(() => indicator.remove(), 900);
     }
@@ -218,25 +218,22 @@
       localStorage.setItem("chatContext", ctx.trim());
     }
 
-    function getBotResponse(userQuestion) {
-      const predefined = {
-        "hello": "Hi! How can I assist you?",
-        "who are you": "I’m RiSync Chatbot — always here to support you.",
-        "hi": "Hey there! Ask me anything."
-      };
-      const input = userQuestion.toLowerCase().trim();
-      if (predefined[input]) {
-        displayMessage("AI", predefined[input]);
-        saveContext("A: " + predefined[input]);
-        return;
-      }
+    async function getBotResponse(userQuestion) {
+      try {
+        const localAnswers = {
+          "what is gravity": "Gravity is the force by which a planet or other body draws objects toward its center.",
+          "what is photosynthesis": "Photosynthesis is the process by which green plants use sunlight to make food from carbon dioxide and water."
+        };
 
-      const context = localStorage.getItem("chatContext") || "";
-      const query = encodeURIComponent(context);
-      const copilotURL = `https://www.bing.com/copilotsearch?q=${query}`;
-      const reply = `See the result. <a href="${copilotURL}" target="_blank"><u>Here’s what I found</u></a>.`;
-      displayMessage("AI", reply, true);
-      saveContext("A: See Copilot link.");
+        const key = userQuestion.toLowerCase().trim();
+        const answer = localAnswers[key] || "Sorry, I don't have an answer for that right now.";
+
+        displayMessage("AI", answer);
+        saveContext("A: " + answer);
+      } catch (error) {
+        console.error("Local answer fetch failed:", error);
+        displayMessage("AI", "Oops! Couldn't get an answer this time.");
+      }
     }
 
     window.onload = () => {
