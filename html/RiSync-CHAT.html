@@ -23,8 +23,6 @@
       background: white;
       display: flex;
       flex-direction: column;
-      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-      transition: background 0.3s;
     }
 
     #header {
@@ -75,12 +73,6 @@
       margin: 0 10px;
     }
 
-    #typing {
-      font-style: italic;
-      color: grey;
-      padding: 5px;
-    }
-
     #input-container {
       display: flex;
       align-items: center;
@@ -104,36 +96,6 @@
       margin: 0 10px;
     }
 
-    .icon-button:hover {
-      opacity: 0.7;
-    }
-
-    #fileList {
-      list-style: none;
-      padding: 10px;
-      margin: 0;
-    }
-
-    .file-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #EAEAEA;
-      padding: 5px;
-      border-radius: 5px;
-      margin: 5px 0;
-    }
-
-    .remove-btn {
-      background: red;
-      color: white;
-      border: none;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: 50%;
-      font-size: 14px;
-    }
-
     #classDisplay {
       font-size: 14px;
       position: absolute;
@@ -148,26 +110,26 @@
     #modeToggle {
       position: absolute;
       top: 10px;
-      right: 100px;
+      right: 110px;
       background: none;
       border: none;
       font-size: 18px;
       cursor: pointer;
+      color: white;
     }
 
     #backButton {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
+      margin: 10px;
+      align-self: flex-start;
       background-color: #004aad;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 8px 16px;
       border-radius: 8px;
       cursor: pointer;
     }
 
-    /* 🌙 Dark Mode Styles */
+    /* Dark mode styles */
     body.dark {
       background-color: #121212;
       color: #eee;
@@ -208,148 +170,110 @@
 <body>
   <div id="chat-container">
     <div id="header">
-      <img src="../assets/logo.png" alt="RiSync Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
+      <img src="../assets/logo.png" alt="Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
       RiSync Chat
       <div id="classDisplay"></div>
       <button id="modeToggle">🌙</button>
     </div>
 
+    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
+
     <div id="messages"></div>
-    <p id="typing"></p>
-    <ul id="fileList"></ul>
 
     <div id="input-container">
       <button class="icon-button" id="emoji-button">😊</button>
       <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
       <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
-      <input type="text" id="message" placeholder="Type a message" oninput="notifyTyping()" onkeydown="if(event.key==='Enter') sendMessage()">
+      <input type="text" id="message" placeholder="Type a message" onkeydown="if(event.key==='Enter') sendMessage()">
       <button class="icon-button" onclick="sendMessage()">➡️</button>
       <button class="icon-button" id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
     </div>
-
-    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
   </div>
 
   <script>
-    // ===== USER INFO FROM SIGNUP =====
-    let username = localStorage.getItem("username") || prompt("Enter your name:");
-    let userClass = localStorage.getItem("signupClass") || prompt("Enter your class:");
-    let email = localStorage.getItem("existingEmail") || prompt("Enter your email:");
-    let password = localStorage.getItem("signupPassword") || prompt("Enter your password:");
+    const username = localStorage.getItem("username") || "Guest";
+    const userClass = localStorage.getItem("signupClass") || "N/A";
     const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
-
-    localStorage.setItem("username", username);
-    localStorage.setItem("signupClass", userClass);
-    localStorage.setItem("existingEmail", email);
-    localStorage.setItem("signupPassword", password);
 
     document.getElementById("classDisplay").innerText = `Class ${userClass}`;
 
-    if (!email || !password) {
-      window.location.href = "signup.html";
-    }
-
-    // ===== MESSAGES =====
-    let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-
-    window.addEventListener('DOMContentLoaded', () => {
+    // Load messages
+    const messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+    window.addEventListener("DOMContentLoaded", () => {
       messages.forEach(msg => {
-        const type = msg.user === username ? 'sent' : 'received';
-        appendMessage(msg.user, msg.text, type);
+        appendMessage(msg.user, msg.text, msg.user === username ? "sent" : "received");
       });
     });
 
     function sendMessage() {
-      const messageInput = document.getElementById("message");
-      const message = messageInput.value.trim();
-      if (message) {
-        const msg = { user: username, text: message };
+      const input = document.getElementById("message");
+      const text = input.value.trim();
+      if (text) {
+        const msg = { user: username, text };
         messages.push(msg);
         localStorage.setItem("chatMessages", JSON.stringify(messages));
-        appendMessage(msg.user, msg.text, 'sent');
-        messageInput.value = "";
+        appendMessage(msg.user, msg.text, "sent");
+        input.value = "";
       }
     }
 
     function appendMessage(user, message, type) {
-      const messagesContainer = document.getElementById("messages");
-      const messageElement = document.createElement("div");
-      messageElement.classList.add("message", type);
-      const imageSrc = user === username ? profileImage : "../assets/logo.png";
-      messageElement.innerHTML = `
-        <img src="${imageSrc}" class="profile-img" alt="profile image">
-        <div><strong>${user}:</strong> ${message}</div>
-      `;
-      messagesContainer.appendChild(messageElement);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      const container = document.getElementById("messages");
+      const el = document.createElement("div");
+      el.classList.add("message", type);
+      const img = user === username ? profileImage : "../assets/logo.png";
+
+      if (type === "sent") {
+        el.innerHTML = `<div><strong>${user}:</strong> ${message}</div><img src="${img}" class="profile-img">`;
+      } else {
+        el.innerHTML = `<img src="${img}" class="profile-img"><div><strong>${user}:</strong> ${message}</div>`;
+      }
+
+      container.appendChild(el);
+      container.scrollTop = container.scrollHeight;
     }
 
-    function notifyTyping() {
-      // Future use
-    }
+    // Emoji picker
+    const picker = new EmojiButton();
+    document.getElementById("emoji-button").addEventListener("click", () => {
+      picker.togglePicker(document.getElementById("emoji-button"));
+    });
+    picker.on("emoji", emoji => {
+      document.getElementById("message").value += emoji;
+    });
 
+    // File list
     function handleFileSelection() {
-      const input = document.getElementById("fileInput");
-      const list = document.getElementById("fileList");
-      list.innerHTML = "";
-      Array.from(input.files).forEach(file => {
-        const li = document.createElement("li");
-        li.className = "file-item";
-        li.innerHTML = `
-          ${file.name}
-          <button class="remove-btn" onclick="this.parentElement.remove()">x</button>
-        `;
-        list.appendChild(li);
+      const files = document.getElementById("fileInput").files;
+      Array.from(files).forEach(file => {
+        sendMessage(`📎 ${file.name}`);
       });
     }
 
+    // Voice input
     function startVoiceSearch() {
       const micBtn = document.getElementById("microphoneBtn");
       const input = document.getElementById("message");
 
       if ('webkitSpeechRecognition' in window) {
         const recognition = new webkitSpeechRecognition();
-        recognition.continuous = false;
-        recognition.interimResults = true;
         recognition.lang = 'en-US';
-
-        micBtn.classList.add('listening');
         recognition.start();
 
-        recognition.onresult = function(event) {
-          let finalTranscript = '';
-          for (let i = 0; i < event.results.length; i++) {
-            if (event.results[i].isFinal) {
-              finalTranscript += event.results[i][0].transcript;
-            }
-          }
-          if (finalTranscript) {
-            input.value = finalTranscript.trim();
-            input.dispatchEvent(new Event('input'));
-          }
+        recognition.onresult = event => {
+          const transcript = event.results[0][0].transcript;
+          input.value = transcript;
         };
 
-        recognition.onend = () => micBtn.classList.remove('listening');
-        recognition.onerror = event => {
-          micBtn.classList.remove('listening');
-          alert('Voice recognition error: ' + event.error);
+        recognition.onerror = err => {
+          alert("Speech error: " + err.error);
         };
       } else {
-        alert('Speech recognition not supported in this browser.');
+        alert("Speech recognition not supported");
       }
     }
 
-    // ===== EMOJI PICKER =====
-    const picker = new EmojiButton();
-    const trigger = document.querySelector('#emoji-button');
-    picker.on('emoji', emoji => {
-      const messageInput = document.querySelector('#message');
-      messageInput.value += emoji;
-      messageInput.focus();
-    });
-    trigger.addEventListener('click', () => picker.togglePicker(trigger));
-
-    // ===== THEME TOGGLE =====
+    // Dark mode toggle
     const toggleBtn = document.getElementById("modeToggle");
     const savedTheme = localStorage.getItem("theme") || "light";
     applyTheme(savedTheme);
