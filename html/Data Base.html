@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>File Database</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto p-6">
+        <!-- Header -->
+        <header class="flex items-center mb-6">
+            <img src="../assets/logo.png" alt="Logo" class="h-12 mr-4">
+            <h1 class="text-3xl font-bold text-gray-800">File Database</h1>
+        </header>
+
+        <!-- Table -->
+        <div class="bg-white shadow-md rounded-lg overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filename</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Indias cultural roots grade06.pdf</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs break-words">India’s Cultural Roots: A Grade 6 Exploration</td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="../assets/Indias%20cultural%20roots%20grade06.pdf" target="_blank"
+                               class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+                               View Content
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Grade6 WORKSHEET-3,4,5,22.pdf</td>
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs break-words">Grade 6 Worksheets: Oceans, Disaster Management & Community Life</td>
+                        <td class="px-6 py-4 text-sm">
+                            <a href="../assets/Grade6%20WORKSHEET-3,4,5,22.pdf" target="_blank"
+                               class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
+                               View Content
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- File Descriptions -->
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">File Contents</h2>
+
+            <!-- File 1 -->
+            <div id="indias-cultural-roots" class="bg-white p-6 rounded-lg shadow-md mb-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Indias Cultural Roots (Grade 6)</h3>
+                <p class="text-gray-600">
+                    Content includes detailed notes on the Vedas, Vedic culture, society, and schools of thought like Buddhism, Jainism, and Vedanta. 
+                    It also covers folk and tribal traditions, their interactions with Hinduism, and textual questions for grade 6 social science.
+                </p>
+            </div>
+
+            <!-- File 2 -->
+            <div id="worksheet" class="bg-white p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-semibold text-gray-800 mb-4">Grade 6 Worksheets: Oceans, Disaster Management & Community Life</h3>
+                <p class="text-gray-600">
+                    This file contains worksheets with multiple-choice questions, true/false statements, and descriptive answers 
+                    on topics like oceans, the Earth's water cycle, disaster management, and family and community structures.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
