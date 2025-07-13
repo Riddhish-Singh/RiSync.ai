@@ -1,0 +1,25 @@
+# robots.txt for RiSync - Allowing ChatGPT Discovery
+
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /signup/
+Disallow: /dashboard/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /api/
+Allow: /
+
+# Specifically allow OpenAI's crawler
+User-agent: OAI-SearchBot
+Allow: /
+
+# Block AI scrapers that are not used for search
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+# Sitemap link
+Sitemap: https://riddhish-singh.github.io/RiSync-Web/sitemap.xml
