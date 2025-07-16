@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: 'Arial', sans-serif;
-      background-image: url('../assets/image.png');
+      background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/image.png');
       background-size: cover;
       background-position: center;
       color: white;
@@ -18,7 +18,7 @@
       margin: 0;
     }
     .container {
-      background-color: rgba(0, 51, 102, 0.8);
+      background-color: rgba(0, 51, 102, 0.85);
       padding: 40px;
       border-radius: 20px;
       box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
@@ -45,7 +45,8 @@
       margin-bottom: 5px;
     }
     input[type="email"],
-    input[type="password"] {
+    input[type="password"],
+    input[type="text"] {
       width: 100%;
       padding: 12px;
       margin-bottom: 5px;
@@ -54,13 +55,16 @@
       font-size: 16px;
       background-color: rgba(255, 255, 255, 0.2);
       color: white;
+      transition: background-color 0.3s ease;
     }
     input[type="email"]::placeholder,
-    input[type="password"]::placeholder {
+    input[type="password"]::placeholder,
+    input[type="text"]::placeholder {
       color: rgba(255, 255, 255, 0.7);
     }
     input[type="email"]:focus,
-    input[type="password"]:focus {
+    input[type="password"]:focus,
+    input[type="text"]:focus {
       outline: none;
       background-color: rgba(255, 255, 255, 0.3);
     }
@@ -71,7 +75,8 @@
       text-align: left;
       min-height: 18px;
     }
-    .signin-button, .go-back-button {
+    .signin-button,
+    .go-back-button {
       width: 100%;
       padding: 14px;
       border-radius: 8px;
@@ -113,7 +118,7 @@
     }
     #showPasswordContainer {
       text-align: left;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
       color: white;
       font-size: 14px;
     }
@@ -121,22 +126,33 @@
       vertical-align: middle;
       margin-right: 6px;
       cursor: pointer;
+      width: 18px;
+      height: 18px;
+    }
+    @media screen and (max-width: 480px) {
+      .container {
+        padding: 25px;
+        max-width: 90%;
+      }
+      h1 {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo">
-      <img src="../assets/logo.png" alt="RiSync Logo" />
+      <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" alt="RiSync Logo" />
     </div>
     <h1>RiSync Sign-In</h1>
     <form id="signinForm" onsubmit="event.preventDefault(); validateAndRedirect();">
       <label for="email">Email Address</label>
-      <input type="email" id="email" name="email" placeholder="Enter your email" required />
+      <input type="email" id="email" name="email" placeholder="Enter your email" autocomplete="username" required />
       <div id="emailError" class="error"></div>
 
       <label for="password">Password</label>
-      <input type="password" id="password" name="password" placeholder="Enter your password" required />
+      <input type="password" id="password" name="password" placeholder="Enter your password" autocomplete="current-password" required />
       <div id="passwordError" class="error"></div>
 
       <div id="showPasswordContainer">
@@ -144,11 +160,11 @@
         <label for="showPassword" style="display: inline;">Show Password</label>
       </div>
 
-      <button type="submit" class="signin-button">Sign In</button>
+      <button type="submit" class="signin-button" aria-label="Sign in to your RiSync account">Sign In</button>
     </form>
 
     <div class="create-account">
-      <p>New to RiSync? <a href="pricing.html" target="_blank">Create your account</a>.</p>
+      <p>New to RiSync? <a href="signup.html" target="_blank">Create your account</a>.</p>
     </div>
 
     <button type="button" class="go-back-button" onclick="goBack()">GO BACK TO THE MAIN PAGE</button>
@@ -161,7 +177,6 @@
     }
 
     function validateAndRedirect() {
-      // Clear previous errors
       document.getElementById("emailError").textContent = "";
       document.getElementById("passwordError").textContent = "";
 
@@ -171,13 +186,18 @@
       const storedEmailRaw = localStorage.getItem("existingEmail");
       const storedPassword = localStorage.getItem("signupPassword");
 
-      // Basic validation on storage presence
       if (!storedEmailRaw || storedEmailRaw.trim() === "" || !storedPassword || storedPassword === "") {
         document.getElementById("emailError").textContent = "No account found. Please sign up first.";
         return;
       }
 
       const storedEmail = storedEmailRaw.trim().toLowerCase();
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(emailInput)) {
+        document.getElementById("emailError").textContent = "Please enter a valid email address.";
+        return;
+      }
 
       if (emailInput !== storedEmail) {
         document.getElementById("emailError").textContent = "Invalid email address.";
@@ -189,12 +209,11 @@
         return;
       }
 
-      // Successful login → redirect in same tab for better UX
       window.location.href = "content.html";
     }
 
     function goBack() {
-      window.location.href = "../index.html";
+      window.location.href = "./index.html";
     }
   </script>
 </body>
