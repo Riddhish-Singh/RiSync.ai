@@ -1,76 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>File Database</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RiSync File Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <style>
+    input, select, textarea {
+      color: #111827 !important;
+    }
+    .dark input, .dark select, .dark textarea {
+      color: #f9fafb !important;
+      background-color: #1f2937 !important;
+      border-color: #374151 !important;
+    }
+    .dark input::placeholder,
+    .dark select::placeholder,
+    .dark textarea::placeholder {
+      color: #9ca3af !important;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 font-sans">
-    <div class="container mx-auto p-6">
-        <!-- Header -->
-        <header class="flex items-center mb-6">
-            <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" alt="Logo" class="h-12 mr-4">
-            <h1 class="text-3xl font-bold text-gray-800">File Database</h1>
-        </header>
+<body class="bg-gray-100 dark:bg-gray-900 font-sans text-gray-900 dark:text-gray-100">
+  <div class="container mx-auto p-6">
+    <header class="flex items-center justify-between mb-6">
+      <div class="flex items-center">
+        <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" alt="Logo" class="h-12 mr-4">
+        <h1 class="text-3xl font-bold">RiSync File Hub</h1>
+      </div>
+      <button onclick="toggleDark()" class="bg-gray-800 text-white px-3 py-1 rounded hover:bg-gray-700">🌙 Dark Mode</button>
+    </header>
 
-        <!-- Table -->
-        <div class="bg-white shadow-md rounded-lg overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filename</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Indias cultural roots grade06.pdf</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs break-words">India’s Cultural Roots: A Grade 6 Exploration</td>
-                        <td class="px-6 py-4 text-sm">
-                            <a href="../assets/Indias%20cultural%20roots%20grade06.pdf" target="_blank"
-                               class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-                               View Content
-                            </a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Grade6 WORKSHEET-3,4,5,22.pdf</td>
-                        <td class="px-6 py-4 text-sm text-gray-500 max-w-xs break-words">Grade 6 Worksheets: Oceans, Disaster Management & Community Life</td>
-                        <td class="px-6 py-4 text-sm">
-                            <a href="../assets/Grade6%20WORKSHEET-3,4,5,22.pdf" target="_blank"
-                               class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded">
-                               View Content
-                            </a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+      <h2 class="text-xl font-bold mb-4">Upload New File</h2>
+      <form id="uploadForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="file" id="fileInput" required class="border p-2 rounded" />
+        <input type="text" id="title" placeholder="Title" required class="border p-2 rounded" />
 
-        <!-- File Descriptions -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-4">File Contents</h2>
+        <select id="gradeSelect" required class="border p-2 rounded">
+          <option value="">Select Grade</option>
+          <option value="1">Grade 1</option>
+          <option value="2">Grade 2</option>
+          <option value="3">Grade 3</option>
+          <option value="4">Grade 4</option>
+          <option value="5">Grade 5</option>
+          <option value="6">Grade 6</option>
+          <option value="7">Grade 7</option>
+          <option value="8">Grade 8</option>
+        </select>
 
-            <!-- File 1 -->
-            <div id="indias-cultural-roots" class="bg-white p-6 rounded-lg shadow-md mb-6">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Indias Cultural Roots (Grade 6)</h3>
-                <p class="text-gray-600">
-                    Content includes detailed notes on the Vedas, Vedic culture, society, and schools of thought like Buddhism, Jainism, and Vedanta. 
-                    It also covers folk and tribal traditions, their interactions with Hinduism, and textual questions for grade 6 social science.
-                </p>
-            </div>
+        <select id="subjectSelect" required class="border p-2 rounded">
+          <option value="">Select Subject</option>
+        </select>
 
-            <!-- File 2 -->
-            <div id="worksheet" class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-semibold text-gray-800 mb-4">Grade 6 Worksheets: Oceans, Disaster Management & Community Life</h3>
-                <p class="text-gray-600">
-                    This file contains worksheets with multiple-choice questions, true/false statements, and descriptive answers 
-                    on topics like oceans, the Earth's water cycle, disaster management, and family and community structures.
-                </p>
-            </div>
-        </div>
+        <select id="type" required class="border p-2 rounded">
+          <option value="">Select Type</option>
+          <option>PDF</option>
+          <option>Video</option>
+          <option>Notes</option>
+          <option>HTML</option>
+          <option>Image</option>
+        </select>
+
+        <input type="text" id="tags" placeholder="Tags (comma separated)" class="border p-2 rounded" />
+        <textarea id="description" placeholder="Description" required class="border p-2 rounded col-span-2"></textarea>
+
+        <button type="submit" class="col-span-2 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded">Upload</button>
+      </form>
     </div>
+
+    <div class="flex flex-wrap items-center justify-between mb-6 gap-4">
+      <input id="searchInput" type="text" placeholder="Search by title, subject, grade or tag..." class="w-full md:w-1/2 px-4 py-2 border rounded-md shadow-sm" oninput="filterCards()" />
+      <select id="sortSelect" class="px-4 py-2 border rounded-md" onchange="sortCards()">
+        <option value="">Sort by</option>
+        <option value="grade">Grade</option>
+        <option value="subject">Subject</option>
+        <option value="type">Type</option>
+        <option value="size">Size</option>
+        <option value="uploadedAt">Upload Date</option>
+      </select>
+    </div>
+
+    <div id="fileCards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+	    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
+  </div>
+ 
+
+  <script>
+    const MAX_STORAGE_MB = 4;
+    const subjectsByGrade = {
+      1: ["English", "Math", "EVS", "Hindi", "Punjabi", "IT"],
+      2: ["English", "Math", "EVS", "Hindi", "Punjabi", "IT"],
+      3: ["English", "Math", "EVS", "Hindi", "Punjabi", "IT"],
+      4: ["English", "Math", "EVS", "Hindi", "Punjabi", "IT"],
+      5: ["English", "Math", "Science", "SST", "Hindi", "Punjabi", "IT"],
+      6: ["Math", "Science", "English", "SST", "Hindi", "Punjabi", "IT"],
+      7: ["Math", "Science", "Civics", "English", "Sanskrit", "Hindi", "Punjabi", "IT"],
+      8: ["Math", "Biology", "Physics", "Chemistry", "History", "Hindi", "Punjabi", "IT"]
+    };
+
+    let files = JSON.parse(localStorage.getItem("files")) || [];
+    let editingIndex = null;
+
+    const form = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const gradeSelect = document.getElementById("gradeSelect");
+    const subjectSelect = document.getElementById("subjectSelect");
+    const fileCards = document.getElementById("fileCards");
+
+    gradeSelect.addEventListener("change", () => {
+      const grade = gradeSelect.value;
+      subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+      subjectsByGrade[grade]?.forEach(subject => {
+        const opt = document.createElement("option");
+        opt.value = subject;
+        opt.textContent = subject;
+        subjectSelect.appendChild(opt);
+      });
+    });
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const title = document.getElementById("title").value;
+      const subject = subjectSelect.value;
+      const grade = gradeSelect.value;
+      const type = document.getElementById("type").value;
+      const tags = document.getElementById("tags").value;
+      const description = document.getElementById("description").value;
+      const file = fileInput.files[0];
+      const uploadedAt = new Date().toLocaleString();
+
+      if (!file) return alert("Please select a file");
+
+      const reader = new FileReader();
+      reader.onload = function () {
+        const base64 = reader.result;
+        const size = Math.round(file.size / 1024);
+        const totalSizeMB = (files.reduce((acc, f) => acc + (f.size || 0), 0) + size) / 1024;
+
+        if (totalSizeMB > MAX_STORAGE_MB) {
+          return alert("Storage limit exceeded! Please delete some files before uploading.");
+        }
+
+        const newFile = { title, subject, grade, type, description, tags, uploadedAt, base64, size };
+
+        if (editingIndex !== null) {
+          files[editingIndex] = newFile;
+          editingIndex = null;
+          fileInput.disabled = false;
+        } else {
+          files.push(newFile);
+        }
+
+        try {
+          localStorage.setItem("files", JSON.stringify(files));
+        } catch (e) {
+          alert("Failed to save file. Local storage quota exceeded.");
+          files.pop();
+          return;
+        }
+
+        form.reset();
+        displayCards();
+        alert("File uploaded successfully!");
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function displayCards() {
+      fileCards.innerHTML = "";
+      files.forEach((file, index) => {
+        const card = document.createElement("div");
+        card.className = "bg-white dark:bg-gray-700 p-4 rounded-lg shadow-md";
+        const blob = dataURLtoBlob(file.base64);
+        const url = URL.createObjectURL(blob);
+
+        card.innerHTML = `
+          <h3 class="text-lg font-bold">${file.title}</h3>
+          <div class="mb-2">
+            ${file.type === 'Image' ? `<img src="${url}" alt="preview" class="w-full h-32 object-cover rounded" />` :
+            file.type === 'PDF' ? `<embed src="${url}" type="application/pdf" class="w-full h-32 rounded" />` :
+            file.type === 'Video' ? `<video src="${url}" controls class="w-full h-32 object-cover rounded"></video>` :
+            `<p class='text-sm italic text-gray-400'>Preview not available</p>`}
+          </div>
+          <p class="text-sm mb-1">${file.description}</p>
+          <p class="text-xs mb-1 italic text-gray-500 dark:text-gray-300">Tags: ${file.tags}</p>
+          <p class="text-xs mb-1 italic text-gray-500 dark:text-gray-300">Uploaded: ${file.uploadedAt}</p>
+          <p class="text-xs mb-2 italic text-gray-500 dark:text-gray-300">Size: ${file.size} KB</p>
+          <div class="flex flex-wrap gap-2 text-xs text-white mb-2">
+            <span class="bg-blue-500 px-2 py-1 rounded">Grade ${file.grade}</span>
+            <span class="bg-purple-500 px-2 py-1 rounded">${file.subject}</span>
+            <span class="bg-red-500 px-2 py-1 rounded">${file.type}</span>
+          </div>
+          <div class="flex gap-2">
+            <a href="${url}" target="_blank" class="flex-1 bg-green-600 hover:bg-green-700 text-white text-center py-1 rounded">Open</a>
+            <a href="${url}" download="${file.title}" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-center py-1 rounded">Download</a>
+          </div>
+        `;
+        fileCards.appendChild(card);
+      });
+    }
+
+    function dataURLtoBlob(dataURL) {
+      const arr = dataURL.split(','), mime = arr[0].match(/:(.*?);/)[1];
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) u8arr[n] = bstr.charCodeAt(n);
+      return new Blob([u8arr], { type: mime });
+    }
+
+    function filterCards() {
+      const query = document.getElementById("searchInput").value.toLowerCase();
+      const cards = document.querySelectorAll("#fileCards > div");
+      cards.forEach(card => {
+        const text = card.textContent.toLowerCase();
+        card.style.display = text.includes(query) ? "" : "none";
+      });
+    }
+
+    function sortCards() {
+      const sortBy = document.getElementById("sortSelect").value;
+      files.sort((a, b) => (a[sortBy] || '').localeCompare(b[sortBy] || ''));
+      localStorage.setItem("files", JSON.stringify(files));
+      displayCards();
+    }
+
+    function toggleDark() {
+      document.documentElement.classList.toggle('dark');
+    }
+
+    displayCards();
+  </script>
 </body>
 </html>
