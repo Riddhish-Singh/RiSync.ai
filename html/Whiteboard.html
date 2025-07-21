@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Super Whiteboard</title>
+  <style>
+    body { margin: 0; font-family: Arial, sans-serif; }
+    #toolbar {
+      background: #222; color: #fff; padding: 10px; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 10px; position: relative; z-index: 1000;
+    }
+    #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"] {
+      margin: 0 5px;
+    }
+    #canvas-container {
+      position: relative; width: 100vw; height: calc(100vh - 60px); overflow: hidden;
+    }
+    canvas { border: 1px solid #ccc; display: block; }
+    .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .tool-label { color: white; }
+    .grid-layer {
+      position: absolute; top: 0; left: 0;
+      pointer-events: none; z-index: 10;
+    }
+    .emoji {
+      position: absolute; z-index: 30; font-size: 24px;
+      cursor: move;
+    }
+    #logo {
+      height: 30px; margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="toolbar">
+  <img src="../assets/logo.png" id="logo" alt="Logo">
+
+  <label class="tool-label">Tool:</label>
+  <select id="tool">
+    <option value="pencil">Pencil</option>
+    <option value="eraser">Eraser</option>
+    <option value="highlighter">Highlighter</option>
+    <option value="text">Text</option>
+  </select>
+
+  <label class="tool-label">Style:</label>
+  <select id="style">
+    <option value="normal">Normal</option>
+    <option value="brushed">Brushed</option>
+    <option value="neon">Neon</option>
+  </select>
+
+  <label class="tool-label">Color:</label>
+  <input type="color" id="color" value="#000000">
+
+  <label class="tool-label">Background:</label>
+  <input type="color" id="bgcolor" value="#ffffff">
+
+  <label class="tool-label">Thickness:</label>
+  <input type="range" id="thickness" min="1" max="20" value="2">
+
+  <label class="tool-label">Grid:</label>
+  <select id="grid">
+    <option value="none">None</option>
+    <option value="dot">Dot Grid</option>
+    <option value="line">Line Grid</option>
+    <option value="square">Square Grid</option>
+  </select>
+
+  <label class="tool-label">Grid Color:</label>
+  <input type="color" id="gridcolor" value="#cccccc">
+
+  <input type="file" id="image-upload" style="display:none">
+  <button onclick="document.getElementById('image-upload').click()">Upload Image</button>
+
+  <div class="page-controls">
+    <button onclick="prevPage()">⬅️</button>
+    <span id="page-info">Page 1</span>
+    <button onclick="nextPage()">➡️</button>
+    <button onclick="confirmClear()">Clear</button>
+    <button onclick="deletePage()">Delete Page</button>
+  </div>
+</div>
+
+<div id="canvas-container">
+  <canvas id="canvas" width="1600" height="800"></canvas>
+  <canvas id="gridCanvas" class="grid-layer" width="1600" height="800"></canvas>
+</div>
+
+<script>
+  let canvas, ctx, gridCanvas, gridCtx;
+  let pages = [];
+  let currentPage = 0;
+  let tool = 'pencil';
+  let style = 'normal';
+  let drawing = false;
+  let color, bgcolor, gridcolor, thickness;
+
+  function initWhiteboard() {
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    gridCanvas = document.getElementById('gridCanvas');
+    gridCtx = gridCanvas.getContext('2d');
+
+    color = document.getElementById('color').value;
+    bgcolor = document.getElementById('bgcolor').value;
+    gridcolor = document.getElementById('gridcolor').value;
+    thickness = 2;
+
+    // Initial fill
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawGrid('none');
+
+    // Event Listeners
+    canvas.addEventListener('mousedown', handleMouseDown);
+    canvas.addEventListener('mousemove', handleMouseMove);
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+      ctx.closePath();
+      ctx.globalAlpha = 1.0;
+    });
+
+    document.getElementById('tool').onchange = e => tool = e.target.value;
+    document.getElementById('style').onchange = e => style = e.target.value;
+    document.getElementById('color').onchange = e => color = e.target.value;
+    document.getElementById('bgcolor').onchange = e => {
+      bgcolor = e.target.value;
+      ctx.fillStyle = bgcolor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      savePage();
+    };
+    document.getElementById('gridcolor').onchange = e => {
+      gridcolor = e.target.value;
+      drawGrid(document.getElementById('grid').value);
+    };
+    document.getElementById('thickness').oninput = e => thickness = e.target.value;
+    document.getElementById('grid').onchange = e => drawGrid(e.target.value);
+
+    document.getElementById('image-upload').addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const img = new Image();
+      img.onload = () => ctx.drawImage(img, 50, 50);
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function handleMouseDown(e) {
+    const x = e.offsetX, y = e.offsetY;
+    if (tool === 'pencil') {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      applyStyle(ctx, style, color);
+      ctx.lineWidth = thickness;
+      ctx.globalAlpha = 1.0;
+    } else if (tool === 'eraser') {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.strokeStyle = bgcolor;
+      ctx.lineWidth = thickness;
+      ctx.shadowBlur = 0;
+      ctx.globalAlpha = 1.0;
+    } else if (tool === 'highlighter') {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = thickness * 2;
+      ctx.globalAlpha = 0.3;
+    } else if (tool === 'text') {
+      const input = prompt('Enter text:');
+      if (input) {
+        const span = document.createElement('span');
+        span.className = 'emoji';
+        span.innerText = input;
+        span.style.left = `${x}px`;
+        span.style.top = `${y}px`;
+        span.style.color = color;
+        span.draggable = true;
+
+        span.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', null);
+          span.dataset.dragX = e.offsetX;
+          span.dataset.dragY = e.offsetY;
+        });
+
+        span.addEventListener('dragend', e => {
+          span.style.left = `${e.pageX - span.dataset.dragX}px`;
+          span.style.top = `${e.pageY - span.dataset.dragY}px`;
+        });
+
+        document.getElementById('canvas-container').appendChild(span);
+      }
+    }
+  }
+
+  function handleMouseMove(e) {
+    if (!drawing) return;
+    ctx.lineTo(e.offsetX, e.offsetY);
+    ctx.stroke();
+  }
+
+  function applyStyle(ctx, style, color) {
+    ctx.shadowBlur = 0;
+    ctx.shadowColor = 'transparent';
+    if (style === 'normal') {
+      ctx.strokeStyle = color;
+    } else if (style === 'brushed') {
+      ctx.strokeStyle = color;
+      ctx.shadowBlur = 5;
+      ctx.shadowColor = color;
+    } else if (style === 'neon') {
+      ctx.strokeStyle = color;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = color;
+    }
+  }
+
+  function savePage() {
+    pages[currentPage] = canvas.toDataURL();
+  }
+
+  function loadPage(index) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    if (pages[index]) {
+      const img = new Image();
+      img.src = pages[index];
+      img.onload = () => ctx.drawImage(img, 0, 0);
+    } else {
+      ctx.fillStyle = bgcolor;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    document.getElementById('page-info').innerText = `Page ${index + 1}`;
+  }
+
+  function nextPage() {
+    savePage();
+    currentPage++;
+    loadPage(currentPage);
+  }
+
+  function prevPage() {
+    if (currentPage === 0) return;
+    savePage();
+    currentPage--;
+    loadPage(currentPage);
+  }
+
+  function deletePage() {
+    if (pages.length === 0) return;
+    pages.splice(currentPage, 1);
+    currentPage = Math.max(0, currentPage - 1);
+    loadPage(currentPage);
+  }
+
+  function confirmClear() {
+    if (localStorage.getItem("skipClearConfirm") === "true") {
+      clearCanvas();
+      return;
+    }
+
+    if (confirm("Are you sure you want to clear the page?")) {
+      if (confirm("Don't show this again?")) {
+        localStorage.setItem("skipClearConfirm", "true");
+      }
+      clearCanvas();
+    }
+  }
+
+  function clearCanvas() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    document.querySelectorAll('.emoji').forEach(el => el.remove());
+    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  }
+
+  function drawGrid(type) {
+    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+    gridCtx.strokeStyle = gridcolor;
+    gridCtx.fillStyle = gridcolor;
+
+    if (type === 'dot') {
+      for (let x = 0; x < gridCanvas.width; x += 20) {
+        for (let y = 0; y < gridCanvas.height; y += 20) {
+          gridCtx.beginPath();
+          gridCtx.arc(x, y, 1, 0, 2 * Math.PI);
+          gridCtx.fill();
+        }
+      }
+    } else if (type === 'line') {
+      for (let y = 0; y < gridCanvas.height; y += 40) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(gridCanvas.width, y);
+        gridCtx.stroke();
+      }
+    } else if (type === 'square') {
+      for (let x = 0; x < gridCanvas.width; x += 40) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, gridCanvas.height);
+        gridCtx.stroke();
+      }
+      for (let y = 0; y < gridCanvas.height; y += 40) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(gridCanvas.width, y);
+        gridCtx.stroke();
+      }
+    }
+  }
+
+  // Make functions accessible globally
+  window.prevPage = prevPage;
+  window.nextPage = nextPage;
+  window.clearCanvas = clearCanvas;
+  window.confirmClear = confirmClear;
+  window.deletePage = deletePage;
+
+  window.onload = initWhiteboard;
+</script>
+
+</body>
+</html>
