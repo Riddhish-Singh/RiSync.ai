@@ -76,6 +76,8 @@
   <button onclick="document.getElementById('image-upload').click()">Upload Image</button>
 
   <div class="page-controls">
+    <button onclick="undo()">↩️ Undo</button>
+    <button onclick="redo()">↪️ Redo</button>
     <button onclick="prevPage()">⬅️</button>
     <span id="page-info">Page 1</span>
     <button onclick="nextPage()">➡️</button>
@@ -88,6 +90,8 @@
   <canvas id="canvas" width="1600" height="800"></canvas>
   <canvas id="gridCanvas" class="grid-layer" width="1600" height="800"></canvas>
 </div>
+	    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
+	
 
 <script>
   let canvas, ctx, gridCanvas, gridCtx;
@@ -97,6 +101,9 @@
   let style = 'normal';
   let drawing = false;
   let color, bgcolor, gridcolor, thickness;
+
+  let undoStack = [];
+  let redoStack = [];
 
   function initWhiteboard() {
     canvas = document.getElementById('canvas');
@@ -109,12 +116,10 @@
     gridcolor = document.getElementById('gridcolor').value;
     thickness = 2;
 
-    // Initial fill
     ctx.fillStyle = bgcolor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     drawGrid('none');
 
-    // Event Listeners
     canvas.addEventListener('mousedown', handleMouseDown);
     canvas.addEventListener('mousemove', handleMouseMove);
     canvas.addEventListener('mouseup', () => {
@@ -127,6 +132,7 @@
     document.getElementById('style').onchange = e => style = e.target.value;
     document.getElementById('color').onchange = e => color = e.target.value;
     document.getElementById('bgcolor').onchange = e => {
+      saveState();
       bgcolor = e.target.value;
       ctx.fillStyle = bgcolor;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -143,13 +149,18 @@
       const file = e.target.files[0];
       if (!file) return;
       const img = new Image();
-      img.onload = () => ctx.drawImage(img, 50, 50);
+      img.onload = () => {
+        saveState();
+        ctx.drawImage(img, 50, 50);
+      };
       img.src = URL.createObjectURL(file);
     });
   }
 
   function handleMouseDown(e) {
     const x = e.offsetX, y = e.offsetY;
+    saveState();
+
     if (tool === 'pencil') {
       drawing = true;
       ctx.beginPath();
@@ -252,6 +263,7 @@
   }
 
   function deletePage() {
+    saveState();
     if (pages.length === 0) return;
     pages.splice(currentPage, 1);
     currentPage = Math.max(0, currentPage - 1);
@@ -273,10 +285,10 @@
   }
 
   function clearCanvas() {
+    saveState();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = bgcolor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
     document.querySelectorAll('.emoji').forEach(el => el.remove());
     gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
   }
@@ -317,12 +329,42 @@
     }
   }
 
-  // Make functions accessible globally
+  function saveState() {
+    undoStack.push(canvas.toDataURL());
+    if (undoStack.length > 50) undoStack.shift();
+    redoStack = [];
+  }
+
+  function undo() {
+    if (undoStack.length === 0) return;
+    redoStack.push(canvas.toDataURL());
+    const previous = undoStack.pop();
+    restoreState(previous);
+  }
+
+  function redo() {
+    if (redoStack.length === 0) return;
+    undoStack.push(canvas.toDataURL());
+    const next = redoStack.pop();
+    restoreState(next);
+  }
+
+  function restoreState(dataURL) {
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = dataURL;
+  }
+
   window.prevPage = prevPage;
   window.nextPage = nextPage;
   window.clearCanvas = clearCanvas;
   window.confirmClear = confirmClear;
   window.deletePage = deletePage;
+  window.undo = undo;
+  window.redo = redo;
 
   window.onload = initWhiteboard;
 </script>
