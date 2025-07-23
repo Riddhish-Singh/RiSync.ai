@@ -4,32 +4,127 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Super Whiteboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
   <style>
     body { margin: 0; font-family: Arial, sans-serif; }
-    #toolbar {
-      background: #222; color: #fff; padding: 10px; display: flex; flex-wrap: wrap;
-      align-items: center; gap: 10px; position: relative; z-index: 1000;
+
+    @font-face {
+      font-family: 'RiSync';
+      src: local('Quicksand');
     }
+
+    #toolbar {
+      background: #222; color: #fff; padding: 10px;
+      display: flex; flex-wrap: wrap; align-items: center;
+      gap: 10px; position: relative; z-index: 1000;
+    }
+
     #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"] {
       margin: 0 5px;
     }
+
     #canvas-container {
       position: relative; width: 100vw; height: calc(100vh - 60px); overflow: hidden;
     }
+
     canvas { border: 1px solid #ccc; display: block; }
     .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
     .tool-label { color: white; }
+
     .grid-layer {
       position: absolute; top: 0; left: 0;
       pointer-events: none; z-index: 10;
     }
+
     .emoji {
       position: absolute; z-index: 30; font-size: 24px;
       cursor: move;
     }
+
     #logo {
       height: 30px; margin-right: 10px;
     }
+
+    .selectable {
+      position: absolute;
+      cursor: move;
+      border: 2px dashed transparent;
+      padding: 2px;
+    }
+
+    .selected {
+      border-color: blue !important;
+    }
+	
+#instructionModal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;
+  max-width: 480px;
+  max-height: 80vh;
+  overflow-y: auto;
+  background: #fff;
+  color: #222;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  display: none;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+#instructionModal h2 {
+  margin-top: 0;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff6f00;
+  text-align: center;
+}
+
+#instructionModal .close-btn {
+  position: absolute;
+  top: 8px;
+  right: 14px;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999;
+}
+
+#overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  display: none;
+}
+
+#hint {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: #222;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  opacity: 0.85;
+  font-family: Arial, sans-serif;
+}
+
+#hint kbd {
+  background: #fff;
+  color: #222;
+  padding: 2px 5px;
+  border-radius: 4px;
+  margin: 0 2px;
+  font-weight: bold;
+}
+
+
   </style>
 </head>
 <body>
@@ -41,7 +136,7 @@
   <select id="tool">
     <option value="pencil">Pencil</option>
     <option value="eraser">Eraser</option>
-    <option value="highlighter">Highlighter</option>
+    <option value="select">Select</option>
     <option value="text">Text</option>
   </select>
 
@@ -75,6 +170,23 @@
   <input type="file" id="image-upload" style="display:none">
   <button onclick="document.getElementById('image-upload').click()">Upload Image</button>
 
+  <label class="tool-label">Font:</label>
+  <select id="font-family">
+    <option value="RiSync">RiSync</option>
+    <option value="Arial">Arial</option>
+    <option value="Courier New">Courier New</option>
+    <option value="Times New Roman">Times New Roman</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Comic Sans MS">Comic Sans MS</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Impact">Impact</option>
+    <option value="Trebuchet MS">Trebuchet MS</option>
+    <option value="Brush Script MT">Brush Script MT</option>
+  </select>
+
+  <label class="tool-label">Size:</label>
+  <input type="number" id="font-size" value="16" min="8" max="100">
+
   <div class="page-controls">
     <button onclick="undo()">↩️ Undo</button>
     <button onclick="redo()">↪️ Redo</button>
@@ -86,6 +198,30 @@
   </div>
 </div>
 
+<!-- Instruction Modal & Overlay -->
+<div id="overlay"></div>
+<div id="instructionModal">
+  <div class="close-btn" onclick="toggleInstructions()">✖</div>
+  <h2>📋 Whiteboard Instructions</h2>
+  <p>🖌 <strong>Tool:</strong> Choose between Pencil ✏️, Eraser 🧼, Text 🅰️, or Select 🔲 to modify items.</p>
+  <p>🎨 <strong>Style:</strong> Use Normal, Brushed, or Neon for your pencil strokes.</p>
+  <p>🎯 <strong>Color:</strong> Pick a pen color and background color you like.</p>
+  <p>🔠 <strong>Font & Size:</strong><br/>
+  Add text using your chosen font. Try our custom "RiSync" font too!</p>
+  <p>📌 <strong>IMPORTANT:</strong> To change the font/size of any placed text: set your font or size first in the toolbar, then switch to "Select" 🔲 and click on the text.</p>
+  <p>📐 <strong>Grid:</strong> Want structure? Choose Dot, Line, or Square grids.</p>
+  <p>🖼️ <strong>Upload:</strong> Click "Upload Image" to add any image to your canvas.</p>
+  <p>🧽 <strong>Clear:</strong> Click "Clear" to clean the page (you’ll be asked once for confirmation).</p>
+  <p>↩️ <strong>Undo / ↪️ Redo:</strong> Made a mistake? Undo or redo easily.</p>
+  <p>📄 <strong>Pages:</strong> Use ⬅️ ➡️ to move across multiple pages. You can also delete pages.</p>
+  <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly!   <p>   2) Use Ctrl + I to open instructions. </p> </p>
+ <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
+</div>
+
+<!-- Floating Hint -->
+<div id="hint">Press <kbd>Ctrl</kbd> + <kbd>I</kbd> for Instructions</div>
+
+
 <div id="canvas-container">
   <canvas id="canvas" width="1600" height="800"></canvas>
   <canvas id="gridCanvas" class="grid-layer" width="1600" height="800"></canvas>
@@ -93,291 +229,343 @@
 <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
 
 <script>
-  let canvas, ctx, gridCanvas, gridCtx;
-  let pages = [];
-  let currentPage = 0;
-  let tool = 'pencil';
-  let style = 'normal';
-  let drawing = false;
-  let color, bgcolor, gridcolor, thickness;
+let selectedElement = null;
 
-  let undoStack = [];
-  let redoStack = [];
+document.addEventListener('click', function (e) {
+  if (tool !== 'select') return;
 
-  function initWhiteboard() {
-    canvas = document.getElementById('canvas');
-    ctx = canvas.getContext('2d');
-    gridCanvas = document.getElementById('gridCanvas');
-    gridCtx = gridCanvas.getContext('2d');
+  if (selectedElement) selectedElement.classList.remove('selected');
 
-    color = document.getElementById('color').value;
-    bgcolor = document.getElementById('bgcolor').value;
-    gridcolor = document.getElementById('gridcolor').value;
-    thickness = 2;
+  if (e.target.classList.contains('emoji')) {
+    selectedElement = e.target;
+    selectedElement.classList.add('selected');
 
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawGrid('none');
-
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', () => {
-      drawing = false;
-      ctx.closePath();
-      ctx.globalAlpha = 1.0;
-    });
-
-    document.getElementById('tool').onchange = e => tool = e.target.value;
-    document.getElementById('style').onchange = e => style = e.target.value;
-    document.getElementById('color').onchange = e => color = e.target.value;
-    document.getElementById('bgcolor').onchange = e => {
-      saveState();
-      bgcolor = e.target.value;
-      ctx.fillStyle = bgcolor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      savePage();
-    };
-    document.getElementById('gridcolor').onchange = e => {
-      gridcolor = e.target.value;
-      drawGrid(document.getElementById('grid').value);
-    };
-    document.getElementById('thickness').oninput = e => thickness = e.target.value;
-    document.getElementById('grid').onchange = e => drawGrid(e.target.value);
-
-    document.getElementById('image-upload').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const img = new Image();
-      img.onload = () => {
-        saveState();
-        ctx.drawImage(img, 50, 50);
-      };
-      img.src = URL.createObjectURL(file);
-    });
+    // Auto-apply current font, size, color
+    selectedElement.style.fontFamily = document.getElementById('font-family').value;
+    selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
+    selectedElement.style.color = document.getElementById('color').value;
+  } else {
+    selectedElement = null;
   }
+});
 
-  function handleMouseDown(e) {
-    const x = e.offsetX, y = e.offsetY;
-    saveState();
-
-    if (tool === 'pencil') {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      applyStyle(ctx, style, color);
-      ctx.lineWidth = thickness;
-      ctx.globalAlpha = 1.0;
-    } else if (tool === 'eraser') {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.strokeStyle = bgcolor;
-      ctx.lineWidth = thickness;
-      ctx.shadowBlur = 0;
-      ctx.globalAlpha = 1.0;
-    } else if (tool === 'highlighter') {
-      drawing = true;
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      ctx.strokeStyle = color;
-      ctx.lineWidth = thickness * 2;
-      ctx.globalAlpha = 0.3;
-    } else if (tool === 'text') {
-      const input = prompt('Enter text:');
-      if (input) {
-        const span = document.createElement('span');
-        span.className = 'emoji';
-        span.innerText = input;
-        span.style.left = `${x}px`;
-        span.style.top = `${y}px`;
-        span.style.color = color;
-        span.draggable = true;
-
-        span.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', null);
-          span.dataset.dragX = e.offsetX;
-          span.dataset.dragY = e.offsetY;
-        });
-
-        span.addEventListener('dragend', e => {
-          span.style.left = `${e.pageX - span.dataset.dragX}px`;
-          span.style.top = `${e.pageY - span.dataset.dragY}px`;
-        });
-
-        document.getElementById('canvas-container').appendChild(span);
-      }
-    }
-  }
-
-  function handleMouseMove(e) {
-    if (!drawing) return;
-    ctx.lineTo(e.offsetX, e.offsetY);
-    ctx.stroke();
-  }
-
-  function applyStyle(ctx, style, color) {
-    ctx.shadowBlur = 0;
-    ctx.shadowColor = 'transparent';
-    if (style === 'normal') {
-      ctx.strokeStyle = color;
-    } else if (style === 'brushed') {
-      ctx.strokeStyle = color;
-      ctx.shadowBlur = 5;
-      ctx.shadowColor = color;
-    } else if (style === 'neon') {
-      ctx.strokeStyle = color;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = color;
-    }
-  }
-
-  function savePage() {
-    pages[currentPage] = canvas.toDataURL();
-  }
-
-  function loadPage(index) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    if (pages[index]) {
-      const img = new Image();
-      img.src = pages[index];
-      img.onload = () => ctx.drawImage(img, 0, 0);
-    } else {
-      ctx.fillStyle = bgcolor;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    document.getElementById('page-info').innerText = `Page ${index + 1}`;
-  }
-
-  function nextPage() {
-    savePage();
-    currentPage++;
-    loadPage(currentPage);
-  }
-
-  function prevPage() {
-    if (currentPage === 0) return;
-    savePage();
-    currentPage--;
-    loadPage(currentPage);
-  }
-
-  function deletePage() {
-    saveState();
-    if (pages.length === 0) return;
-    pages.splice(currentPage, 1);
-    currentPage = Math.max(0, currentPage - 1);
-    loadPage(currentPage);
-  }
-
-  function confirmClear() {
-    if (localStorage.getItem("skipClearConfirm") === "true") {
-      clearCanvas();
-      return;
-    }
-
-    if (confirm("Are you sure you want to clear the page?")) {
-      if (confirm("Don't show this again?")) {
-        localStorage.setItem("skipClearConfirm", "true");
-      }
-      clearCanvas();
-    }
-  }
-
-  function clearCanvas() {
-    saveState();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    document.querySelectorAll('.emoji').forEach(el => el.remove());
-    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-  }
-
-  function drawGrid(type) {
-    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-    gridCtx.strokeStyle = gridcolor;
-    gridCtx.fillStyle = gridcolor;
-
-    if (type === 'dot') {
-      for (let x = 0; x < gridCanvas.width; x += 20) {
-        for (let y = 0; y < gridCanvas.height; y += 20) {
-          gridCtx.beginPath();
-          gridCtx.arc(x, y, 1, 0, 2 * Math.PI);
-          gridCtx.fill();
-        }
-      }
-    } else if (type === 'line') {
-      for (let y = 0; y < gridCanvas.height; y += 40) {
-        gridCtx.beginPath();
-        gridCtx.moveTo(0, y);
-        gridCtx.lineTo(gridCanvas.width, y);
-        gridCtx.stroke();
-      }
-    } else if (type === 'square') {
-      for (let x = 0; x < gridCanvas.width; x += 40) {
-        gridCtx.beginPath();
-        gridCtx.moveTo(x, 0);
-        gridCtx.lineTo(x, gridCanvas.height);
-        gridCtx.stroke();
-      }
-      for (let y = 0; y < gridCanvas.height; y += 40) {
-        gridCtx.beginPath();
-        gridCtx.moveTo(0, y);
-        gridCtx.lineTo(gridCanvas.width, y);
-        gridCtx.stroke();
-      }
-    }
-  }
-
-  function saveState() {
-    undoStack.push(canvas.toDataURL());
-    if (undoStack.length > 50) undoStack.shift();
-    redoStack = [];
-  }
-
-  function undo() {
-    if (undoStack.length === 0) return;
-    redoStack.push(canvas.toDataURL());
-    const previous = undoStack.pop();
-    restoreState(previous);
-  }
-
-  function redo() {
-    if (redoStack.length === 0) return;
-    undoStack.push(canvas.toDataURL());
-    const next = redoStack.pop();
-    restoreState(next);
-  }
-
-  function restoreState(dataURL) {
-    const img = new Image();
-    img.onload = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = dataURL;
-  }
-
-  // Keyboard Shortcuts 🎹
-  document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-      e.preventDefault();
-      undo();
-    }
-    if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
-      e.preventDefault();
-      redo();
+// Live update font/style when selection changes
+['font-family', 'font-size', 'color'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    if (selectedElement && selectedElement.classList.contains('emoji')) {
+      selectedElement.style.fontFamily = document.getElementById('font-family').value;
+      selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
+      selectedElement.style.color = document.getElementById('color').value;
     }
   });
+});
 
-  window.prevPage = prevPage;
-  window.nextPage = nextPage;
-  window.clearCanvas = clearCanvas;
-  window.confirmClear = confirmClear;
-  window.deletePage = deletePage;
-  window.undo = undo;
-  window.redo = redo;
+let canvas, ctx, gridCanvas, gridCtx;
+let pages = [];
+let currentPage = 0;
+let tool = 'pencil';
+let style = 'normal';
+let drawing = false;
+let color, bgcolor, gridcolor, thickness;
 
-  window.onload = initWhiteboard;
+let undoStack = [];
+let redoStack = [];
+
+function initWhiteboard() {
+  canvas = document.getElementById('canvas');
+  ctx = canvas.getContext('2d');
+  gridCanvas = document.getElementById('gridCanvas');
+  gridCtx = gridCanvas.getContext('2d');
+
+  color = document.getElementById('color').value;
+  bgcolor = document.getElementById('bgcolor').value;
+  gridcolor = document.getElementById('gridcolor').value;
+  thickness = 2;
+
+  ctx.fillStyle = bgcolor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  drawGrid('none');
+
+  canvas.addEventListener('mousedown', handleMouseDown);
+  canvas.addEventListener('mousemove', handleMouseMove);
+  canvas.addEventListener('mouseup', () => {
+    drawing = false;
+    ctx.closePath();
+    ctx.globalAlpha = 1.0;
+  });
+
+  document.getElementById('tool').onchange = e => tool = e.target.value;
+  document.getElementById('style').onchange = e => style = e.target.value;
+  document.getElementById('color').onchange = e => color = e.target.value;
+  document.getElementById('bgcolor').onchange = e => {
+    saveState();
+    bgcolor = e.target.value;
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    savePage();
+  };
+  document.getElementById('gridcolor').onchange = e => {
+    gridcolor = e.target.value;
+    drawGrid(document.getElementById('grid').value);
+  };
+  document.getElementById('thickness').oninput = e => thickness = e.target.value;
+  document.getElementById('grid').onchange = e => drawGrid(e.target.value);
+
+  document.getElementById('image-upload').addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const img = new Image();
+    img.onload = () => {
+      saveState();
+      ctx.drawImage(img, 50, 50);
+    };
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+function handleMouseDown(e) {
+  const x = e.offsetX, y = e.offsetY;
+  saveState();
+
+  if (tool === 'pencil') {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    applyStyle(ctx, style, color);
+    ctx.lineWidth = thickness;
+    ctx.globalAlpha = 1.0;
+  } else if (tool === 'eraser') {
+    drawing = true;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.strokeStyle = bgcolor;
+    ctx.lineWidth = thickness;
+    ctx.shadowBlur = 0;
+    ctx.globalAlpha = 1.0;
+  } else if (tool === 'text') {
+    const input = prompt('Enter text:');
+    if (input) {
+      const span = document.createElement('span');
+      span.className = 'emoji';
+      span.innerText = input;
+      span.style.left = `${x}px`;
+      span.style.top = `${y}px`;
+      span.style.color = document.getElementById('color').value;
+      span.style.fontFamily = document.getElementById('font-family').value;
+      span.style.fontSize = `${document.getElementById('font-size').value}px`;
+      span.draggable = true;
+
+      span.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', null);
+        span.dataset.dragX = e.offsetX;
+        span.dataset.dragY = e.offsetY;
+      });
+
+      span.addEventListener('dragend', e => {
+        span.style.left = `${e.pageX - span.dataset.dragX}px`;
+        span.style.top = `${e.pageY - span.dataset.dragY}px`;
+      });
+
+      document.getElementById('canvas-container').appendChild(span);
+    }
+  }
+}
+
+function handleMouseMove(e) {
+  if (!drawing) return;
+  ctx.lineTo(e.offsetX, e.offsetY);
+  ctx.stroke();
+}
+
+function applyStyle(ctx, style, color) {
+  ctx.shadowBlur = 0;
+  ctx.shadowColor = 'transparent';
+  if (style === 'normal') {
+    ctx.strokeStyle = color;
+  } else if (style === 'brushed') {
+    ctx.strokeStyle = color;
+    ctx.shadowBlur = 5;
+    ctx.shadowColor = color;
+  } else if (style === 'neon') {
+    ctx.strokeStyle = color;
+    ctx.shadowBlur = 15;
+    ctx.shadowColor = color;
+  }
+}
+
+function savePage() {
+  pages[currentPage] = canvas.toDataURL();
+}
+
+function loadPage(index) {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  if (pages[index]) {
+    const img = new Image();
+    img.src = pages[index];
+    img.onload = () => ctx.drawImage(img, 0, 0);
+  } else {
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+  document.getElementById('page-info').innerText = `Page ${index + 1}`;
+}
+
+function nextPage() {
+  savePage();
+  currentPage++;
+  loadPage(currentPage);
+}
+
+function prevPage() {
+  if (currentPage === 0) return;
+  savePage();
+  currentPage--;
+  loadPage(currentPage);
+}
+
+function deletePage() {
+  saveState();
+  if (pages.length === 0) return;
+  pages.splice(currentPage, 1);
+  currentPage = Math.max(0, currentPage - 1);
+  loadPage(currentPage);
+}
+
+function confirmClear() {
+  if (localStorage.getItem("skipClearConfirm") === "true") {
+    clearCanvas();
+    return;
+  }
+
+  if (confirm("Are you sure you want to clear the page?")) {
+    if (confirm("Don't show this again?")) {
+      localStorage.setItem("skipClearConfirm", "true");
+    }
+    clearCanvas();
+  }
+}
+
+function clearCanvas() {
+  saveState();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = bgcolor;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  document.querySelectorAll('.emoji').forEach(el => el.remove());
+}
+
+function drawGrid(type) {
+  gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  gridCtx.strokeStyle = gridcolor;
+  gridCtx.fillStyle = gridcolor;
+
+  if (type === 'dot') {
+    for (let x = 0; x < gridCanvas.width; x += 20) {
+      for (let y = 0; y < gridCanvas.height; y += 20) {
+        gridCtx.beginPath();
+        gridCtx.arc(x, y, 1, 0, 2 * Math.PI);
+        gridCtx.fill();
+      }
+    }
+  } else if (type === 'line') {
+    for (let y = 0; y < gridCanvas.height; y += 40) {
+      gridCtx.beginPath();
+      gridCtx.moveTo(0, y);
+      gridCtx.lineTo(gridCanvas.width, y);
+      gridCtx.stroke();
+    }
+  } else if (type === 'square') {
+    for (let x = 0; x < gridCanvas.width; x += 40) {
+      gridCtx.beginPath();
+      gridCtx.moveTo(x, 0);
+      gridCtx.lineTo(x, gridCanvas.height);
+      gridCtx.stroke();
+    }
+    for (let y = 0; y < gridCanvas.height; y += 40) {
+      gridCtx.beginPath();
+      gridCtx.moveTo(0, y);
+      gridCtx.lineTo(gridCanvas.width, y);
+      gridCtx.stroke();
+    }
+  }
+}
+
+function saveState() {
+  undoStack.push(canvas.toDataURL());
+  if (undoStack.length > 50) undoStack.shift();
+  redoStack = [];
+}
+
+function undo() {
+  if (undoStack.length === 0) return;
+  redoStack.push(canvas.toDataURL());
+  const previous = undoStack.pop();
+  restoreState(previous);
+}
+
+function redo() {
+  if (redoStack.length === 0) return;
+  undoStack.push(canvas.toDataURL());
+  const next = redoStack.pop();
+  restoreState(next);
+}
+
+function restoreState(dataURL) {
+  const img = new Image();
+  img.onload = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+  };
+  img.src = dataURL;
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault();
+    undo();
+  }
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
+    e.preventDefault();
+    redo();
+  }
+});
+
+window.prevPage = prevPage;
+window.nextPage = nextPage;
+window.clearCanvas = clearCanvas;
+window.confirmClear = confirmClear;
+window.deletePage = deletePage;
+window.undo = undo;
+window.redo = redo;
+
+window.onload = initWhiteboard;
+
+// ⌨️ Ctrl + I toggle instructions
+const modal = document.getElementById('instructionModal');
+const overlay = document.getElementById('overlay');
+
+function toggleInstructions() {
+  const isOpen = modal.style.display === 'block';
+  modal.style.display = isOpen ? 'none' : 'block';
+  overlay.style.display = isOpen ? 'none' : 'block';
+}
+
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.key.toLowerCase() === 'i') {
+    e.preventDefault();
+    toggleInstructions();
+  }
+});
+
+overlay.addEventListener('click', toggleInstructions);
+// Show instructions on first load (once per session)
+window.addEventListener('load', () => {
+  if (!sessionStorage.getItem('shownInstructions')) {
+    toggleInstructions();
+    sessionStorage.setItem('shownInstructions', 'true');
+  }
+});
+
+
 </script>
 
 </body>
