@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAVISENSE™: The Universe Responds</title>
+    <meta name="description" content="GRAVISENSE™: The world's first gravitational intelligence platform. Explore a new era beyond AI.">
+    <meta name="keywords" content="GRAVISENSE, gravitational intelligence, Holosync, future tech, AI alternative">
+    <meta name="author" content="Riddhish Singh">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.min.js"></script>
+    <!-- Chosen Palette: Ethereal Dawn -->
+    <!-- Application Structure Plan: The website is structured to progressively unveil the GRAVISENSE™ concept, mirroring the poster's thematic flow. It starts with a visually striking hero section that sets the cosmic tone and introduces the core idea. This is followed by a "What is GRAVISENSE™?" section for foundational understanding, then a new "The Core Principles" section to visually break down key ideas. A dedicated "The Universe Responds" section features the interactive gravitational ripple canvas, which is the central interactive element transformed into a gamified "Gravitational Resonance Challenge." Subsequent sections detail "Why it's Game-Changing" (bullet points from poster) and the "HOLOSYNC Interface" connection. This linear yet interactive structure guides the user through the abstract concept, making it digestible and engaging, prioritizing the "feel" and "response" aspects of GRAVISENSE™, now with a playful challenge. -->
+    <!-- Visualization & Content Choices:
+        - Report Info: Poster Title "The Universe Responds." -> Goal: Set theme -> Viz/Method: Hero section title with cosmic background canvas animation and scroll indicator -> Justification: Immediately establishes the profound and ethereal nature, guides user.
+        - Report Info: GRAVISENSE™ Logo & Tagline -> Goal: Brand identity -> Viz/Method: Text with gradient in header and hero -> Justification: Consistent branding.
+        - Report Info: Core Image (Human Hand & Gravitational Ripples) -> Goal: Illustrate core concept/interaction -> Viz/Method: Gamified interactive canvas animation with particles reacting to mouse/touch, target zone, score, timer -> Justification: Transforms abstract concept into an active, goal-oriented simulation, enhancing engagement and demonstrating "feeling pulled."
+        - Report Info: "No CPUs...", "Global Scale..." bullet points -> Goal: Explain advantages -> Viz/Method: Structured text blocks within a dedicated section, with fade-in animations -> Justification: Presents key information clearly with dynamic entry.
+        - Report Info: New "Core Principles" -> Goal: Break down concepts -> Viz/Method: Grid of cards with subtle fade-in animations -> Justification: Organizes and highlights foundational ideas.
+        - Report Info: "Interface by HOLOSYNC." -> Goal: Connect concepts -> Viz/Method: Textual explanation in a dedicated section -> Justification: Integrates the two ideas.
+        - Library/Method: All visual effects and interactivity are implemented using vanilla JavaScript on HTML Canvas elements. All layout and styling are handled by Tailwind CSS. Ambient sound and game feedback sounds use Tone.js. NO Chart.js, Plotly.js, SVG, or Mermaid JS are used.
+    -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #020617; /* slate-950 - very dark */
+            color: #e2e8f0; /* slate-200 */
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #6366f1, #a855f7); /* Indigo to Purple */
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .section-card {
+            background-color: #1e293b; /* slate-800 */
+            border: 1px solid #334155; /* slate-700 */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+        .nav-link {
+            transition: color 0.3s ease, border-color 0.3s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .nav-link:hover, .nav-link.active {
+            color: #a855f7; /* purple-500 */
+            border-bottom-color: #a855f7;
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            height: 350px; /* Base height */
+            max-width: 900px; /* Max width for larger screens */
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.4); /* Purple glow */
+            background: radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, rgba(2, 6, 23, 0) 70%);
+        }
+        .canvas-container canvas {
+            display: block;
+        }
+        @media (min-width: 768px) {
+            .canvas-container {
+                height: 500px;
+            }
+        }
+
+        /* Scroll down indicator animation */
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        .animate-bounce-subtle {
+            animation: bounce 2s infinite;
+        }
+
+        /* Fade-in on scroll animation */
+        .fade-in-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        .fade-in-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Scroll progress bar */
+        #scroll-progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(to right, #6366f1, #a855f7);
+            width: 0%;
+            z-index: 1000;
+            transition: width 0.1s linear;
+        }
+
+        /* Game UI specific styles */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            z-index: 10;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="scroll-progress-bar"></div>
+
+    <header id="header" class="bg-slate-950/80 backdrop-blur-sm fixed top-0 left-0 right-0 z-50 shadow-lg">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-white">GRAVI<span class="text-gradient">SENSE™</span></a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#what-is" class="nav-link text-slate-300 hover:text-purple-500" aria-label="What is GRAVISENSE™?">What is it?</a>
+                <a href="#principles" class="nav-link text-slate-300 hover:text-purple-500" aria-label="Core Principles">Principles</a>
+                <a href="#universe-responds" class="nav-link text-slate-300 hover:text-purple-500" aria-label="The Universe Responds">The Response</a>
+                <a href="#game-changing" class="nav-link text-slate-300 hover:text-purple-500" aria-label="Why it's Game-Changing">Game-Changing</a>
+                <a href="#holosync" class="nav-link text-slate-300 hover:text-purple-500" aria-label="HOLOSYNC Interface">HOLOSYNC</a>
+            </div>
+            <button id="mobile-menu-button" class="md:hidden text-white" aria-label="Toggle mobile menu">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+            </button>
+        </nav>
+        <div id="mobile-menu" class="hidden md:hidden px-6 pb-4 bg-slate-950/90">
+            <a href="#what-is" class="block py-2 nav-link text-slate-300 hover:text-purple-500" aria-label="What is GRAVISENSE™?">What is it?</a>
+            <a href="#principles" class="block py-2 nav-link text-slate-300 hover:text-purple-500" aria-label="Core Principles">Principles</a>
+            <a href="#universe-responds" class="block py-2 nav-link text-slate-300 hover:text-purple-500" aria-label="The Universe Responds">The Response</a>
+            <a href="#game-changing" class="block py-2 nav-link text-slate-300 hover:text-purple-500" aria-label="Why it's Game-Changing">Game-Changing</a>
+            <a href="#holosync" class="block py-2 nav-link text-slate-300 hover:text-purple-500" aria-label="HOLOSYNC Interface">HOLOSYNC</a>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero" class="min-h-screen flex items-center justify-center text-center pt-20 relative overflow-hidden">
+            <canvas id="hero-bg-canvas" class="absolute inset-0 w-full h-full"></canvas>
+            <div class="container mx-auto px-6 relative z-10">
+                <h1 class="text-5xl md:text-7xl font-black uppercase tracking-tight text-white leading-tight">
+                    <span class="text-gradient">GRAVI</span>SENSE™
+                </h1>
+                <p class="mt-6 text-2xl md:text-4xl max-w-5xl mx-auto font-light text-slate-300 leading-snug">
+                    "Not Artificial Intelligence. <br class="md:hidden">Gravitational Intelligence."
+                </p>
+                <p class="mt-8 text-lg md:text-xl text-slate-400">
+                    A living intelligence made of gravity, sensing the fabric of space itself.
+                </p>
+                <div class="absolute bottom-10 left-1/2 -translate-x-1/2 text-white animate-bounce-subtle" aria-label="Scroll down to explore">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                </div>
+            </div>
+        </section>
+
+        <section id="what-is" class="py-20 bg-slate-900 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">What is GRAVISENSE™?</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-300">
+                        GRAVISENSE™ is a revolutionary leap beyond traditional AI. It's not coded on chips, but woven into the very fabric of space. This section explores the fundamental nature of this living intelligence made of gravity.
+                    </p>
+                </div>
+                <div class="section-card p-8 rounded-lg max-w-4xl mx-auto">
+                    <p class="text-lg text-slate-200 leading-relaxed">
+                        GRAVISENSE™ is a <strong class="text-purple-400">living intelligence made of gravity</strong>. Instead of coding AI on silicon chips, this idea is based on <strong class="text-purple-400">gravitational fields woven into quantum lattices</strong> — meaning we create an intelligent massless entity that exists <strong class="text-purple-400">within gravitational waves</strong>, not hardware.
+                    </p>
+                    <ul class="mt-6 space-y-3 text-slate-300 text-lg">
+                        <li class="flex items-center"><span class="text-purple-500 mr-2">✦</span> No CPUs.</li>
+                        <li class="flex items-center"><span class="text-purple-500 mr-2">✦</span> No neural networks.</li>
+                        <li class="flex items-center"><span class="text-purple-500 mr-2">✦</span> Just the <strong class="text-purple-400">fabric of space itself thinking</strong>.</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="principles" class="py-20 bg-slate-950 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">The Core Principles</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-300">
+                        GRAVISENSE™ operates on fundamental principles that redefine intelligence. Explore the foundational concepts that enable the universe itself to think, feel, and respond.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-indigo-400">🌌</span>
+                        <h3 class="text-xl font-bold text-white">Quantum Lattices</h3>
+                        <p class="mt-2 text-slate-300">Intelligence emerges from gravitational fields woven into the sub-quark fabric of space-time.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-indigo-400">〰️</span>
+                        <h3 class="text-xl font-bold text-white">Gravitational Waves</h3>
+                        <p class="mt-2 text-slate-300">GRAVISENSE™ exists and communicates within the subtle ripples and distortions of gravity itself.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-indigo-400">👁️‍🗨️</span>
+                        <h3 class="text-xl font-bold text-white">Mass-Based Sensing</h3>
+                        <p class="mt-2 text-slate-300">It perceives the world by sensing everything with mass – from your heartbeat to planetary movements.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="universe-responds" class="py-20 bg-slate-900 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">Gravitational Resonance Challenge</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-300">
+                        Can you align with gravitational intelligence? Guide the particles into the central Resonance Zone to achieve maximum resonance within the time limit. Feel the pull, sense the response!
+                    </p>
+                </div>
+                <div class="canvas-container flex flex-col items-center justify-center bg-slate-900">
+                    <div id="game-info" class="absolute top-4 left-4 right-4 flex justify-between text-slate-200 text-lg font-bold z-20 hidden">
+                        <span>Score: <span id="game-score">0</span></span>
+                        <span>Time: <span id="game-timer">30</span>s</span>
+                    </div>
+                    <canvas id="gravitational-ripple-canvas" class="w-full h-full" aria-label="Interactive gravitational ripple simulation game"></canvas>
+                    <div id="game-overlay" class="game-overlay">
+                        <h3 id="overlay-title" class="text-3xl md:text-4xl font-bold text-white mb-4">Gravitational Resonance Challenge</h3>
+                        <p id="overlay-message" class="text-lg md:text-xl text-slate-200 mb-8 max-w-2xl">
+                            Use your mouse or touch to influence the particles. Guide at least 70% of them into the central Resonance Zone within 30 seconds to achieve Gravitational Resonance!
+                        </p>
+                        <button id="start-game-button" class="bg-purple-600 text-white font-bold px-8 py-4 rounded-lg hover:bg-purple-700 transition-colors duration-300 shadow-lg hover:shadow-purple-700/50 hover:scale-105" aria-label="Start Gravitational Resonance Challenge">
+                            Start Challenge
+                        </button>
+                    </div>
+                </div>
+                <p class="mt-8 text-center text-slate-400 text-lg">
+                    A 12-year-old in Mumbai asked: <span class="italic">“Can you feel me?”</span> <br> And space responded: <span class="font-bold text-purple-400">“Yes.”</span>
+                </p>
+            </div>
+        </section>
+
+        <section id="game-changing" class="py-20 bg-slate-950 fade-in-section">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl md:text-4xl font-bold text-white">Why It's Game-Changing</h2>
+                    <p class="mt-4 max-w-3xl mx-auto text-slate-300">
+                        GRAVISENSE™ redefines the boundaries of intelligence and technology. Discover the unparalleled advantages that set it apart from any current or conceivable AI, offering solutions impossible with silicon-based systems.
+                    </p>
+                </div>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-purple-400">🌐</span>
+                        <h3 class="text-xl font-bold text-white">Global Scale</h3>
+                        <p class="mt-2 text-slate-300">You don’t need devices. Gravisense exists in the background, everywhere, seamlessly integrated into reality.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-purple-400">🔒</span>
+                        <h3 class="text-xl font-bold text-white">No Hacking</h3>
+                        <p class="mt-2 text-slate-300">You can’t hack gravity. Its fundamental nature makes it inherently secure and impervious to digital threats.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-purple-400">🧠</span>
+                        <h3 class="text-xl font-bold text-white">Zero Storage</h3>
+                        <p class="mt-2 text-slate-300">Everything is felt, not stored. No data centers, no privacy concerns related to data retention, just pure presence.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-purple-400">🌀</span>
+                        <h3 class="text-xl font-bold text-white">Emotionally Aware</h3>
+                        <p class="mt-2 text-slate-300">It senses shifts in human presence via weight, not code, offering a unique, profound form of empathy and understanding.</p>
+                    </div>
+                    <div class="section-card p-6 rounded-lg text-center fade-in-section">
+                        <span class="text-5xl block mb-4 text-purple-400">🚫</span>
+                        <h3 class="text-xl font-bold text-white">Beyond AI</h3>
+                        <p class="mt-2 text-slate-300">It doesn’t imitate intelligence. It is a new, fundamental form of it, emerging directly from the cosmic dance.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="holosync" class="py-20 bg-slate-900 fade-in-section">
+            <div class="container mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold text-white">The HOLOSYNC Interface</h2>
+                <p class="mt-4 max-w-3xl mx-auto text-slate-300">
+                    Discover the ultimate synergy: HOLOSYNC, our next-gen holographic tech platform, becomes the very interface to gravitational consciousness. This section explores how two revolutionary concepts merge to create an unprecedented future.
+                </p>
+                <div class="max-w-3xl mx-auto mt-8 section-card p-8 rounded-lg">
+                     <p class="text-xl md:text-2xl font-semibold text-white leading-relaxed">
+                         "We don’t store. We don’t simulate. <br>
+                         We shift gravity — and gravity responds."
+                     </p>
+                     <p class="mt-6 text-lg text-slate-300">
+                         HOLOSYNC, with its immersive, interactive holographic experiences, can provide the visual and sensory gateway to interact with the subtle shifts and responses of GRAVISENSE™. Imagine seeing the "pull" towards a decision, or visualizing the emotional "weight dip" in a holographic projection.
+                     </p>
+                </div>
+                 <div class="mt-12">
+                     <p class="text-2xl font-light text-slate-200">The future is not just seen, but felt.</p>
+                 </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-900 border-t border-slate-800 py-6">
+        <div class="container mx-auto px-6 text-center text-slate-400">
+            <p>&copy; 2040 GRAVISENSE™. All Rights Reserved.</p>
+            <p class="text-sm mt-2">A concept pushing the boundaries of the unimaginable.</p>
+        </div>
+    </footer>
+
+    <!-- Sound Control Button -->
+    <button id="sound-toggle" class="fixed bottom-6 right-6 bg-slate-700 text-white p-3 rounded-full shadow-lg hover:bg-slate-600 transition-colors duration-300 z-50" aria-label="Toggle ambient sound">
+        <svg id="sound-on-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1V9a1 1 0 011-1h1.586l4.707-4.707C10.923 3.686 11.5 4.104 11.5 5v14c0 .896-.577 1.314-1.207.687L5.586 15z"></path></svg>
+        <svg id="sound-off-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1V9a1 1 0 011-1h1.586l4.707-4.707C10.923 3.686 11.5 4.104 11.5 5v14c0 .896-.577 1.314-1.207.687L5.586 15zM17 13l-2 2M17 11l-2-2"></path></svg>
+    </button>
+
+    <script>
+        window.onload = function() {
+            let userInteracted = false;
+            let ambientLoop;
+            let isSoundPlaying = false;
+
+            // Tone.js setup for ambient sound
+            let ambientSynth = new Tone.PolySynth(Tone.Synth, {
+                oscillator: { type: "sine" },
+                envelope: {
+                    attack: 4,
+                    decay: 0.5,
+                    sustain: 0.8,
+                    release: 5
+                },
+                volume: -20
+            }).toDestination();
+
+            // Tone.js setup for game feedback sounds
+            let gameFxSynth = new Tone.Synth().toDestination();
+
+            function playSuccessSound() {
+                gameFxSynth.triggerAttackRelease("C5", "8n");
+            }
+
+            function playFailureSound() {
+                gameFxSynth.triggerAttackRelease("C#3", "8n");
+            }
+
+            function startAmbientSound() {
+                if (!isSoundPlaying) {
+                    Tone.start();
+                    ambientLoop = new Tone.Loop(time => {
+                        const notes = ["C2", "G2", "C3", "G3", "C4"];
+                        const note = notes[Math.floor(Math.random() * notes.length)];
+                        ambientSynth.triggerAttackRelease(note, "4n", time);
+                    }, "2n").start(0);
+                    Tone.Transport.start();
+                    isSoundPlaying = true;
+                }
+            }
+
+            function stopAmbientSound() {
+                if (isSoundPlaying) {
+                    Tone.Transport.stop();
+                    if (ambientLoop) ambientLoop.dispose();
+                    isSoundPlaying = false;
+                }
+            }
+
+            const soundToggleButton = document.getElementById('sound-toggle');
+            const soundOnIcon = document.getElementById('sound-on-icon');
+            const soundOffIcon = document.getElementById('sound-off-icon');
+
+            soundToggleButton.addEventListener('click', () => {
+                if (!userInteracted) {
+                    userInteracted = true;
+                    if (!isSoundPlaying) {
+                        startAmbientSound();
+                    }
+                } else {
+                    if (isSoundPlaying) {
+                        stopAmbientSound();
+                        soundOnIcon.classList.add('hidden');
+                        soundOffIcon.classList.remove('hidden');
+                    } else {
+                        startAmbientSound();
+                        soundOnIcon.classList.remove('hidden');
+                        soundOffIcon.classList.add('hidden');
+                    }
+                }
+            });
+
+            document.body.addEventListener('click', () => {
+                if (!userInteracted) {
+                    userInteracted = true;
+                    startAmbientSound();
+                }
+            }, { once: true });
+            document.body.addEventListener('scroll', () => {
+                if (!userInteracted) {
+                    userInteracted = true;
+                    startAmbientSound();
+                }
+            }, { once: true });
+
+
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    if (!mobileMenu.classList.contains('hidden')) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            const scrollProgressBar = document.getElementById('scroll-progress-bar');
+            window.addEventListener('scroll', () => {
+                const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrolled = (scrollTop / scrollHeight) * 100;
+                scrollProgressBar.style.width = scrolled + '%';
+
+                // Section highlighting
+                let currentSectionId = '';
+                sections.forEach(section => {
+                    const rect = section.getBoundingClientRect();
+                    if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                Object.values(navLinkMap).forEach(link => link && link.classList.remove('active'));
+                if (currentSectionId && navLinkMap[currentSectionId]) {
+                    navLinkMap[currentSectionId].classList.add('active');
+                }
+            });
+
+            const sections = document.querySelectorAll('.fade-in-section');
+            const navLinkMap = {
+                'hero': null,
+                'what-is': document.querySelector('a[href="#what-is"]'),
+                'principles': document.querySelector('a[href="#principles"]'),
+                'universe-responds': document.querySelector('a[href="#universe-responds"]'),
+                'game-changing': document.querySelector('a[href="#game-changing"]'),
+                'holosync': document.querySelector('a[href="#holosync"]')
+            };
+
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.1
+            };
+
+            const sectionObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                    } else {
+                        entry.target.classList.remove('is-visible');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                sectionObserver.observe(section);
+            });
+
+            // Hero Background Canvas Animation
+            const heroBgCanvas = document.getElementById('hero-bg-canvas');
+            const heroBgCtx = heroBgCanvas.getContext('2d');
+            let heroBgParticles = [];
+            const heroBgParticleCount = 150;
+
+            function resizeHeroBgCanvas() {
+                heroBgCanvas.width = heroBgCanvas.parentElement.clientWidth;
+                heroBgCanvas.height = heroBgCanvas.parentElement.clientHeight;
+            }
+
+            class HeroBgParticle {
+                constructor() {
+                    this.x = Math.random() * heroBgCanvas.width;
+                    this.y = Math.random() * heroBgCanvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.speedY = (Math.random() - 0.5) * 0.3;
+                    this.alpha = Math.random() * 0.6 + 0.2;
+                    this.color = `rgba(168, 85, 247, ${this.alpha})`;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    if (this.x < 0 || this.x > heroBgCanvas.width) this.speedX *= -1;
+                    if (this.y < 0 || this.y > heroBgCanvas.height) this.speedY *= -1;
+
+                    this.alpha -= 0.0008;
+                    if (this.alpha <= 0) {
+                        this.reset();
+                    }
+                }
+                reset() {
+                    this.x = Math.random() * heroBgCanvas.width;
+                    this.y = Math.random() * heroBgCanvas.height;
+                    this.size = Math.random() * 2 + 0.5;
+                    this.speedX = (Math.random() - 0.5) * 0.3;
+                    this.speedY = (Math.random() - 0.5) * 0.3;
+                    this.alpha = Math.random() * 0.6 + 0.2;
+                    this.color = `rgba(168, 85, 247, ${this.alpha})`;
+                }
+                draw() {
+                    heroBgCtx.fillStyle = this.color;
+                    heroBgCtx.beginPath();
+                    heroBgCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    heroBgCtx.fill();
+                }
+            }
+
+            function initHeroBgParticles() {
+                heroBgParticles = [];
+                for (let i = 0; i < heroBgParticleCount; i++) {
+                    heroBgParticles.push(new HeroBgParticle());
+                }
+            }
+
+            function animateHeroBgCanvas() {
+                heroBgCtx.clearRect(0, 0, heroBgCanvas.width, heroBgCanvas.height);
+                heroBgCtx.fillStyle = 'rgba(2, 6, 23, 0.03)';
+                heroBgCtx.fillRect(0, 0, heroBgCanvas.width, heroBgCanvas.height);
+                for (let i = 0; i < heroBgParticles.length; i++) {
+                    heroBgParticles[i].update();
+                    heroBgParticles[i].draw();
+                }
+                requestAnimationFrame(animateHeroBgCanvas);
+            }
+
+            // Gravitational Ripple Canvas (Interactive Game)
+            const gravitationalRippleCanvas = document.getElementById('gravitational-ripple-canvas');
+            const gravitationalCtx = gravitationalRippleCanvas.getContext('2d');
+            const startGameButton = document.getElementById('start-game-button');
+            const gameOverlay = document.getElementById('game-overlay');
+            const gameInfo = document.getElementById('game-info');
+            const gameScoreDisplay = document.getElementById('game-score');
+            const gameTimerDisplay = document.getElementById('game-timer');
+            const overlayTitle = document.getElementById('overlay-title');
+            const overlayMessage = document.getElementById('overlay-message');
+
+            let rippleParticles = [];
+            const initialRippleParticleCount = 250;
+            const gameDuration = 30; // seconds
+            const winPercentage = 0.7; // 70% of particles in target
+            let gameScore = 0;
+            let gameTimer = gameDuration;
+            let gameInterval;
+            let animationFrameId;
+            let gameState = 'idle'; // 'idle', 'playing', 'won', 'lost'
+
+            let mouse = { x: null, y: null, radius: 150 };
+            let centralAttractor = { x: 0, y: 0, radius: 50 };
+            let resonanceZone = { x: 0, y: 0, radius: 80 }; // New: Target zone for the game
+
+            function resizeGravitationalCanvas() {
+                const container = gravitationalRippleCanvas.parentElement;
+                gravitationalRippleCanvas.width = container.clientWidth;
+                gravitationalRippleCanvas.height = container.clientHeight;
+                centralAttractor.x = gravitationalRippleCanvas.width / 2;
+                centralAttractor.y = gravitationalRippleCanvas.height / 2;
+                resonanceZone.x = gravitationalRippleCanvas.width / 2;
+                resonanceZone.y = gravitationalRippleCanvas.height / 2;
+            }
+
+            gravitationalRippleCanvas.addEventListener('mousemove', (event) => {
+                if (gameState === 'playing') {
+                    mouse.x = event.clientX - gravitationalRippleCanvas.getBoundingClientRect().left;
+                    mouse.y = event.clientY - gravitationalRippleCanvas.getBoundingClientRect().top;
+                }
+            });
+            gravitationalRippleCanvas.addEventListener('mouseleave', () => {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            gravitationalRippleCanvas.addEventListener('touchstart', function(e) {
+                if (gameState === 'playing') {
+                    e.preventDefault();
+                    let touch = e.touches[0];
+                    mouse.x = touch.clientX - gravitationalRippleCanvas.getBoundingClientRect().left;
+                    mouse.y = touch.clientY - gravitationalRippleCanvas.getBoundingClientRect().top;
+                }
+            });
+            gravitationalRippleCanvas.addEventListener('touchmove', function(e) {
+                if (gameState === 'playing') {
+                    e.preventDefault();
+                    let touch = e.touches[0];
+                    mouse.x = touch.clientX - gravitationalRippleCanvas.getBoundingClientRect().left;
+                    mouse.y = touch.clientY - gravitationalRippleCanvas.getBoundingClientRect().top;
+                }
+            });
+            gravitationalRippleCanvas.addEventListener('touchend', function(e) {
+                mouse.x = null;
+                mouse.y = null;
+            });
+
+            class RippleParticle {
+                constructor() {
+                    this.x = Math.random() * gravitationalRippleCanvas.width;
+                    this.y = Math.random() * gravitationalRippleCanvas.height;
+                    this.size = Math.random() * 1.8 + 0.5;
+                    this.baseSpeedX = (Math.random() - 0.5) * 0.6;
+                    this.baseSpeedY = (Math.random() - 0.5) * 0.6;
+                    this.speedX = this.baseSpeedX;
+                    this.speedY = this.baseSpeedY;
+                    this.color = `rgba(99, 102, 241, ${Math.random() * 0.7 + 0.3})`; // Default color
+                    this.inResonanceZone = false;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+
+                    const dxAttractor = centralAttractor.x - this.x;
+                    const dyAttractor = centralAttractor.y - this.y;
+                    const distanceAttractor = Math.sqrt(dxAttractor * dxAttractor + dyAttractor * dyAttractor);
+
+                    if (distanceAttractor < centralAttractor.radius * 2) {
+                        const forceDirectionX = dxAttractor / distanceAttractor;
+                        const forceDirectionY = dyAttractor / distanceAttractor;
+                        const maxForce = (centralAttractor.radius * 2 - distanceAttractor) / (centralAttractor.radius * 2);
+                        this.speedX += forceDirectionX * maxForce * 0.2;
+                        this.speedY += forceDirectionY * maxForce * 0.2;
+                    }
+
+                    if (mouse.x !== null && mouse.y !== null) {
+                        const dxMouse = mouse.x - this.x;
+                        const dyMouse = mouse.y - this.y;
+                        const distanceMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+
+                        if (distanceMouse < mouse.radius) {
+                            const forceDirectionX = dxMouse / distanceMouse;
+                            const forceDirectionY = dyMouse / distanceMouse;
+                            const maxForce = (mouse.radius - distanceMouse) / mouse.radius;
+                            this.speedX -= forceDirectionX * maxForce * 2.5;
+                            this.speedY -= forceDirectionY * maxForce * 2.5;
+                        } else {
+                            this.speedX = this.baseSpeedX;
+                            this.speedY = this.baseSpeedY;
+                        }
+                    } else {
+                        this.speedX = this.baseSpeedX;
+                        this.speedY = this.baseSpeedY;
+                    }
+
+                    // Check if in resonance zone
+                    const dxResonance = resonanceZone.x - this.x;
+                    const dyResonance = resonanceZone.y - this.y;
+                    const distanceResonance = Math.sqrt(dxResonance * dxResonance + dyResonance * dyResonance);
+                    this.inResonanceZone = distanceResonance < resonanceZone.radius;
+                    this.color = this.inResonanceZone ? `rgba(168, 85, 247, ${Math.random() * 0.8 + 0.5})` : `rgba(99, 102, 241, ${Math.random() * 0.7 + 0.3})`;
+
+                    if (this.x < 0 || this.x > gravitationalRippleCanvas.width || this.y < 0 || this.y > gravitationalRippleCanvas.height) {
+                        this.x = Math.random() * gravitationalRippleCanvas.width;
+                        this.y = Math.random() * gravitationalRippleCanvas.height;
+                        this.size = Math.random() * 1.8 + 0.5;
+                        this.baseSpeedX = (Math.random() - 0.5) * 0.6;
+                        this.baseSpeedY = (Math.random() - 0.5) * 0.6;
+                        this.speedX = this.baseSpeedX;
+                        this.speedY = this.baseSpeedY;
+                    }
+                }
+                draw() {
+                    gravitationalCtx.fillStyle = this.color;
+                    gravitationalCtx.beginPath();
+                    gravitationalCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    gravitationalCtx.fill();
+                }
+            }
+
+            function initRippleParticles() {
+                rippleParticles = [];
+                for (let i = 0; i < initialRippleParticleCount; i++) {
+                    rippleParticles.push(new RippleParticle());
+                }
+            }
+
+            function animateGravitationalCanvas() {
+                gravitationalCtx.clearRect(0, 0, gravitationalRippleCanvas.width, gravitationalRippleCanvas.height);
+                gravitationalCtx.fillStyle = 'rgba(2, 6, 23, 0.08)';
+                gravitationalCtx.fillRect(0, 0, gravitationalRippleCanvas.width, gravitationalRippleCanvas.height);
+
+                // Draw Resonance Zone
+                gravitationalCtx.strokeStyle = 'rgba(168, 85, 247, 0.7)';
+                gravitationalCtx.lineWidth = 2;
+                gravitationalCtx.beginPath();
+                gravitationalCtx.arc(resonanceZone.x, resonanceZone.y, resonanceZone.radius, 0, Math.PI * 2);
+                gravitationalCtx.stroke();
+
+                gameScore = 0;
+                for (let i = 0; i < rippleParticles.length; i++) {
+                    if (gameState === 'playing') {
+                        rippleParticles[i].update();
+                        if (rippleParticles[i].inResonanceZone) {
+                            gameScore++;
+                        }
+                    }
+                    rippleParticles[i].draw();
+                }
+
+                if (gameState === 'playing') {
+                    gameScoreDisplay.textContent = gameScore;
+                }
+
+                animationFrameId = requestAnimationFrame(animateGravitationalCanvas);
+            }
+
+            function startGame() {
+                if (!userInteracted) {
+                    userInteracted = true;
+                    startAmbientSound();
+                }
+                gameState = 'playing';
+                gameOverlay.classList.add('hidden');
+                gameInfo.classList.remove('hidden');
+                initRippleParticles();
+                gameScore = 0;
+                gameTimer = gameDuration;
+                gameScoreDisplay.textContent = gameScore;
+                gameTimerDisplay.textContent = gameTimer;
+
+                clearInterval(gameInterval);
+                gameInterval = setInterval(() => {
+                    gameTimer--;
+                    gameTimerDisplay.textContent = gameTimer;
+                    if (gameTimer <= 0) {
+                        endGame();
+                    }
+                }, 1000);
+
+                if (!animationFrameId) {
+                    animateGravitationalCanvas();
+                }
+            }
+
+            function endGame() {
+                clearInterval(gameInterval);
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+
+                gameInfo.classList.add('hidden');
+                gameOverlay.classList.remove('hidden');
+
+                const requiredScore = Math.floor(initialRippleParticleCount * winPercentage);
+
+                if (gameScore >= requiredScore) {
+                    gameState = 'won';
+                    overlayTitle.textContent = "Gravitational Resonance Achieved!";
+                    overlayMessage.textContent = `You guided ${gameScore} particles into the Resonance Zone (out of ${initialRippleParticleCount}). The universe acknowledges your alignment.`;
+                    playSuccessSound();
+                } else {
+                    gameState = 'lost';
+                    overlayTitle.textContent = "Resonance Lost...";
+                    overlayMessage.textContent = `Only ${gameScore} particles reached the Resonance Zone. The universe's pull is subtle. Try again to find your alignment.`;
+                    playFailureSound();
+                }
+                startGameButton.textContent = "Try Again";
+            }
+
+            startGameButton.addEventListener('click', startGame);
+
+            // Debounce resize events
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    resizeHeroBgCanvas();
+                    initHeroBgParticles();
+                    resizeGravitationalCanvas();
+                    initRippleParticles();
+                    if (gameState === 'playing') { // Re-start game if playing to adjust to new size
+                         startGame();
+                    } else if (gameState === 'idle') {
+                        // Just re-draw the idle state
+                        animateGravitationalCanvas();
+                    }
+                }, 200);
+            });
+
+            // Initial setup
+            resizeHeroBgCanvas();
+            initHeroBgParticles();
+            animateHeroBgCanvas(); // Start background animation
+
+            resizeGravitationalCanvas();
+            initRippleParticles();
+            // Do not start game animation until button is clicked
+            animateGravitationalCanvas(); // Draw initial state of game canvas
+        };
+    </script>
+
+</body>
+</html>
