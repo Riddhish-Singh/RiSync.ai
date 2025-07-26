@@ -164,7 +164,7 @@
     </form>
 
     <div class="create-account">
-      <p>New to RiSync? <a href="signup.html" target="_blank">Create your account</a>.</p>
+      <p>New to RiSync? <a href="signup.html">Create your account</a>.</p>
     </div>
 
     <button type="button" class="go-back-button" onclick="goBack()">GO BACK TO THE MAIN PAGE</button>
@@ -183,9 +183,11 @@
       const emailInput = document.getElementById("email").value.trim().toLowerCase();
       const passwordInput = document.getElementById("password").value;
 
+      // Retrieve stored credentials from localStorage
       const storedEmailRaw = localStorage.getItem("existingEmail");
       const storedPassword = localStorage.getItem("signupPassword");
 
+      // Check if any account is stored
       if (!storedEmailRaw || storedEmailRaw.trim() === "" || !storedPassword || storedPassword === "") {
         document.getElementById("emailError").textContent = "No account found. Please sign up first.";
         return;
@@ -193,12 +195,14 @@
 
       const storedEmail = storedEmailRaw.trim().toLowerCase();
 
+      // Basic email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(emailInput)) {
         document.getElementById("emailError").textContent = "Please enter a valid email address.";
         return;
       }
 
+      // Authenticate against stored credentials
       if (emailInput !== storedEmail) {
         document.getElementById("emailError").textContent = "Invalid email address.";
         return;
@@ -209,6 +213,7 @@
         return;
       }
 
+      // If authentication is successful, redirect
       window.location.href = "content.html";
     }
 
