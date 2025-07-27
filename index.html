@@ -315,11 +315,6 @@
     button.textContent = audio.paused ? '🔇' : '🔊';
   }
 
-  document.addEventListener('click', () => {
-    if (!hasInteracted) {
-      toggleMusic();
-    }
-  }, { once: true });
 
   audio.onplay = updateIcon;
   audio.onpause = updateIcon;

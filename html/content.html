@@ -76,22 +76,20 @@
       justify-content: flex-start;
       align-items: center;
     }
-.button {
-  background-color: #f58220;
-  color: white;
-  border: none;
-  padding: 14px 18px; /* Medium padding */
-  text-align: center;
-  border-radius: 14px; /* Smooth corners */
-  font-size: 16px;     /* Slightly smaller text */
-  cursor: pointer;
-  transition: box-shadow 0.3s;
-  width: 75%;          /* A bit slimmer */
-  position: relative;
-  box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.25);
-}
-
-
+    .button {
+      background-color: #f58220;
+      color: white;
+      border: none;
+      padding: 14px 18px;
+      text-align: center;
+      border-radius: 14px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: box-shadow 0.3s;
+      width: 75%;
+      position: relative;
+      box-shadow: 0px 0px 12px rgba(0, 0, 0, 0.25);
+    }
     .button:hover {
       box-shadow: 0px 0px 25px rgba(0, 0, 0, 0.5);
     }
@@ -116,7 +114,6 @@
       border-radius: 5px;
       font-size: 16px;
     }
-	
   </style>
 </head>
 <body>
@@ -133,17 +130,17 @@
       <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
       <img src="../assets/user-icon.png" alt="Profile" class="profile-icon" id="profileIcon" style="width: 70px; height: 70px;" />
       <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
-<div class="settings-menu" id="settingsMenu">
-  <button onclick="openProfilePage()">Profile</button>
-  <button id="logoutButton" onclick="logout()">Log Out</button>
-</div>
-
+      <div class="settings-menu" id="settingsMenu">
+        <button onclick="openProfilePage()">Profile</button>
+        <button id="logoutButton" onclick="logout()">Log Out</button>
+      </div>
     </div>
   </div>
+
   <div class="container">
     <div class="sidebar">
       <button class="button" onclick="navigateTo('RiSync-CHAT.html')" data-i18n="chat">RiSync Chat</button>
-	  <button class="button" onclick="navigateTo('https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en')" data-i18n="schedule">Schedule Meeting</button>
+      <button class="button" onclick="navigateTo('https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en')" data-i18n="schedule">Schedule Meeting</button>
       <button class="button" onclick="navigateTo('https://calendar.google.com')" data-i18n="calendar">Calendar</button>
       <button class="button" onclick="navigateTo('Data Base.html')" data-i18n="database">Database</button>
       <button class="button" onclick="navigateTo('https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing')" data-i18n="chatbot">Chat Bot</button>
@@ -157,7 +154,6 @@
     </div>
   </div>
 
-  <!-- ✅ Corrected audio path -->
   <audio id="bg-music" loop preload="auto">
     <source src="../assets/logo.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
@@ -238,9 +234,22 @@ function logout() {
   localStorage.clear();
   window.location.href = "../index.html"; 
 }
+
+// ✅ Updated navigateTo with new-tab logic for only specific URLs
 function navigateTo(page) {
-  window.open(page, "_blank");
+  const openInNewTab = [
+    "https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en",
+    "https://calendar.google.com",
+    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort="
+  ];
+
+  if (openInNewTab.includes(page)) {
+    window.open(page, "_blank");
+  } else {
+    window.location.href = page;
+  }
 }
+
 document.addEventListener("click", function (event) {
   var settingsMenu = document.getElementById("settingsMenu");
   var logoutButton = document.getElementById("logoutButton");
@@ -283,13 +292,6 @@ function updateIcon() {
   if (!button) return;
   button.textContent = audio.paused ? '🔇' : '🔊';
 }
-
-document.addEventListener('click', () => {
-  if (!hasInteracted) {
-    toggleMusic();
-  }
-}, { once: true });
-
 audio.onplay = updateIcon;
 audio.onpause = updateIcon;
 </script>
@@ -313,7 +315,6 @@ audio.onpause = updateIcon;
     justify-content: center;
     z-index: 999;
   }
-
   #music-btn:hover {
     background-color: #f28b30;
   }
