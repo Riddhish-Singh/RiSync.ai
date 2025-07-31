@@ -224,11 +224,24 @@
       z-index: 998;
       transform: scale(0);
       transform-origin: bottom right;
-      transition: transform 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out, width 0.3s ease-in-out, height 0.3s ease-in-out, top 0.3s ease-in-out, right 0.3s ease-in-out, bottom 0.3s ease-in-out, left 0.3s ease-in-out;
     }
 
     .ai-chatbot-container.active {
       transform: scale(1);
+    }
+
+    /* Full-screen mode for chatbot */
+    .ai-chatbot-container.fullscreen {
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100vw;
+      height: 100vh;
+      border-radius: 0;
+      transform: scale(1); /* Ensure it's visible and full size */
+      z-index: 1001; /* Above other elements */
     }
 
     .ai-chatbot-header {
@@ -244,12 +257,25 @@
       border-top-right-radius: 10px;
     }
 
-    .ai-chatbot-header .close-btn {
+    .ai-chatbot-container.fullscreen .ai-chatbot-header {
+      border-radius: 0; /* No border-radius in fullscreen */
+    }
+
+    .ai-chatbot-header .header-controls {
+        display: flex;
+        gap: 10px; /* Space between buttons */
+    }
+
+    .ai-chatbot-header button {
       background: none;
       border: none;
       color: white;
       font-size: 24px;
       cursor: pointer;
+      line-height: 1; /* Align icons vertically */
+    }
+    .ai-chatbot-header button:hover {
+        color: #f28b30;
     }
 
     .ai-chatbot-messages {
@@ -405,7 +431,12 @@
   <div class="ai-chatbot-container" id="ai-chatbot-container">
     <div class="ai-chatbot-header">
       <span>RiBot</span>
-      <button class="close-btn" onclick="toggleAIChat()">×</button>
+      <div class="header-controls">
+        <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+            <i class="fas fa-expand-alt"></i>
+        </button>
+        <button class="close-btn" onclick="toggleAIChat()">×</button>
+      </div>
     </div>
     <div class="ai-chatbot-messages" id="ai-chatbot-messages">
       <div class="ai-chatbot-message bot">
@@ -453,6 +484,7 @@
     const aiChatbotContainer = document.getElementById('ai-chatbot-container');
     const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
     const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
 
     let currentUtterance = null;
     let currentSpeakerIcon = null;
@@ -562,8 +594,8 @@
         `;
         // Re-attach event listener for the initial greeting's speaker icon
         const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
         const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
+        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
         if (initialSpeakerIcon && initialTextContent) {
             initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
         }
@@ -572,6 +604,10 @@
         aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
       } else {
         stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
+        // If chatbot is closed, ensure it's not in fullscreen mode
+        if (aiChatbotContainer.classList.contains('fullscreen')) {
+            toggleFullscreen();
+        }
       }
     }
 
@@ -629,6 +665,46 @@
       }
     }
 
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            if (aiChatbotContainer.requestFullscreen) {
+                aiChatbotContainer.requestFullscreen();
+            } else if (aiChatbotContainer.webkitRequestFullscreen) { /* Safari */
+                aiChatbotContainer.webkitRequestFullscreen();
+            } else if (aiChatbotContainer.msRequestFullscreen) { /* IE11 */
+                aiChatbotContainer.msRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+            }
+        }
+        // Toggle the 'fullscreen' class immediately to apply styles
+        aiChatbotContainer.classList.toggle('fullscreen');
+        updateFullscreenButtonIcon();
+    }
+
+    // Event listener for native fullscreen change (e.g., when user presses F11 or Esc)
+    document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
+    document.addEventListener('msfullscreenchange', updateFullscreenButtonIcon);
+
+    function updateFullscreenButtonIcon() {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress-alt"></i>'; // Change to exit fullscreen icon
+            fullscreenBtn.title = 'Exit Fullscreen';
+            aiChatbotContainer.classList.add('fullscreen'); // Ensure class is added if fullscreen was triggered externally
+        } else {
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand-alt"></i>'; // Change to enter fullscreen icon
+            fullscreenBtn.title = 'Toggle Fullscreen';
+            aiChatbotContainer.classList.remove('fullscreen'); // Ensure class is removed
+        }
+    }
+
     // Initialize speech synthesis and predefined questions when the page loads
     document.addEventListener('DOMContentLoaded', () => {
         initializeSpeechSynthesis();
@@ -636,11 +712,13 @@
 
         // Re-attach event listener for the initial greeting's speaker icon on load
         const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
         const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
+        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
         if (initialSpeakerIcon && initialTextContent) {
             initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
         }
+
+        updateFullscreenButtonIcon(); // Set initial icon for fullscreen button
     });
 
   </script>
