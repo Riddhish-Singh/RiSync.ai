@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>P2P Tutoring Platform</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -96,12 +97,13 @@
       padding: 20px;
       border-radius: 10px;
       text-align: center;
-      cursor: pointer;
+      cursor: default; /* not clickable */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
     }
 
     .subject:hover {
-      background-color: #0b4599;
-      transform: translateY(-10px);
+      box-shadow: 0 0 12px rgba(242, 139, 48, 0.7); /* soft glow effect */
     }
 
     .classes {
@@ -111,14 +113,15 @@
       border: none;
       border-radius: 5px;
       text-align: center;
-      cursor: pointer;
+      cursor: default; /* not clickable */
       font-size: 18px;
       font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      transition: box-shadow 0.3s ease;
     }
 
     .classes:hover {
-      background-color: #f28b30;
-      transform: translateY(-10px);
+      box-shadow: 0 0 12px rgba(0, 74, 173, 0.7); /* soft glow effect */
     }
 
     .button {
@@ -131,6 +134,7 @@
       border-radius: 5px;
       font-size: 18px;
       cursor: pointer;
+      margin-top: 20px; /* Added margin for spacing */
     }
 
     .button:hover {
@@ -173,45 +177,161 @@
       font-size: 20px;
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000; /* Ensure it's above other content */
     }
 
     #music-btn:hover {
       background-color: #f28b30;
     }
-.subject {
-  background-color: #f28b30;
-  color: white;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
-  cursor: default; /* not clickable */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
 
-.subject:hover {
-  box-shadow: 0 0 12px rgba(242, 139, 48, 0.7); /* soft glow effect */
-}
+    /* AI Chatbot Button */
+    #ai-btn {
+      position: fixed;
+      bottom: 80px; /* Position above music button */
+      right: 20px;
+      background-color: #004aad;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
 
-.classes {
-  background-color: #004aad;
-  color: white;
-  padding: 14px;
-  border: none;
-  border-radius: 5px;
-  text-align: center;
-  cursor: default; /* not clickable */
-  font-size: 18px;
-  font-weight: bold;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  transition: box-shadow 0.3s ease;
-}
+    #ai-btn:hover {
+      background-color: #f28b30;
+    }
 
-.classes:hover {
-  box-shadow: 0 0 12px rgba(0, 74, 173, 0.7); /* soft glow effect */
-}
+    /* AI Chatbot Container */
+    .ai-chatbot-container {
+      position: fixed;
+      bottom: 20px;
+      right: 90px; /* Position next to the buttons */
+      width: 350px;
+      height: 500px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 998;
+      transform: scale(0);
+      transform-origin: bottom right;
+      transition: transform 0.3s ease-in-out;
+    }
+
+    .ai-chatbot-container.active {
+      transform: scale(1);
+    }
+
+    .ai-chatbot-header {
+      background-color: #004aad;
+      color: white;
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 18px;
+      font-weight: bold;
+      border-top-left-radius: 10px;
+      border-top-right-radius: 10px;
+    }
+
+    .ai-chatbot-header .close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .ai-chatbot-messages {
+      flex-grow: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .ai-chatbot-message {
+      margin-bottom: 10px;
+      padding: 8px 12px;
+      border-radius: 15px;
+      max-width: 80%;
+      position: relative; /* Added for speaker icon positioning */
+    }
+
+    .ai-chatbot-message.user {
+      background-color: #e0e0e0;
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .ai-chatbot-message.bot {
+      background-color: #d1e7dd;
+      align-self: flex-start;
+      margin-right: auto;
+      display: flex; /* To align text and icon */
+      flex-direction: column; /* To stack text and timestamp */
+      padding-right: 35px; /* Space for the icon */
+    }
+
+    .ai-chatbot-message.bot .message-text-content {
+        flex-grow: 1;
+    }
+
+    /* Speaker icon styles within bot messages */
+    .ai-chatbot-message.bot .speaker-icon {
+        position: absolute;
+        right: 8px; /* Adjust as needed */
+        top: 50%; /* Center vertically */
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #888;
+        font-size: 0.9em;
+        transition: color 0.2s ease-in-out, transform 0.2s ease;
+    }
+    .ai-chatbot-message.bot .speaker-icon:hover {
+        color: #2c7cbd;
+        transform: translateY(-50%) scale(1.1);
+    }
+    .ai-chatbot-message.bot .speaker-icon:active {
+        transform: translateY(-50%) scale(0.95);
+    }
 
 
+    .ai-chatbot-predefined-questions {
+      padding: 15px;
+      border-top: 1px solid #eee;
+      background-color: #f1f1f1;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-height: 150px; /* Set a max-height */
+      overflow-y: auto; /* Enable vertical scrolling */
+    }
+
+    .ai-chatbot-predefined-questions button {
+      background-color: #f28b30;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 15px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    .ai-chatbot-predefined-questions button:hover {
+      background-color: #e07a21;
+    }
   </style>
 </head>
 <body>
@@ -229,32 +349,29 @@
   </nav>
 
   <main>
-<!-- Replace your section from <section id="subjects"> to </section> and <section id="classes"> to </section> with this updated version -->
+    <section id="subjects">
+      <h2>Core Subjects</h2>
+      <div class="subject-grid">
+        <div class="subject inactive">Math</div>
+        <div class="subject inactive">Science</div>
+        <div class="subject inactive">IT</div>
+        <div class="subject inactive">Social Sciences</div>
+      </div>
+    </section>
 
-<section id="subjects">
-  <h2>Core Subjects</h2>
-  <div class="subject-grid">
-    <div class="subject inactive">Math</div>
-    <div class="subject inactive">Science</div>
-    <div class="subject inactive">IT</div>
-    <div class="subject inactive">Social Sciences</div>
-  </div>
-</section>
-
-<section id="classes">
-  <h2>Classes Covered</h2>
-  <div class="subject-grid">
-    <div class="classes inactive">1st</div>
-    <div class="classes inactive">2nd</div>
-    <div class="classes inactive">3rd</div>
-    <div class="classes inactive">4th</div>
-    <div class="classes inactive">5th</div>
-    <div class="classes inactive">6th</div>
-    <div class="classes inactive">7th</div>
-    <div class="classes inactive">8th</div>
-  </div>
-</section>
-
+    <section id="classes">
+      <h2>Classes Covered</h2>
+      <div class="subject-grid">
+        <div class="classes inactive">1st</div>
+        <div class="classes inactive">2nd</div>
+        <div class="classes inactive">3rd</div>
+        <div class="classes inactive">4th</div>
+        <div class="classes inactive">5th</div>
+        <div class="classes inactive">6th</div>
+        <div class="classes inactive">7th</div>
+        <div class="classes inactive">8th</div>
+      </div>
+    </section>
 
     <section id="self-learning">
       <h2>Encouraging Self-Learning</h2>
@@ -276,74 +393,256 @@
     <p><a href="Terms of Service.html" target="_blank">Terms of Service</a> | <a href="Privacy Policy.html" target="_blank">Privacy Policy</a></p>
   </footer>
 
-<!-- Background Music -->
-<audio id="bg-music" loop preload="auto">
-  <source src="assets/logo.mp3" type="audio/mpeg">
-  Your browser does not support the audio element.
-</audio>
+  <audio id="bg-music" loop preload="auto">
+    <source src="assets/logo.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
 
-<!-- Toggle Music Button -->
-<button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
+  <button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
 
-<!-- Music Control Script -->
-<script>
-  const audio = document.getElementById('bg-music');
-  const button = document.getElementById('music-btn');
-  let hasInteracted = false;
+  <button id="ai-btn" onclick="toggleAIChat()" title="Ask AI">🧠</button>
 
-  function toggleMusic() {
-    if (!hasInteracted) {
-      audio.volume = 0.5;
-      audio.play().then(() => {
-        hasInteracted = true;
-        updateIcon();
-      }).catch(err => {
-        console.warn("Autoplay blocked:", err);
-      });
-    } else {
-      if (audio.paused) {
-        audio.play();
+  <div class="ai-chatbot-container" id="ai-chatbot-container">
+    <div class="ai-chatbot-header">
+      <span>RiBot</span>
+      <button class="close-btn" onclick="toggleAIChat()">×</button>
+    </div>
+    <div class="ai-chatbot-messages" id="ai-chatbot-messages">
+      <div class="ai-chatbot-message bot">
+        <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
+        <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
+      </div>
+    </div>
+    <div class="ai-chatbot-predefined-questions" id="ai-chatbot-predefined-questions">
+      </div>
+  </div>
+
+  <script>
+    const audio = document.getElementById('bg-music');
+    const musicButton = document.getElementById('music-btn');
+    let hasInteracted = false;
+
+    function toggleMusic() {
+      if (!hasInteracted) {
+        audio.volume = 0.5;
+        audio.play().then(() => {
+          hasInteracted = true;
+          updateMusicIcon();
+        }).catch(err => {
+          console.warn("Autoplay blocked:", err);
+        });
       } else {
-        audio.pause();
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      }
+      updateMusicIcon();
+    }
+
+    function updateMusicIcon() {
+      if (!musicButton) return;
+      musicButton.textContent = audio.paused ? '🔇' : '🔊';
+    }
+
+    audio.onplay = updateMusicIcon;
+    audio.onpause = updateMusicIcon;
+
+    // AI Chatbot Script
+    const aiChatbotContainer = document.getElementById('ai-chatbot-container');
+    const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
+    const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
+
+    let currentUtterance = null;
+    let currentSpeakerIcon = null;
+    let selectedVoice = null;
+
+    function initializeSpeechSynthesis() {
+        if ('speechSynthesis' in window) {
+            speechSynthesis.onvoiceschanged = () => {
+                selectedVoice = getHumanLikeVoice();
+                if (!selectedVoice) {
+                    console.warn("No suitable speech synthesis voice found. Using default or no voice if none available.");
+                } else {
+                    console.log("Selected voice for speech synthesis:", selectedVoice.name);
+                }
+            };
+            if (speechSynthesis.getVoices().length > 0) {
+                selectedVoice = getHumanLikeVoice();
+            }
+        } else {
+            console.warn("Web Speech API not supported in this browser.");
+        }
+    }
+
+    function getHumanLikeVoice() {
+        const voices = speechSynthesis.getVoices();
+        let chosenVoice = null;
+        chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
+        if (chosenVoice) return chosenVoice;
+        chosenVoice = voices.find(voice => voice.lang.startsWith('en-') && (voice.name.includes('Google') || voice.name.includes('Microsoft')));
+        if (chosenVoice) return chosenVoice;
+        chosenVoice = voices.find(voice => voice.lang.startsWith('en-'));
+        if (chosenVoice) return chosenVoice;
+        return voices[0] || null;
+    }
+
+    function stopSpeaking(iconElement, originalTextContent) {
+        if ('speechSynthesis' in window && window.speechSynthesis.speaking) {
+            window.speechSynthesis.cancel();
+        }
+        if (iconElement && iconElement === currentSpeakerIcon) {
+            iconElement.className = 'fas fa-volume-up speaker-icon';
+            iconElement.onclick = () => speakText(originalTextContent, iconElement);
+        }
+        currentUtterance = null;
+        currentSpeakerIcon = null;
+    }
+
+    function speakText(text, iconElement) {
+        if (!('speechSynthesis' in window)) {
+            console.warn("Web Speech API not supported.");
+            return;
+        }
+
+        if (window.speechSynthesis.speaking) {
+            const previouslySpeakingIconText = currentSpeakerIcon ? (currentSpeakerIcon.closest('.ai-chatbot-message')?.querySelector('.message-text-content')?.textContent || '') : '';
+            stopSpeaking(currentSpeakerIcon, previouslySpeakingIconText);
+        }
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        }
+
+        currentUtterance = utterance;
+        currentSpeakerIcon = iconElement;
+
+        if (iconElement) {
+            iconElement.className = 'fas fa-volume-mute speaker-icon';
+            iconElement.onclick = () => stopSpeaking(iconElement, text);
+        }
+
+        utterance.onend = () => stopSpeaking(iconElement, text);
+        utterance.oncancel = () => stopSpeaking(iconElement, text);
+        utterance.onerror = (event) => {
+            console.error('Speech synthesis error:', event.error);
+            stopSpeaking(iconElement, text);
+        };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    const predefinedQuestions = [
+      { id: 'tutoring', text: 'What is Intelligent Peer-to-Peer Tutoring?', answer: 'It\'s a smart platform where students learn from each other, with AI matching them based on skill, topic, and availability. It builds community, boosts confidence, and is more relatable than adult tutors.' },
+      { id: 'booking', text: 'How does the Booking System work?', answer: 'It allows students to book live 1-on-1 or group tutoring sessions with calendar integration to avoid double bookings. You choose a subject, select a time, confirm, and get reminders.' },
+      { id: 'live_sessions', text: 'Tell me about Live Tutoring Sessions.', answer: 'These are real-time sessions with an optional live video/audio and a collaborative digital whiteboard. It feels like a real classroom and is ideal for explaining Maths, Diagrams, and Flowcharts.' },
+      { id: 'chatbot', text: 'What is RiBot?', answer: 'RiBot is an intelligent chatbot that answers any questions students have and supports group chatrooms. It\'s a 24x7 learning assistant, can be multilingual, supports text-to-speech/speech-to-text, and can quiz kids with MCQs or riddles.' },
+      { id: 'resources', text: 'What is the Learning Resource Library?', answer: 'It\'s a growing bank of curated notes, worksheets, videos, quizzes, and more, created by students, for students. Resources are divided by subjects, grades, difficulty, and are downloadable.' },
+      { id: 'gamification', text: 'How does Gamification work?', answer: 'It adds fun through points, badges, levels, and leaderboards to keep students motivated and foster friendly competition. Examples include earning points for solving doubts or badges for "Top Tutor of the Week".' },
+      { id: 'quizzes', text: 'What is the Smart Quiz & Assessment Builder?', answer: 'Teachers or mentors can create dynamic quizzes, and AI can auto-generate questions. It allows for personalized learning with adaptive difficulty, featuring MCQs, drag & drop, timed quizzes, and instant feedback.' },
+      { id: 'accessibility', text: 'What about Accessibility Features?', answer: 'The platform is designed for inclusivity, supporting students with visual, hearing, or motor challenges. It includes text-to-speech, Braille-compatible output, high contrast mode, font sizing, and keyboard-only navigation.' },
+      { id: 'parental_dashboard', text: 'Is there a Parental Dashboard?', answer: 'Yes, parents can view their child’s progress, session history, and scores without micro-managing. It provides growth charts, areas of concern, weekly email reports, and options to message tutors.' },
+      { id: 'admin_panel', text: 'What is the Admin & Mentor Panel?', answer: 'This panel is for the RiSync team or appointed mentors to moderate, analyze, and grow the platform, ensuring community safety. It allows approval/rejection of uploads, blocking users, and access to analytics.' },
+      { id: 'sync', text: 'Does it sync with mobile?', answer: 'RiSync works as a responsive web app and can sync with mobile devices for learning on the go, with cross-device sync, notifications, and offline access coming soon.' },
+      { id: 'future_roadmap', text: 'What\'s in the future roadmap?', answer: 'Future plans include AI-based learning path recommendations, global collaborations, story-based learning, and NGO/School Partnerships for underprivileged learners.' }
+    ];
+
+    function toggleAIChat() {
+      aiChatbotContainer.classList.toggle('active');
+      if (aiChatbotContainer.classList.contains('active')) {
+        // Clear previous messages except the initial greeting
+        aiChatbotMessages.innerHTML = `
+            <div class="ai-chatbot-message bot">
+                <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
+                <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
+            </div>
+        `;
+        // Re-attach event listener for the initial greeting's speaker icon
+        const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
+        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
+        const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
+        if (initialSpeakerIcon && initialTextContent) {
+            initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
+        }
+
+        populatePredefinedQuestions();
+        aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
+      } else {
+        stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
       }
     }
-    updateIcon();
-  }
 
-  function updateIcon() {
-    if (!button) return;
-    button.textContent = audio.paused ? '🔇' : '🔊';
-  }
+    function populatePredefinedQuestions() {
+      predefinedQuestionsDiv.innerHTML = ''; // Clear previous questions
+      predefinedQuestions.forEach(q => {
+        const button = document.createElement('button');
+        button.textContent = q.text;
+        button.onclick = () => askQuestion(q.id);
+        predefinedQuestionsDiv.appendChild(button);
+      });
+    }
 
+    function askQuestion(questionId) {
+      stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when a new question is asked
 
-  audio.onplay = updateIcon;
-  audio.onpause = updateIcon;
-</script>
+      const question = predefinedQuestions.find(q => q.id === questionId);
+      if (question) {
+        // Add user's question to chat
+        const userMessage = document.createElement('div');
+        userMessage.classList.add('ai-chatbot-message', 'user');
+        userMessage.textContent = question.text;
+        aiChatbotMessages.appendChild(userMessage);
 
-<!-- Button Styling -->
-<style>
-  #music-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #004aad;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-  }
+        // Simulate RiBot typing/thinking
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('ai-chatbot-message', 'bot', 'typing-indicator');
+        typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+        aiChatbotMessages.appendChild(typingIndicator);
+        aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
 
-  #music-btn:hover {
-    background-color: #f28b30;
-  }
-</style>
+        setTimeout(() => {
+          // Remove typing indicator
+          aiChatbotMessages.removeChild(typingIndicator);
+
+          // Add RiBot's answer to chat
+          const botMessage = document.createElement('div');
+          botMessage.classList.add('ai-chatbot-message', 'bot');
+
+          const textContentSpan = document.createElement('span');
+          textContentSpan.classList.add('message-text-content');
+          textContentSpan.innerHTML = question.answer; // Use innerHTML to allow for HTML tags like <strong> or links if they were ever added to answers
+          botMessage.appendChild(textContentSpan);
+
+          const speakerIcon = document.createElement('i');
+          speakerIcon.className = 'fas fa-volume-up speaker-icon';
+          speakerIcon.title = 'Read aloud';
+          speakerIcon.setAttribute('aria-label', 'Read message aloud');
+          speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon); // Use textContent for speaking
+          botMessage.appendChild(speakerIcon);
+
+          aiChatbotMessages.appendChild(botMessage);
+          aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
+        }, 1000); // Simulate 1 second delay for bot response
+      }
+    }
+
+    // Initialize speech synthesis and predefined questions when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeSpeechSynthesis();
+        populatePredefinedQuestions();
+
+        // Re-attach event listener for the initial greeting's speaker icon on load
+        const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
+        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
+        const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
+        if (initialSpeakerIcon && initialTextContent) {
+            initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
+        }
+    });
+
+  </script>
 </body>
 </html>
