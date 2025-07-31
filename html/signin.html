@@ -45,11 +45,10 @@
       margin-bottom: 5px;
     }
     input[type="email"],
-    input[type="password"],
-    input[type="text"] {
+    input[type="password"] {
       width: 100%;
       padding: 12px;
-      margin-bottom: 5px;
+      margin-bottom: 5px; /* Reduced margin to make space for error messages */
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -58,22 +57,20 @@
       transition: background-color 0.3s ease;
     }
     input[type="email"]::placeholder,
-    input[type="password"]::placeholder,
-    input[type="text"]::placeholder {
+    input[type="password"]::placeholder {
       color: rgba(255, 255, 255, 0.7);
     }
     input[type="email"]:focus,
-    input[type="password"]:focus,
-    input[type="text"]:focus {
+    input[type="password"]:focus {
       outline: none;
       background-color: rgba(255, 255, 255, 0.3);
     }
     .error {
       color: #FF6F61;
       font-size: 12px;
-      margin-bottom: 10px;
+      margin-bottom: 10px; /* Space below error message */
       text-align: left;
-      min-height: 18px;
+      min-height: 18px; /* Ensure consistent spacing even if no error */
     }
     .signin-button,
     .go-back-button {
@@ -171,29 +168,25 @@
   </div>
 
   <script>
+    /**
+     * Toggles the visibility of the password field.
+     */
     function togglePassword() {
       const pwField = document.getElementById("password");
       pwField.type = pwField.type === "password" ? "text" : "password";
     }
 
+    /**
+     * Validates the email and password against stored user data in localStorage
+     * and redirects to content.html on successful authentication.
+     */
     function validateAndRedirect() {
+      // Clear previous error messages
       document.getElementById("emailError").textContent = "";
       document.getElementById("passwordError").textContent = "";
 
       const emailInput = document.getElementById("email").value.trim().toLowerCase();
       const passwordInput = document.getElementById("password").value;
-
-      // Retrieve stored credentials from localStorage
-      const storedEmailRaw = localStorage.getItem("existingEmail");
-      const storedPassword = localStorage.getItem("signupPassword");
-
-      // Check if any account is stored
-      if (!storedEmailRaw || storedEmailRaw.trim() === "" || !storedPassword || storedPassword === "") {
-        document.getElementById("emailError").textContent = "No account found. Please sign up first.";
-        return;
-      }
-
-      const storedEmail = storedEmailRaw.trim().toLowerCase();
 
       // Basic email format validation
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -202,21 +195,37 @@
         return;
       }
 
-      // Authenticate against stored credentials
-      if (emailInput !== storedEmail) {
-        document.getElementById("emailError").textContent = "Invalid email address.";
+      // Retrieve all users from localStorage
+      const usersRaw = localStorage.getItem("users");
+      const users = usersRaw ? JSON.parse(usersRaw) : [];
+
+      // Find the user with the matching email
+      const foundUser = users.find(user => user.email === emailInput);
+
+      if (!foundUser) {
+        document.getElementById("emailError").textContent = "No account found with this email. Please sign up first.";
         return;
       }
 
-      if (passwordInput !== storedPassword) {
+      // Authenticate against the stored password for the found user
+      if (passwordInput !== foundUser.password) {
         document.getElementById("passwordError").textContent = "Incorrect password.";
         return;
       }
 
-      // If authentication is successful, redirect
+      // If authentication is successful, store the current user's email (optional, for content.html)
+      localStorage.setItem("currentUserEmail", emailInput);
+
+      // Show success message (using alert for simplicity, consider a custom modal)
+      alert("Sign-in successful!");
+
+      // Redirect to the content page
       window.location.href = "content.html";
     }
 
+    /**
+     * Redirects the user back to the main index page.
+     */
     function goBack() {
       window.location.href = "./index.html";
     }
