@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Super Whiteboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet"> <!-- Geller-like -->
-<link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400&display=swap" rel="stylesheet"> <!-- Museo Sans alt -->
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"> <!-- Learning Curve alt -->
-<link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet"> <!-- Tekton alt -->
-
+  <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet">
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
+    body { margin: 0; font-family: Arial, sans-serif; background-color: #f0f0f0; }
 
     @font-face {
       font-family: 'RiSync';
@@ -23,136 +21,117 @@
       background: #222; color: #fff; padding: 10px;
       display: flex; flex-wrap: wrap; align-items: center;
       gap: 10px; position: relative; z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"] {
+    #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"], #toolbar input[type="number"], #toolbar button {
       margin: 0 5px;
+      padding: 5px;
+      border-radius: 4px;
+      border: 1px solid #555;
+      background-color: #333;
+      color: #fff;
+      font-family: Arial, sans-serif;
     }
+    #toolbar button { cursor: pointer; transition: background-color 0.2s; }
+    #toolbar button:hover { background-color: #555; }
+    #toolbar input[type="color"] { padding: 2px; height: 28px; }
+    #toolbar input[type="checkbox"] { height: 16px; width: 16px; vertical-align: middle; }
+
 
     #canvas-container {
-      position: relative; width: 100vw; height: calc(100vh - 60px); overflow: hidden;
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - 60px);
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 20px;
     }
 
-    canvas { border: 1px solid #ccc; display: block; }
-    .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
-    .tool-label { color: white; }
-
-    .grid-layer {
-      position: absolute; top: 0; left: 0;
-      pointer-events: none; z-index: 10;
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      position: absolute;
+      background-color: transparent;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
+    #mainCanvas { z-index: 20; }
+    #previewCanvas { z-index: 25; pointer-events: none; }
+    #gridCanvas { z-index: 10; pointer-events: none; }
 
-    .emoji {
-      position: absolute; z-index: 30; font-size: 24px;
+    .text-element {
+      position: absolute;
+      z-index: 30;
+      font-size: 24px;
       cursor: move;
+      border: 2px dashed transparent;
+      padding: 2px;
+      user-select: none;
     }
-
+    
     #logo {
       height: 30px; margin-right: 10px;
     }
 
-    .selectable {
-      position: absolute;
-      cursor: move;
-      border: 2px dashed transparent;
-      padding: 2px;
-    }
-
     .selected {
-      border-color: blue !important;
+      border-color: #007bff !important;
     }
-	
-#instructionModal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 480px;
-  max-height: 80vh;
-  overflow-y: auto;
-  background: #fff;
-  color: #222;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  z-index: 1000;
-  display: none;
-  font-size: 14px;
-  line-height: 1.5;
-}
 
-#instructionModal h2 {
-  margin-top: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff6f00;
-  text-align: center;
-}
+    .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
+    .tool-label { color: white; margin-left: 10px; }
+    #fill-shape-container { display: none; align-items: center; gap: 5px; }
 
-#instructionModal .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 14px;
-  font-size: 20px;
-  cursor: pointer;
-  color: #999;
-}
+    #instructionModal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%; max-width: 480px; max-height: 80vh;
+      overflow-y: auto; background: #fff; color: #222;
+      border-radius: 16px; padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      z-index: 1001; display: none;
+      font-size: 14px; line-height: 1.5;
+    }
+    #instructionModal h2 { margin-top: 0; font-size: 18px; font-weight: bold; color: #ff6f00; text-align: center; }
+    #instructionModal .close-btn { position: absolute; top: 8px; right: 14px; font-size: 20px; cursor: pointer; color: #999; }
 
-#overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 999;
-  display: none;
-}
+    #overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000; display: none;
+    }
 
-#hint {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background: #222;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 13px;
-  opacity: 0.85;
-  font-family: Arial, sans-serif;
-}
+    #hint {
+      position: fixed; bottom: 10px; right: 10px;
+      background: #222; color: #fff; padding: 6px 12px;
+      border-radius: 16px; font-size: 13px; opacity: 0.85;
+      font-family: Arial, sans-serif; z-index: 1000;
+    }
+    #hint kbd { background: #fff; color: #222; padding: 2px 5px; border-radius: 4px; margin: 0 2px; font-weight: bold; }
 
-#hint kbd {
-  background: #fff;
-  color: #222;
-  padding: 2px 5px;
-  border-radius: 4px;
-  margin: 0 2px;
-  font-weight: bold;
-}
-#backButton {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  cursor: pointer;
-  z-index: 1100;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
+    #backButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #ff6f00;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 1100;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
 
-
-#backButton:hover {
-  background-color: #e65c00;
-  transform: scale(1.05);
-}
-
-
+    #backButton:hover {
+      background-color: #e65c00;
+      transform: scale(1.05);
+    }
   </style>
 </head>
 <body>
@@ -166,6 +145,9 @@
     <option value="eraser">Eraser</option>
     <option value="select">Select</option>
     <option value="text">Text</option>
+    <option value="rectangle">Rectangle</option>
+    <option value="circle">Circle</option>
+    <option value="line">Line</option>
   </select>
 
   <label class="tool-label">Style:</label>
@@ -174,6 +156,11 @@
     <option value="brushed">Brushed</option>
     <option value="neon">Neon</option>
   </select>
+
+  <div id="fill-shape-container">
+    <label class="tool-label" for="fill-shape">Fill Shape:</label>
+    <input type="checkbox" id="fill-shape">
+  </div>
 
   <label class="tool-label">Color:</label>
   <input type="color" id="color" value="#000000">
@@ -195,7 +182,7 @@
   <label class="tool-label">Grid Color:</label>
   <input type="color" id="gridcolor" value="#cccccc">
 
-  <input type="file" id="image-upload" style="display:none">
+  <input type="file" id="image-upload" accept="image/*" style="display:none">
   <button onclick="document.getElementById('image-upload').click()">Upload Image</button>
 
   <label class="tool-label">Font:</label>
@@ -210,10 +197,10 @@
     <option value="Impact">Impact</option>
     <option value="Trebuchet MS">Trebuchet MS</option>
     <option value="Brush Script MT">Brush Script MT</option>
-	<option value="Pacifico">Learning Curve</option>
-    <option value="MuseoModerno">Museo Sans</option>
-    <option value="Gloock">Geller</option>
-    <option value="Comic Neue">Tekton</option>
+    <option value="Pacifico">Pacifico</option>
+    <option value="MuseoModerno">MuseoModerno</option>
+    <option value="Gloock">Gloock</option>
+    <option value="Comic Neue">Comic Neue</option>
   </select>
 
   <label class="tool-label">Size:</label>
@@ -230,348 +217,571 @@
   </div>
 </div>
 
-<!-- Instruction Modal & Overlay -->
 <div id="overlay"></div>
 <div id="instructionModal">
   <div class="close-btn" onclick="toggleInstructions()">✖</div>
   <h2>📋 Whiteboard Instructions</h2>
-  <p>🖌 <strong>Tool:</strong> Choose between Pencil ✏️, Eraser 🧼, Text 🅰️, or Select 🔲 to modify items.</p>
+  <p>🖌 <strong>Tool:</strong> Choose between Pencil ✏️, Eraser 🧼, Text 🅰️, or Select 🔲 to modify items. New: Rectangle ▭, Circle ◯, Line ╱</p>
   <p>🎨 <strong>Style:</strong> Use Normal, Brushed, or Neon for your pencil strokes.</p>
+  <p>🎨 <strong>Fill Shape:</strong> For Rectangles and Circles, check the "Fill Shape" box to draw a solid shape instead of an outline.</p>
   <p>🎯 <strong>Color:</strong> Pick a pen color and background color you like.</p>
   <p>🔠 <strong>Font & Size:</strong><br/>
   Add text using your chosen font. Try our custom "RiSync" font too!</p>
   <p>📌 <strong>IMPORTANT:</strong> To change the font/size of any placed text: set your font or size first in the toolbar, then switch to "Select" 🔲 and click on the text.</p>
   <p>📐 <strong>Grid:</strong> Want structure? Choose Dot, Line, or Square grids.</p>
-  <p>🖼️ <strong>Upload:</strong> Click "Upload Image" to add any image to your canvas.</p>
+  <p>🖼️ <strong>Upload:</strong> Click "Upload Image" to add any image to your canvas. Images are added like objects.</p>
   <p>🧽 <strong>Clear:</strong> Click "Clear" to clean the page (you’ll be asked once for confirmation).</p>
   <p>↩️ <strong>Undo / ↪️ Redo:</strong> Made a mistake? Undo or redo easily.</p>
   <p>📄 <strong>Pages:</strong> Use ⬅️ ➡️ to move across multiple pages. You can also delete pages.</p>
-  <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly!   <p>   2) Use Ctrl + I to open instructions. </p> </p>
- <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
+  <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly!   <p>   2) Use <kbd>Ctrl</kbd> + <kbd>I</kbd> to open instructions. </p> </p>
+  <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
 </div>
 
-<!-- Floating Hint -->
 <div id="hint">Press <kbd>Ctrl</kbd> + <kbd>I</kbd> for Instructions</div>
 
-
 <div id="canvas-container">
-  <canvas id="canvas" width="1600" height="800"></canvas>
-  <canvas id="gridCanvas" class="grid-layer" width="1600" height="800"></canvas>
+  <canvas id="mainCanvas"></canvas>
+  <canvas id="previewCanvas"></canvas>
+  <canvas id="gridCanvas"></canvas>
 </div>
+
 <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
 
 <script>
-let selectedElement = null;
-
-document.addEventListener('click', function (e) {
-  if (tool !== 'select') return;
-
-  if (selectedElement) selectedElement.classList.remove('selected');
-
-  if (e.target.classList.contains('emoji')) {
-    selectedElement = e.target;
-    selectedElement.classList.add('selected');
-
-    // Auto-apply current font, size, color
-    selectedElement.style.fontFamily = document.getElementById('font-family').value;
-    selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
-    selectedElement.style.color = document.getElementById('color').value;
-  } else {
-    selectedElement = null;
-  }
-});
-
-// Live update font/style when selection changes
-['font-family', 'font-size', 'color'].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => {
-    if (selectedElement && selectedElement.classList.contains('emoji')) {
-      selectedElement.style.fontFamily = document.getElementById('font-family').value;
-      selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
-      selectedElement.style.color = document.getElementById('color').value;
-    }
-  });
-});
-
-let canvas, ctx, gridCanvas, gridCtx;
-let pages = [];
-let currentPage = 0;
+let mainCanvas, ctx, previewCanvas, previewCtx, gridCanvas, gridCtx;
+let selectedElement = null; // For HTML text elements
 let tool = 'pencil';
 let style = 'normal';
-let drawing = false;
-let color, bgcolor, gridcolor, thickness;
+let color, gridcolor, thickness;
 
+// --- State Management ---
+let pages = [{ elements: [], backgroundColor: '#ffffff' }];
+let currentPage = 0;
 let undoStack = [];
 let redoStack = [];
 
+// --- Drawing State ---
+let drawing = false; // For pencil/eraser
+let isDrawingShape = false; // For shapes
+let startX, startY;
+let path = []; // For pencil strokes
+
+// --- Constants for Canvas Size ---
+const CANVAS_WIDTH = 1600;
+const CANVAS_HEIGHT = 800;
+
+window.onload = initWhiteboard;
+
 function initWhiteboard() {
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext('2d');
+  mainCanvas = document.getElementById('mainCanvas');
+  ctx = mainCanvas.getContext('2d');
+  previewCanvas = document.getElementById('previewCanvas');
+  previewCtx = previewCanvas.getContext('2d');
   gridCanvas = document.getElementById('gridCanvas');
   gridCtx = gridCanvas.getContext('2d');
 
-  color = document.getElementById('color').value;
-  bgcolor = document.getElementById('bgcolor').value;
-  gridcolor = document.getElementById('gridcolor').value;
-  thickness = 2;
-
-  ctx.fillStyle = bgcolor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  drawGrid('none');
-
-  canvas.addEventListener('mousedown', handleMouseDown);
-  canvas.addEventListener('mousemove', handleMouseMove);
-  canvas.addEventListener('mouseup', () => {
-    drawing = false;
-    ctx.closePath();
-    ctx.globalAlpha = 1.0;
+  // Set canvas dimensions
+  [mainCanvas, previewCanvas, gridCanvas].forEach(canvas => {
+    canvas.width = CANVAS_WIDTH;
+    canvas.height = CANVAS_HEIGHT;
   });
 
-  document.getElementById('tool').onchange = e => tool = e.target.value;
+  // Load initial values from toolbar
+  color = document.getElementById('color').value;
+  gridcolor = document.getElementById('gridcolor').value;
+  thickness = parseInt(document.getElementById('thickness').value);
+  document.getElementById('bgcolor').value = pages[currentPage].backgroundColor;
+
+  // Add event listeners
+  mainCanvas.addEventListener('mousedown', handleMouseDown);
+  mainCanvas.addEventListener('mousemove', handleMouseMove);
+  mainCanvas.addEventListener('mouseup', handleMouseUp);
+  mainCanvas.addEventListener('mouseout', handleMouseUp);
+  document.addEventListener('click', handleSelectionClick);
+
+  // Toolbar event listeners
+  document.getElementById('tool').onchange = e => {
+    tool = e.target.value;
+    if (tool !== 'select' && selectedElement) {
+      selectedElement.classList.remove('selected');
+      selectedElement = null;
+    }
+    // Show/hide fill option based on selected tool
+    const fillContainer = document.getElementById('fill-shape-container');
+    fillContainer.style.display = ['rectangle', 'circle'].includes(tool) ? 'flex' : 'none';
+  };
   document.getElementById('style').onchange = e => style = e.target.value;
-  document.getElementById('color').onchange = e => color = e.target.value;
+  document.getElementById('color').onchange = e => {
+    color = e.target.value;
+    updateSelectedText();
+  };
   document.getElementById('bgcolor').onchange = e => {
-    saveState();
-    bgcolor = e.target.value;
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    savePage();
+    saveHistoryState();
+    pages[currentPage].backgroundColor = e.target.value;
+    redrawPage();
   };
   document.getElementById('gridcolor').onchange = e => {
     gridcolor = e.target.value;
     drawGrid(document.getElementById('grid').value);
   };
-  document.getElementById('thickness').oninput = e => thickness = e.target.value;
+  document.getElementById('thickness').oninput = e => thickness = parseInt(e.target.value);
   document.getElementById('grid').onchange = e => drawGrid(e.target.value);
+  document.getElementById('image-upload').onchange = handleImageUpload;
+  document.getElementById('font-family').onchange = updateSelectedText;
+  document.getElementById('font-size').onchange = updateSelectedText;
 
-  document.getElementById('image-upload').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      saveState();
-      ctx.drawImage(img, 50, 50);
-    };
-    img.src = URL.createObjectURL(file);
-  });
+  // Initial load
+  loadPage(currentPage);
+  saveHistoryState();
 }
+
+
+// --- Event Handlers ---
 
 function handleMouseDown(e) {
   const x = e.offsetX, y = e.offsetY;
-  saveState();
+  saveHistoryState(); // Save state before any new action
 
-  if (tool === 'pencil') {
+  if (tool === 'pencil' || tool === 'eraser') {
     drawing = true;
+    path = [{ x, y }];
     ctx.beginPath();
     ctx.moveTo(x, y);
-    applyStyle(ctx, style, color);
-    ctx.lineWidth = thickness;
-    ctx.globalAlpha = 1.0;
-  } else if (tool === 'eraser') {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.strokeStyle = bgcolor;
-    ctx.lineWidth = thickness;
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1.0;
+    if (tool === 'pencil') {
+      applyStyle(ctx, style, color);
+      ctx.lineWidth = thickness;
+    } else { // Eraser
+      ctx.strokeStyle = pages[currentPage].backgroundColor;
+      ctx.lineWidth = thickness;
+      ctx.shadowBlur = 0;
+    }
   } else if (tool === 'text') {
     const input = prompt('Enter text:');
     if (input) {
-      const span = document.createElement('span');
-      span.className = 'emoji';
-      span.innerText = input;
-      span.style.left = `${x}px`;
-      span.style.top = `${y}px`;
-      span.style.color = document.getElementById('color').value;
-      span.style.fontFamily = document.getElementById('font-family').value;
-      span.style.fontSize = `${document.getElementById('font-size').value}px`;
-      span.draggable = true;
-
-      span.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', null);
-        span.dataset.dragX = e.offsetX;
-        span.dataset.dragY = e.offsetY;
-      });
-
-      span.addEventListener('dragend', e => {
-        span.style.left = `${e.pageX - span.dataset.dragX}px`;
-        span.style.top = `${e.pageY - span.dataset.dragY}px`;
-      });
-
-      document.getElementById('canvas-container').appendChild(span);
+      const textId = `text-${Date.now()}`;
+      const newText = {
+        type: 'text', id: textId, content: input,
+        x: x, y: y,
+        font: document.getElementById('font-family').value,
+        size: parseInt(document.getElementById('font-size').value),
+        color: document.getElementById('color').value
+      };
+      pages[currentPage].elements.push(newText);
+      recreateAllTextElements(); // Redraw text elements
     }
+  } else if (['rectangle', 'circle', 'line'].includes(tool)) {
+    isDrawingShape = true;
+    startX = x;
+    startY = y;
+    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
   }
 }
 
 function handleMouseMove(e) {
-  if (!drawing) return;
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
-}
+  const x = e.offsetX, y = e.offsetY;
 
-function applyStyle(ctx, style, color) {
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = 'transparent';
-  if (style === 'normal') {
-    ctx.strokeStyle = color;
-  } else if (style === 'brushed') {
-    ctx.strokeStyle = color;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = color;
-  } else if (style === 'neon') {
-    ctx.strokeStyle = color;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = color;
+  if (drawing) { // Pencil or Eraser
+    path.push({ x, y });
+    ctx.lineTo(x, y);
+    ctx.stroke();
+  } else if (isDrawingShape) {
+    const isFilled = document.getElementById('fill-shape').checked;
+    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    previewCtx.shadowBlur = 0;
+
+    if (isFilled && tool !== 'line') {
+        previewCtx.fillStyle = color;
+    } else {
+        previewCtx.strokeStyle = color;
+        previewCtx.lineWidth = thickness;
+    }
+
+    if (tool === 'rectangle') {
+      const rectArgs = [startX, startY, x - startX, y - startY];
+      isFilled ? previewCtx.fillRect(...rectArgs) : previewCtx.strokeRect(...rectArgs);
+    } else if (tool === 'circle') {
+      const dx = x - startX, dy = y - startY;
+      const radius = Math.abs(Math.sqrt(dx * dx + dy * dy) / 2);
+      previewCtx.beginPath();
+      previewCtx.arc(startX + dx / 2, startY + dy / 2, radius, 0, 2 * Math.PI);
+      isFilled ? previewCtx.fill() : previewCtx.stroke();
+    } else if (tool === 'line') {
+      previewCtx.beginPath();
+      previewCtx.moveTo(startX, startY);
+      previewCtx.lineTo(x, y);
+      previewCtx.stroke();
+    }
   }
 }
 
-function savePage() {
-  pages[currentPage] = canvas.toDataURL();
+function handleMouseUp(e) {
+  if (drawing) {
+    drawing = false;
+    ctx.closePath();
+    pages[currentPage].elements.push({
+      type: 'stroke', path: [...path],
+      color: tool === 'pencil' ? color : pages[currentPage].backgroundColor,
+      thickness: thickness,
+      style: tool === 'pencil' ? style : 'normal'
+    });
+    path = [];
+  } else if (isDrawingShape) {
+    isDrawingShape = false;
+    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    const x = e.offsetX, y = e.offsetY;
+    const isFilled = document.getElementById('fill-shape').checked;
+    let shapeData = null;
+
+    if (tool === 'rectangle') {
+      shapeData = { type: 'rectangle', x: startX, y: startY, width: x - startX, height: y - startY, color, thickness, isFilled };
+    } else if (tool === 'circle') {
+      const dx = x - startX, dy = y - startY;
+      const radius = Math.abs(Math.sqrt(dx * dx + dy * dy) / 2);
+      shapeData = { type: 'circle', x: startX + dx / 2, y: startY + dy / 2, radius, color, thickness, isFilled };
+    } else if (tool === 'line') {
+      shapeData = { type: 'line', x1: startX, y1: startY, x2: x, y2: y, color, thickness };
+    }
+
+    if (shapeData) {
+      pages[currentPage].elements.push(shapeData);
+      redrawPage();
+    }
+  }
+}
+
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      saveHistoryState();
+      pages[currentPage].elements.push({
+        type: 'image',
+        src: event.target.result,
+        x: 50, y: 50,
+        width: img.width,
+        height: img.height
+      });
+      redrawPage();
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = null;
+}
+
+
+// --- Drawing and Rendering ---
+
+function applyStyle(context, style, color) {
+  context.strokeStyle = color;
+  context.shadowColor = color;
+  context.shadowBlur = (style === 'brushed') ? 5 : (style === 'neon') ? 15 : 0;
+  context.lineCap = 'round';
+  context.lineJoin = 'round';
+}
+
+function drawElement(element, context) {
+  if (!element) return;
+  context.shadowBlur = 0;
+
+  switch(element.type) {
+    case 'stroke':
+      context.lineWidth = element.thickness;
+      applyStyle(context, element.style, element.color);
+      context.beginPath();
+      context.moveTo(element.path[0].x, element.path[0].y);
+      for (let i = 1; i < element.path.length; i++) {
+        context.lineTo(element.path[i].x, element.path[i].y);
+      }
+      context.stroke();
+      break;
+    case 'rectangle':
+      if (element.isFilled) {
+        context.fillStyle = element.color;
+        context.fillRect(element.x, element.y, element.width, element.height);
+      } else {
+        context.strokeStyle = element.color;
+        context.lineWidth = element.thickness;
+        context.strokeRect(element.x, element.y, element.width, element.height);
+      }
+      break;
+    case 'circle':
+      context.beginPath();
+      context.arc(element.x, element.y, element.radius, 0, 2 * Math.PI);
+      if (element.isFilled) {
+        context.fillStyle = element.color;
+        context.fill();
+      } else {
+        context.strokeStyle = element.color;
+        context.lineWidth = element.thickness;
+        context.stroke();
+      }
+      break;
+    case 'line':
+      context.strokeStyle = element.color;
+      context.lineWidth = element.thickness;
+      context.beginPath();
+      context.moveTo(element.x1, element.y1);
+      context.lineTo(element.x2, element.y2);
+      context.stroke();
+      break;
+    case 'image':
+      // Async image drawing is handled in redrawPage
+      break;
+  }
+}
+
+const imageCache = new Map();
+
+async function redrawPage() {
+  const page = pages[currentPage];
+  if (!page) return;
+
+  // 1. Clear and draw background
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  ctx.fillStyle = page.backgroundColor || '#ffffff';
+  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  // 2. Draw all elements
+  const loadImage = (src) => {
+    if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => { imageCache.set(src, img); resolve(img); };
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  for (const element of page.elements) {
+    if (element.type === 'image') {
+      try {
+        const img = await loadImage(element.src);
+        ctx.drawImage(img, element.x, element.y, element.width, element.height);
+      } catch (error) {
+        console.error("Error drawing image:", error);
+      }
+    } else if (element.type !== 'text') {
+      drawElement(element, ctx);
+    }
+  }
+
+  // 3. Recreate text elements
+  recreateAllTextElements();
+}
+
+// --- Text and Selection ---
+
+function recreateAllTextElements() {
+  document.querySelectorAll('.text-element').forEach(el => el.remove());
+  selectedElement = null;
+
+  if (pages[currentPage] && pages[currentPage].elements) {
+    pages[currentPage].elements
+      .filter(el => el.type === 'text')
+      .forEach(createTextElement);
+  }
+}
+
+function createTextElement(textData) {
+  const span = document.createElement('span');
+  span.className = 'text-element';
+  span.id = textData.id;
+  span.innerText = textData.content;
+  span.style.left = `${textData.x}px`;
+  span.style.top = `${textData.y}px`;
+  span.style.color = textData.color;
+  span.style.fontFamily = textData.font;
+  span.style.fontSize = `${textData.size}px`;
+  span.draggable = true;
+
+  span.addEventListener('dragstart', e => {
+    span.dataset.dragX = e.offsetX;
+    span.dataset.dragY = e.offsetY;
+    saveHistoryState();
+  });
+
+  span.addEventListener('dragend', e => {
+    const containerRect = mainCanvas.getBoundingClientRect();
+    const newLeft = e.clientX - containerRect.left - span.dataset.dragX;
+    const newTop = e.clientY - containerRect.top - span.dataset.dragY;
+    span.style.left = `${newLeft}px`;
+    span.style.top = `${newTop}px`;
+
+    const element = pages[currentPage].elements.find(el => el.id === span.id);
+    if (element) {
+      element.x = newLeft;
+      element.y = newTop;
+    }
+  });
+
+  document.getElementById('canvas-container').appendChild(span);
+}
+
+function handleSelectionClick(e) {
+  if (tool !== 'select') return;
+  if (selectedElement) selectedElement.classList.remove('selected');
+
+  if (e.target.classList.contains('text-element')) {
+    selectedElement = e.target;
+    selectedElement.classList.add('selected');
+    const elementData = pages[currentPage].elements.find(el => el.id === selectedElement.id);
+    if (elementData) {
+        document.getElementById('font-family').value = elementData.font;
+        document.getElementById('font-size').value = elementData.size;
+        document.getElementById('color').value = elementData.color;
+    }
+  } else {
+    selectedElement = null;
+  }
+}
+
+function updateSelectedText() {
+  if (!selectedElement) return;
+  saveHistoryState();
+
+  const newFont = document.getElementById('font-family').value;
+  const newSize = `${document.getElementById('font-size').value}px`;
+  const newColor = document.getElementById('color').value;
+
+  selectedElement.style.fontFamily = newFont;
+  selectedElement.style.fontSize = newSize;
+  selectedElement.style.color = newColor;
+
+  const elementData = pages[currentPage].elements.find(el => el.id === selectedElement.id);
+  if (elementData) {
+    elementData.font = newFont;
+    elementData.size = parseInt(newSize);
+    elementData.color = newColor;
+  }
+}
+
+// --- Page and History Management ---
+
+function saveHistoryState() {
+  redoStack = [];
+  undoStack.push(JSON.parse(JSON.stringify(pages)));
+  if (undoStack.length > 50) undoStack.shift();
+}
+
+function undo() {
+  if (undoStack.length <= 1) return;
+  redoStack.push(undoStack.pop());
+  pages = JSON.parse(JSON.stringify(undoStack[undoStack.length - 1]));
+  currentPage = Math.min(currentPage, pages.length - 1);
+  loadPage(currentPage);
+}
+
+function redo() {
+  if (redoStack.length === 0) return;
+  const nextState = redoStack.pop();
+  undoStack.push(nextState);
+  pages = JSON.parse(JSON.stringify(nextState));
+  currentPage = Math.min(currentPage, pages.length - 1);
+  loadPage(currentPage);
 }
 
 function loadPage(index) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (pages[index]) {
-    const img = new Image();
-    img.src = pages[index];
-    img.onload = () => ctx.drawImage(img, 0, 0);
-  } else {
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  currentPage = index;
+  if (!pages[currentPage]) {
+    pages[currentPage] = { elements: [], backgroundColor: '#ffffff' };
   }
   document.getElementById('page-info').innerText = `Page ${index + 1}`;
+  document.getElementById('bgcolor').value = pages[currentPage].backgroundColor;
+  redrawPage();
+  drawGrid(document.getElementById('grid').value);
 }
 
 function nextPage() {
-  savePage();
   currentPage++;
+  if (!pages[currentPage]) {
+    saveHistoryState();
+    pages.push({ elements: [], backgroundColor: '#ffffff' });
+  }
   loadPage(currentPage);
 }
 
 function prevPage() {
-  if (currentPage === 0) return;
-  savePage();
-  currentPage--;
-  loadPage(currentPage);
+  if (currentPage > 0) {
+    currentPage--;
+    loadPage(currentPage);
+  }
 }
 
 function deletePage() {
-  saveState();
-  if (pages.length === 0) return;
-  pages.splice(currentPage, 1);
-  currentPage = Math.max(0, currentPage - 1);
-  loadPage(currentPage);
+  if (pages.length <= 1) {
+    confirmClear();
+    return;
+  }
+  if (confirm("Are you sure you want to delete this page?")) {
+    saveHistoryState();
+    pages.splice(currentPage, 1);
+    currentPage = Math.max(0, currentPage - 1);
+    loadPage(currentPage);
+  }
 }
 
 function confirmClear() {
-  if (localStorage.getItem("skipClearConfirm") === "true") {
-    clearCanvas();
-    return;
-  }
-
-  if (confirm("Are you sure you want to clear the page?")) {
-    if (confirm("Don't show this again?")) {
-      localStorage.setItem("skipClearConfirm", "true");
-    }
-    clearCanvas();
+  if (confirm("Are you sure you want to clear this page?")) {
+    saveHistoryState();
+    pages[currentPage].elements = [];
+    redrawPage();
   }
 }
 
-function clearCanvas() {
-  saveState();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = bgcolor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  document.querySelectorAll('.emoji').forEach(el => el.remove());
-}
+// --- Utility Functions ---
 
 function drawGrid(type) {
   gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+  if (type === 'none') return;
+
   gridCtx.strokeStyle = gridcolor;
   gridCtx.fillStyle = gridcolor;
+  const step = type === 'line' || type === 'square' ? 40 : 20;
 
   if (type === 'dot') {
-    for (let x = 0; x < gridCanvas.width; x += 20) {
-      for (let y = 0; y < gridCanvas.height; y += 20) {
+    for (let x = 0; x < gridCanvas.width; x += step) {
+      for (let y = 0; y < gridCanvas.height; y += step) {
         gridCtx.beginPath();
         gridCtx.arc(x, y, 1, 0, 2 * Math.PI);
         gridCtx.fill();
       }
     }
-  } else if (type === 'line') {
-    for (let y = 0; y < gridCanvas.height; y += 40) {
+  } else if (type === 'line' || type === 'square') {
+    for (let y = 0; y < gridCanvas.height; y += step) {
       gridCtx.beginPath();
       gridCtx.moveTo(0, y);
       gridCtx.lineTo(gridCanvas.width, y);
       gridCtx.stroke();
     }
-  } else if (type === 'square') {
-    for (let x = 0; x < gridCanvas.width; x += 40) {
-      gridCtx.beginPath();
-      gridCtx.moveTo(x, 0);
-      gridCtx.lineTo(x, gridCanvas.height);
-      gridCtx.stroke();
-    }
-    for (let y = 0; y < gridCanvas.height; y += 40) {
-      gridCtx.beginPath();
-      gridCtx.moveTo(0, y);
-      gridCtx.lineTo(gridCanvas.width, y);
-      gridCtx.stroke();
+    if (type === 'square') {
+      for (let x = 0; x < gridCanvas.width; x += step) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, gridCanvas.height);
+        gridCtx.stroke();
+      }
     }
   }
 }
 
-function saveState() {
-  undoStack.push(canvas.toDataURL());
-  if (undoStack.length > 50) undoStack.shift();
-  redoStack = [];
-}
-
-function undo() {
-  if (undoStack.length === 0) return;
-  redoStack.push(canvas.toDataURL());
-  const previous = undoStack.pop();
-  restoreState(previous);
-}
-
-function redo() {
-  if (redoStack.length === 0) return;
-  undoStack.push(canvas.toDataURL());
-  const next = redoStack.pop();
-  restoreState(next);
-}
-
-function restoreState(dataURL) {
-  const img = new Image();
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-  img.src = dataURL;
-}
-
+// --- Keyboard Shortcuts & Modal ---
 document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-    e.preventDefault();
-    undo();
-  }
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
-    e.preventDefault();
-    redo();
+  if (e.target.tagName === 'INPUT') return;
+  if (e.ctrlKey || e.metaKey) {
+    if (e.key.toLowerCase() === 'z') {
+      e.preventDefault();
+      e.shiftKey ? redo() : undo();
+    } else if (e.key.toLowerCase() === 'i') {
+      e.preventDefault();
+      toggleInstructions();
+    }
   }
 });
 
-window.prevPage = prevPage;
-window.nextPage = nextPage;
-window.clearCanvas = clearCanvas;
-window.confirmClear = confirmClear;
-window.deletePage = deletePage;
-window.undo = undo;
-window.redo = redo;
-
-window.onload = initWhiteboard;
-
-// ⌨️ Ctrl + I toggle instructions
 const modal = document.getElementById('instructionModal');
 const overlay = document.getElementById('overlay');
 
@@ -581,23 +791,13 @@ function toggleInstructions() {
   overlay.style.display = isOpen ? 'none' : 'block';
 }
 
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key.toLowerCase() === 'i') {
-    e.preventDefault();
-    toggleInstructions();
-  }
-});
-
 overlay.addEventListener('click', toggleInstructions);
-// Show instructions on first load (once per session)
 window.addEventListener('load', () => {
   if (!sessionStorage.getItem('shownInstructions')) {
     toggleInstructions();
     sessionStorage.setItem('shownInstructions', 'true');
   }
 });
-
-
 </script>
 
 </body>
