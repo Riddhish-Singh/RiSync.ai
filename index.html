@@ -308,7 +308,7 @@
       background-color: var(--white);
       border-radius: 15px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      display: flex;
+      display: none; /* Hidden by default */
       flex-direction: column;
       overflow: hidden;
       z-index: 998;
@@ -322,6 +322,7 @@
     }
 
     .ai-chatbot-container.active {
+      display: flex; /* Show when active */
       transform: scale(1);
       opacity: 1;
     }
@@ -338,6 +339,7 @@
       transform: scale(1);
       opacity: 1;
       z-index: 1001;
+      display: flex; /* Ensure it's flex when fullscreen */
     }
 
     .ai-chatbot-header {
@@ -752,41 +754,6 @@
         opacity: 1;
         z-index: 1001;
       }
-      .ai-chatbot-container:not(.active) {
-        /* This ensures it scales down off-screen if not active */
-        transform: scale(0.0) translate(100vw, 100vh);
-        opacity: 0;
-      }
-
-      .ai-chatbot-header {
-        padding: 12px 15px;
-        font-size: 16px;
-      }
-
-      .ai-chatbot-header button {
-        font-size: 22px;
-      }
-
-      .ai-chatbot-messages {
-        padding: 10px;
-      }
-
-      .ai-chatbot-message {
-        font-size: 14px;
-        padding: 7px 10px;
-        max-width: 95%; /* Even wider messages */
-      }
-
-      .ai-chatbot-predefined-questions {
-        padding: 8px 10px;
-        gap: 6px;
-        max-height: 120px; /* Further reduce max-height for very small screens */
-      }
-
-      .ai-chatbot-predefined-questions button {
-        padding: 6px 12px;
-        font-size: 13px;
-      }
     }
   </style>
 </head>
@@ -869,7 +836,7 @@
         <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
             <i class="fas fa-expand-alt"></i>
         </button>
-        <button class="close-btn" onclick="toggleAIChat()" title="Close Chat">
+        <button class="close-btn" onclick="toggleAIChat(true)" title="Close Chat">
             <i class="fas fa-times"></i>
         </button>
       </div>
@@ -1024,40 +991,54 @@
       { id: 'future_roadmap', text: 'What\'s in the future roadmap?', answer: 'Future plans include AI-based learning path recommendations, global collaborations, story-based learning, and NGO/School Partnerships for underprivileged learners.' }
     ];
 
-    function toggleAIChat() {
-      aiChatbotContainer.classList.toggle('active');
-      if (aiChatbotContainer.classList.contains('active')) {
-        // Clear previous messages except the initial greeting
-        aiChatbotMessages.innerHTML = `
-            <div class="ai-chatbot-message bot">
-                <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
-                <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
-            </div>
-        `;
-        // Re-attach event listener for the initial greeting's speaker icon
-        const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
-        const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
-        const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
-        if (initialSpeakerIcon && initialTextContent) {
-            initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
-        }
+    function toggleAIChat(forceClose = false) {
+      if (aiChatbotContainer.classList.contains('active') || forceClose) {
+        // If active or explicitly forced to close, hide the chatbot
+        aiChatbotContainer.classList.remove('active', 'fullscreen');
+        stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
 
-        populatePredefinedQuestions();
-        aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
-
-        // For mobile, make chatbot fullscreen by default when opened
-        if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
-            toggleFullscreen();
-        }
+        // After the transition, set display to none to remove it from layout flow
+        aiChatbotContainer.addEventListener('transitionend', function handler() {
+            if (!aiChatbotContainer.classList.contains('active')) {
+                aiChatbotContainer.style.display = 'none';
+            }
+            aiChatbotContainer.removeEventListener('transitionend', handler);
+        });
 
       } else {
-        stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
-        // If chatbot is closed, ensure it's not in fullscreen mode
-        if (aiChatbotContainer.classList.contains('fullscreen')) {
-            toggleFullscreen();
-        }
+        // If not active, show the chatbot
+        aiChatbotContainer.style.display = 'flex'; // Make it visible immediately for transition
+        // Use a small timeout to allow display change to register before starting transition
+        setTimeout(() => {
+            aiChatbotContainer.classList.add('active');
+
+            // Clear previous messages except the initial greeting
+            aiChatbotMessages.innerHTML = `
+                <div class="ai-chatbot-message bot">
+                    <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
+                    <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
+                </div>
+            `;
+            // Re-attach event listener for the initial greeting's speaker icon
+            const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
+            const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
+            const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
+            if (initialSpeakerIcon && initialTextContent) {
+                initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
+            }
+
+            populatePredefinedQuestions();
+            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
+
+            // For mobile, make chatbot fullscreen by default when opened
+            if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
+                toggleFullscreen();
+            }
+        }, 10); // Small delay
       }
+      updateFullscreenButtonIcon(); // Update fullscreen button icon based on new state
     }
+
 
     function populatePredefinedQuestions() {
       predefinedQuestionsDiv.innerHTML = ''; // Clear previous questions
@@ -1118,42 +1099,47 @@
     }
 
     function toggleFullscreen() {
-        // Check if the current environment allows fullscreen API usage directly (e.g., if inside an iframe on some platforms this might be restricted)
-        // This is a more robust check before attempting fullscreen
+        console.log("toggleFullscreen called. Current fullscreen class:", aiChatbotContainer.classList.contains('fullscreen'));
+
+        // Always toggle the CSS class first for consistent visual state
+        const isCurrentlyFullscreenCSS = aiChatbotContainer.classList.contains('fullscreen');
+        if (isCurrentlyFullscreenCSS) {
+            aiChatbotContainer.classList.remove('fullscreen');
+        } else {
+            aiChatbotContainer.classList.add('fullscreen');
+        }
+        console.log("Fullscreen class after toggle:", aiChatbotContainer.classList.contains('fullscreen'));
+
+
+        // Then attempt native fullscreen API if supported
         if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) {
-            if (!document.fullscreenElement) {
+            if (!isCurrentlyFullscreenCSS) { // If we just toggled it ON (meaning it was OFF before)
                 if (aiChatbotContainer.requestFullscreen) {
-                    aiChatbotContainer.requestFullscreen();
-                } else if (aiChatbotContainer.webkitRequestFullscreen) { /* Safari */
-                    aiChatbotContainer.webkitRequestFullscreen();
-                } else if (aiChatbotContainer.msRequestFullscreen) { /* IE11 */
-                    aiChatbotContainer.msRequestFullscreen();
-                } else if (aiChatbotContainer.mozRequestFullScreen) { /* Firefox */
-                    aiChatbotContainer.mozRequestFullScreen();
+                    aiChatbotContainer.requestFullscreen().catch(err => {
+                        console.warn("Failed to enter native fullscreen:", err);
+                        // If native fullscreen fails, revert the CSS class
+                        aiChatbotContainer.classList.remove('fullscreen');
+                        updateFullscreenButtonIcon(); // Update icon immediately
+                    });
                 }
-            } else {
+            } else { // If we just toggled it OFF (meaning it was ON before)
                 if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) { /* Safari */
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { /* IE11 */
-                    document.msExitFullscreen();
-                } else if (document.mozCancelFullScreen) { /* Firefox */
-                    document.mozCancelFullScreen();
+                    document.exitFullscreen().catch(err => {
+                        console.warn("Failed to exit native fullscreen:", err);
+                        // If native exit fails, revert the CSS class
+                        aiChatbotContainer.classList.add('fullscreen');
+                        updateFullscreenButtonIcon(); // Update icon immediately
+                    });
                 }
             }
-        } else {
-            // Fallback for browsers that don't support fullscreen API or when in an environment that restricts it.
-            // In this case, we just toggle the 'fullscreen' class to apply CSS for full screen appearance
-            // without actually entering native fullscreen mode.
-            aiChatbotContainer.classList.toggle('fullscreen');
-            updateFullscreenButtonIcon(); // Manually update icon if native fullscreen isn't available
         }
-        // Class will be toggled by the 'fullscreenchange' event listener normally,
-        // but for the fallback, we handle it directly.
+        // Update the button icon immediately based on the new class state
+        updateFullscreenButtonIcon();
     }
 
     // Event listener for native fullscreen change (e.g., when user presses F11 or Esc)
+    // This will ensure the button icon and class are in sync even if fullscreen is
+    // triggered or exited by means other than the button click.
     document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
     document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
     document.addEventListener('msfullscreenchange', updateFullscreenButtonIcon);
@@ -1161,20 +1147,13 @@
 
 
     function updateFullscreenButtonIcon() {
-        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || aiChatbotContainer.classList.contains('fullscreen')) {
+        console.log("updateFullscreenButtonIcon called. Current fullscreen class:", aiChatbotContainer.classList.contains('fullscreen'));
+        if (aiChatbotContainer.classList.contains('fullscreen')) {
             fullscreenBtn.innerHTML = '<i class="fas fa-compress-alt"></i>'; // Change to exit fullscreen icon
             fullscreenBtn.title = 'Exit Fullscreen';
-            // Ensure class is added if fullscreen was triggered externally or by fallback
-            if (!aiChatbotContainer.classList.contains('fullscreen')) {
-                aiChatbotContainer.classList.add('fullscreen');
-            }
         } else {
             fullscreenBtn.innerHTML = '<i class="fas fa-expand-alt"></i>'; // Change to enter fullscreen icon
             fullscreenBtn.title = 'Toggle Fullscreen';
-            // Ensure class is removed
-            if (aiChatbotContainer.classList.contains('fullscreen')) {
-                aiChatbotContainer.classList.remove('fullscreen');
-            }
         }
     }
 
