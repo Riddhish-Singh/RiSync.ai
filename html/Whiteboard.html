@@ -5,14 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Super Whiteboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet"> <!-- Geller-like -->
-<link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400&display=swap" rel="stylesheet"> <!-- Museo Sans alt -->
-<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet"> <!-- Learning Curve alt -->
-<link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet"> <!-- Tekton alt -->
+  <link href="https://fonts.googleapis.com/css2?family=Gloock&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=MuseoModerno:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue&display=swap" rel="stylesheet">
 
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; }
+    body { margin: 0; font-family: Arial, sans-serif; overflow: hidden; /* Prevent body scroll */ }
 
     @font-face {
       font-family: 'RiSync';
@@ -20,22 +19,80 @@
     }
 
     #toolbar {
-      background: #222; color: #fff; padding: 10px;
-      display: flex; flex-wrap: wrap; align-items: center;
-      gap: 10px; position: relative; z-index: 1000;
+      background: #222;
+      color: #fff;
+      padding: 10px;
+      display: flex;
+      flex-wrap: wrap; /* Allow items to wrap to next line */
+      align-items: center;
+      gap: 10px; /* Space between toolbar items */
+      position: relative;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"] {
-      margin: 0 5px;
+    #toolbar select,
+    #toolbar input[type="color"],
+    #toolbar input[type="range"],
+    #toolbar input[type="number"] {
+      margin: 0 2px; /* Reduce horizontal margin */
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #555;
+      background-color: #333;
+      color: #fff;
+    }
+
+    #toolbar button {
+      background-color: #f58220;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background-color 0.2s;
+    }
+
+    #toolbar button:hover {
+      background-color: #d96d1a;
     }
 
     #canvas-container {
-      position: relative; width: 100vw; height: calc(100vh - 60px); overflow: hidden;
+      position: relative;
+      width: 100vw;
+      height: calc(100vh - var(--toolbar-height, 60px)); /* Dynamic height based on toolbar */
+      overflow: hidden;
+      display: flex; /* Use flex to center canvas if needed */
+      justify-content: center;
+      align-items: center;
     }
 
-    canvas { border: 1px solid #ccc; display: block; }
-    .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
-    .tool-label { color: white; }
+    canvas {
+      border: 1px solid #ccc;
+      display: block;
+      background-color: #fff; /* Ensure canvas has a background */
+      /* Add touch-action to prevent default browser touch gestures on canvas */
+      touch-action: none;
+    }
+
+    .page-controls {
+      color: white;
+      display: flex;
+      gap: 5px; /* Smaller gap for page controls */
+      align-items: center;
+      flex-wrap: wrap; /* Allow page control buttons to wrap */
+      margin-left: auto; /* Push to the right */
+    }
+    .page-controls button {
+        padding: 6px 10px; /* Smaller padding for page control buttons */
+        font-size: 13px;
+    }
+    .tool-label {
+      color: white;
+      font-size: 14px; /* Smaller font for labels */
+      white-space: nowrap; /* Prevent labels from wrapping */
+    }
 
     .grid-layer {
       position: absolute; top: 0; left: 0;
@@ -45,6 +102,7 @@
     .emoji {
       position: absolute; z-index: 30; font-size: 24px;
       cursor: move;
+      touch-action: none; /* Disable default touch actions for draggable elements */
     }
 
     #logo {
@@ -61,97 +119,260 @@
     .selected {
       border-color: blue !important;
     }
-	
-#instructionModal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 90%;
-  max-width: 480px;
-  max-height: 80vh;
-  overflow-y: auto;
-  background: #fff;
-  color: #222;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-  z-index: 1000;
-  display: none;
-  font-size: 14px;
-  line-height: 1.5;
-}
 
-#instructionModal h2 {
-  margin-top: 0;
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff6f00;
-  text-align: center;
-}
+    #instructionModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 480px;
+      max-height: 80vh; /* Responsive height */
+      overflow-y: auto;
+      background: #fff;
+      color: #222;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      display: none;
+      font-size: 14px;
+      line-height: 1.5;
+      box-sizing: border-box; /* Include padding in width/height calculation */
+    }
 
-#instructionModal .close-btn {
-  position: absolute;
-  top: 8px;
-  right: 14px;
-  font-size: 20px;
-  cursor: pointer;
-  color: #999;
-}
+    #instructionModal h2 {
+      margin-top: 0;
+      font-size: 18px;
+      font-weight: bold;
+      color: #ff6f00;
+      text-align: center;
+    }
 
-#overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw; height: 100vh;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 999;
-  display: none;
-}
+    #instructionModal .close-btn {
+      position: absolute;
+      top: 8px;
+      right: 14px;
+      font-size: 20px;
+      cursor: pointer;
+      color: #999;
+    }
 
-#hint {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background: #222;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 13px;
-  opacity: 0.85;
-  font-family: Arial, sans-serif;
-}
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 999;
+      display: none;
+    }
 
-#hint kbd {
-  background: #fff;
-  color: #222;
-  padding: 2px 5px;
-  border-radius: 4px;
-  margin: 0 2px;
-  font-weight: bold;
-}
-#backButton {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  background-color: #ff6f00;
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-  cursor: pointer;
-  z-index: 1100;
-  transition: transform 0.2s ease, background-color 0.3s ease;
-}
+    #hint {
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+      background: #222;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 16px;
+      font-size: 13px;
+      opacity: 0.85;
+      font-family: Arial, sans-serif;
+      z-index: 990; /* Below modal */
+    }
 
+    #hint kbd {
+      background: #fff;
+      color: #222;
+      padding: 2px 5px;
+      border-radius: 4px;
+      margin: 0 2px;
+      font-weight: bold;
+    }
+    #backButton {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background-color: #ff6f00;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      z-index: 1100;
+      transition: transform 0.2s ease, background-color 0.3s ease;
+    }
 
-#backButton:hover {
-  background-color: #e65c00;
-  transform: scale(1.05);
-}
+    #backButton:hover {
+      background-color: #e65c00;
+      transform: scale(1.05);
+    }
 
+    /* --- Responsive Adjustments --- */
+
+    /* General adjustments for smaller screens (e.g., tablets) */
+    @media (max-width: 1024px) {
+      #toolbar {
+        padding: 8px;
+        gap: 8px;
+      }
+      #toolbar select,
+      #toolbar input[type="color"],
+      #toolbar input[type="range"],
+      #toolbar input[type="number"] {
+        padding: 4px;
+        font-size: 13px;
+      }
+      .tool-label {
+        font-size: 13px;
+      }
+      #toolbar button {
+        padding: 7px 10px;
+        font-size: 13px;
+      }
+      .page-controls button {
+        padding: 5px 8px;
+        font-size: 12px;
+      }
+    }
+
+    /* For screens smaller than 768px (most tablets and large phones) */
+    @media (max-width: 768px) {
+      #toolbar {
+        flex-direction: row; /* Keep as row, but allow wrapping */
+        justify-content: center; /* Center items on multiple rows */
+        padding: 8px 5px;
+        gap: 5px;
+        line-height: 1; /* Adjust line height for compactness */
+      }
+
+      #logo {
+        height: 25px;
+        margin-right: 5px;
+      }
+
+      .tool-label {
+        font-size: 12px;
+        margin-right: 2px;
+      }
+
+      #toolbar select,
+      #toolbar input[type="color"],
+      #toolbar input[type="range"],
+      #toolbar input[type="number"] {
+        flex-grow: 1; /* Allow inputs to take available space */
+        min-width: 60px; /* Minimum width to prevent being too small */
+        padding: 3px;
+        font-size: 12px;
+      }
+
+      #toolbar button {
+        padding: 6px 8px;
+        font-size: 12px;
+      }
+
+      .page-controls {
+        margin-left: unset; /* Remove auto-margin to allow centering */
+        width: 100%; /* Take full width */
+        justify-content: center; /* Center page controls */
+        order: 100; /* Push to the end of flex items */
+        margin-top: 5px; /* Space from other toolbar items */
+      }
+      .page-controls button {
+        padding: 4px 6px;
+        font-size: 11px;
+      }
+      #page-info {
+        font-size: 12px;
+      }
+
+      #canvas-container {
+        height: calc(100vh - var(--toolbar-height, 120px)); /* Adjust for potentially taller toolbar */
+      }
+
+      #backButton {
+        bottom: 10px;
+        left: 10px;
+        padding: 8px 12px;
+        font-size: 14px;
+      }
+
+      #hint {
+        font-size: 12px;
+        padding: 5px 10px;
+        bottom: 5px;
+        right: 5px;
+      }
+    }
+
+    /* For screens smaller than 480px (mobile phones) */
+    @media (max-width: 480px) {
+      #toolbar {
+        padding: 5px;
+        gap: 3px;
+        flex-direction: column; /* Stack toolbar items vertically */
+        align-items: stretch; /* Stretch items to full width */
+      }
+      #toolbar > * { /* Apply to direct children to give them full width */
+          width: 100%;
+          box-sizing: border-box;
+      }
+      #toolbar select,
+      #toolbar input[type="color"],
+      #toolbar input[type="range"],
+      #toolbar input[type="number"],
+      #toolbar button {
+        margin: 2px 0; /* Adjust vertical margins */
+        font-size: 14px; /* Slightly larger for easier tapping */
+        padding: 8px;
+        text-align: center;
+      }
+
+      .tool-label {
+        width: auto; /* Allow label to take its natural width */
+        text-align: center; /* Center label */
+        margin: 5px 0 2px; /* Add some vertical space around labels */
+      }
+
+      .page-controls {
+        flex-direction: column; /* Stack page controls vertically */
+        margin-top: 10px;
+      }
+      .page-controls button, #page-info {
+        width: 100%;
+        margin: 2px 0;
+        font-size: 14px;
+        padding: 10px 0;
+      }
+
+      #canvas-container {
+        height: calc(100vh - var(--toolbar-height, 200px)); /* Further adjust for taller toolbar */
+      }
+
+      #instructionModal {
+        width: 95%;
+        padding: 15px;
+      }
+      #instructionModal h2 {
+        font-size: 16px;
+      }
+      #instructionModal p {
+        font-size: 13px;
+      }
+
+      #backButton {
+        bottom: 5px;
+        left: 5px;
+        padding: 6px 10px;
+        font-size: 12px;
+      }
+      #hint {
+        display: none; /* Hide hint on very small screens to save space */
+      }
+    }
 
   </style>
 </head>
@@ -230,7 +451,6 @@
   </div>
 </div>
 
-<!-- Instruction Modal & Overlay -->
 <div id="overlay"></div>
 <div id="instructionModal">
   <div class="close-btn" onclick="toggleInstructions()">✖</div>
@@ -246,359 +466,738 @@
   <p>🧽 <strong>Clear:</strong> Click "Clear" to clean the page (you’ll be asked once for confirmation).</p>
   <p>↩️ <strong>Undo / ↪️ Redo:</strong> Made a mistake? Undo or redo easily.</p>
   <p>📄 <strong>Pages:</strong> Use ⬅️ ➡️ to move across multiple pages. You can also delete pages.</p>
-  <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly!   <p>   2) Use Ctrl + I to open instructions. </p> </p>
- <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
+  <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly! <p> 2) Use Ctrl + I to open instructions. </p> </p>
+  <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
 </div>
 
-<!-- Floating Hint -->
 <div id="hint">Press <kbd>Ctrl</kbd> + <kbd>I</kbd> for Instructions</div>
 
-
 <div id="canvas-container">
-  <canvas id="canvas" width="1600" height="800"></canvas>
-  <canvas id="gridCanvas" class="grid-layer" width="1600" height="800"></canvas>
+  <canvas id="canvas"></canvas>
+  <canvas id="gridCanvas" class="grid-layer"></canvas>
 </div>
+
 <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
 
 <script>
-let selectedElement = null;
-
-document.addEventListener('click', function (e) {
-  if (tool !== 'select') return;
-
-  if (selectedElement) selectedElement.classList.remove('selected');
-
-  if (e.target.classList.contains('emoji')) {
-    selectedElement = e.target;
-    selectedElement.classList.add('selected');
-
-    // Auto-apply current font, size, color
-    selectedElement.style.fontFamily = document.getElementById('font-family').value;
-    selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
-    selectedElement.style.color = document.getElementById('color').value;
-  } else {
-    selectedElement = null;
-  }
-});
-
-// Live update font/style when selection changes
-['font-family', 'font-size', 'color'].forEach(id => {
-  document.getElementById(id).addEventListener('change', () => {
-    if (selectedElement && selectedElement.classList.contains('emoji')) {
+  let selectedElement = null;
+  document.addEventListener('click', function (e) {
+    if (tool !== 'select') return;
+    if (selectedElement) selectedElement.classList.remove('selected');
+    if (e.target.classList.contains('emoji')) {
+      selectedElement = e.target;
+      selectedElement.classList.add('selected');
+      // Auto-apply current font, size, color
       selectedElement.style.fontFamily = document.getElementById('font-family').value;
       selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
       selectedElement.style.color = document.getElementById('color').value;
+    } else {
+      selectedElement = null;
     }
   });
-});
 
-let canvas, ctx, gridCanvas, gridCtx;
-let pages = [];
-let currentPage = 0;
-let tool = 'pencil';
-let style = 'normal';
-let drawing = false;
-let color, bgcolor, gridcolor, thickness;
+  // Live update font/style when selection changes
+  ['font-family', 'font-size', 'color'].forEach(id => {
+    document.getElementById(id).addEventListener('change', () => {
+      if (selectedElement && selectedElement.classList.contains('emoji')) {
+        selectedElement.style.fontFamily = document.getElementById('font-family').value;
+        selectedElement.style.fontSize = `${document.getElementById('font-size').value}px`;
+        selectedElement.style.color = document.getElementById('color').value;
+      }
+    });
+  });
 
-let undoStack = [];
-let redoStack = [];
+  let canvas, ctx, gridCanvas, gridCtx;
+  let pages = [];
+  let currentPage = 0;
+  let tool = 'pencil';
+  let style = 'normal';
+  let drawing = false;
+  let color, bgcolor, gridcolor, thickness;
+  let undoStack = [];
+  let redoStack = [];
 
-function initWhiteboard() {
-  canvas = document.getElementById('canvas');
-  ctx = canvas.getContext('2d');
-  gridCanvas = document.getElementById('gridCanvas');
-  gridCtx = gridCanvas.getContext('2d');
+  function initWhiteboard() {
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    gridCanvas = document.getElementById('gridCanvas');
+    gridCtx = gridCanvas.getContext('2d');
 
-  color = document.getElementById('color').value;
-  bgcolor = document.getElementById('bgcolor').value;
-  gridcolor = document.getElementById('gridcolor').value;
-  thickness = 2;
+    color = document.getElementById('color').value;
+    bgcolor = document.getElementById('bgcolor').value;
+    gridcolor = document.getElementById('gridcolor').value;
+    thickness = parseInt(document.getElementById('thickness').value); // Parse thickness as integer
 
-  ctx.fillStyle = bgcolor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  drawGrid('none');
+    // Initial canvas setup
+    resizeCanvas(); // Set initial canvas size based on viewport
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawGrid('none');
 
-  canvas.addEventListener('mousedown', handleMouseDown);
-  canvas.addEventListener('mousemove', handleMouseMove);
-  canvas.addEventListener('mouseup', () => {
+    // --- Mouse Events ---
+    canvas.addEventListener('mousedown', handlePointerDown);
+    canvas.addEventListener('mousemove', handlePointerMove);
+    canvas.addEventListener('mouseup', handlePointerUp);
+
+    // --- Touch Events ---
+    canvas.addEventListener('touchstart', handlePointerDown, { passive: false });
+    canvas.addEventListener('touchmove', handlePointerMove, { passive: false });
+    canvas.addEventListener('touchend', handlePointerUp);
+    canvas.addEventListener('touchcancel', handlePointerUp); // Handle unexpected touch end
+
+    document.getElementById('tool').onchange = e => tool = e.target.value;
+    document.getElementById('style').onchange = e => style = e.target.value;
+    document.getElementById('color').onchange = e => color = e.target.value;
+    document.getElementById('bgcolor').onchange = e => {
+      bgcolor = e.target.value;
+      redrawCurrentPage(); // Redraw with new background
+    };
+    document.getElementById('thickness').onchange = e => thickness = parseInt(e.target.value);
+    document.getElementById('grid').onchange = e => drawGrid(e.target.value);
+    document.getElementById('gridcolor').onchange = e => {
+      gridcolor = e.target.value;
+      drawGrid(document.getElementById('grid').value);
+    };
+    document.getElementById('font-family').onchange = e => {
+      // Logic for text tool will use this
+    };
+    document.getElementById('font-size').onchange = e => {
+      // Logic for text tool will use this
+    };
+
+    document.getElementById('image-upload').addEventListener('change', handleImageUpload);
+
+    // Initial page load
+    if (pages.length === 0) {
+      addNewPage();
+    } else {
+      loadPage(currentPage);
+    }
+    updatePageInfo();
+    updateToolbarHeightCSSVar(); // Update CSS variable on load
+  }
+
+  // New function to update CSS variable for toolbar height
+  function updateToolbarHeightCSSVar() {
+    const toolbarHeight = document.getElementById('toolbar').offsetHeight;
+    document.documentElement.style.setProperty('--toolbar-height', `${toolbarHeight}px`);
+  }
+
+  // Handle canvas resizing dynamically
+  function resizeCanvas() {
+    const container = document.getElementById('canvas-container');
+    const toolbar = document.getElementById('toolbar');
+
+    // Get the actual height of the toolbar after potential wrapping
+    updateToolbarHeightCSSVar();
+    const toolbarHeight = toolbar.offsetHeight;
+
+    // Set canvas container height
+    container.style.height = `calc(100vh - ${toolbarHeight}px)`;
+
+    // Set canvas width and height to container's dimensions
+    const newWidth = container.clientWidth;
+    const newHeight = container.clientHeight;
+
+    // Only resize if different, to prevent unnecessary redraws
+    if (canvas.width !== newWidth || canvas.height !== newHeight) {
+      // Create a temporary canvas to hold current content during resize
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d');
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      tempCtx.drawImage(canvas, 0, 0); // Draw current content to temp canvas
+
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      gridCanvas.width = newWidth;
+      gridCanvas.height = newHeight;
+
+      // Redraw the saved content from temp canvas onto the new sized canvas
+      ctx.drawImage(tempCanvas, 0, 0, newWidth, newHeight);
+
+      redrawCurrentPage(); // Redraw elements to new canvas size
+      drawGrid(document.getElementById('grid').value); // Redraw grid
+    }
+  }
+
+  window.addEventListener('resize', resizeCanvas); // Listen for window resize
+
+  function getPointerCoords(e) {
+    const rect = canvas.getBoundingClientRect();
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    return {
+      x: clientX - rect.left,
+      y: clientY - rect.top
+    };
+  }
+
+  function handlePointerDown(e) {
+    e.preventDefault(); // Prevent scrolling and zooming
+    const { x, y } = getPointerCoords(e);
+
+    if (tool === 'pencil' || tool === 'eraser') {
+      drawing = true;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    } else if (tool === 'text') {
+      // For touch devices, a tap will trigger text input
+      const textInput = prompt("Enter text:");
+      if (textInput) {
+        addText(textInput, x, y);
+      }
+    } else if (tool === 'select') {
+        // Selection logic for HTML elements (text, images)
+        // This is handled by a separate global click/touchstart listener for elements,
+        // and the draggable logic within addText/handleImageUpload for movement.
+        // For canvas content (lines), selection is more complex and not implemented here.
+    }
+  }
+
+  function handlePointerMove(e) {
+    e.preventDefault(); // Prevent scrolling and zooming
+    if (!drawing) return;
+
+    const { x, y } = getPointerCoords(e);
+
+    if (tool === 'pencil') {
+      applyStrokeStyle();
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    } else if (tool === 'eraser') {
+      ctx.strokeStyle = bgcolor; // Use background color for eraser
+      ctx.lineWidth = thickness * 2; // Make eraser thicker
+      ctx.lineCap = 'round';
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
+  }
+
+  function handlePointerUp() {
     drawing = false;
     ctx.closePath();
-    ctx.globalAlpha = 1.0;
-  });
+    ctx.globalAlpha = 1.0; // Reset globalAlpha
+    ctx.shadowBlur = 0; // Reset shadowBlur
+    saveState(); // Save state after drawing stops
+  }
 
-  document.getElementById('tool').onchange = e => tool = e.target.value;
-  document.getElementById('style').onchange = e => style = e.target.value;
-  document.getElementById('color').onchange = e => color = e.target.value;
-  document.getElementById('bgcolor').onchange = e => {
-    saveState();
-    bgcolor = e.target.value;
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    savePage();
-  };
-  document.getElementById('gridcolor').onchange = e => {
-    gridcolor = e.target.value;
-    drawGrid(document.getElementById('grid').value);
-  };
-  document.getElementById('thickness').oninput = e => thickness = e.target.value;
-  document.getElementById('grid').onchange = e => drawGrid(e.target.value);
 
-  document.getElementById('image-upload').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const img = new Image();
-    img.onload = () => {
-      saveState();
-      ctx.drawImage(img, 50, 50);
-    };
-    img.src = URL.createObjectURL(file);
-  });
-}
-
-function handleMouseDown(e) {
-  const x = e.offsetX, y = e.offsetY;
-  saveState();
-
-  if (tool === 'pencil') {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    applyStyle(ctx, style, color);
+  function applyStrokeStyle() {
+    ctx.strokeStyle = color;
     ctx.lineWidth = thickness;
-    ctx.globalAlpha = 1.0;
-  } else if (tool === 'eraser') {
-    drawing = true;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.strokeStyle = bgcolor;
-    ctx.lineWidth = thickness;
-    ctx.shadowBlur = 0;
-    ctx.globalAlpha = 1.0;
-  } else if (tool === 'text') {
-    const input = prompt('Enter text:');
-    if (input) {
-      const span = document.createElement('span');
-      span.className = 'emoji';
-      span.innerText = input;
-      span.style.left = `${x}px`;
-      span.style.top = `${y}px`;
-      span.style.color = document.getElementById('color').value;
-      span.style.fontFamily = document.getElementById('font-family').value;
-      span.style.fontSize = `${document.getElementById('font-size').value}px`;
-      span.draggable = true;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
 
-      span.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', null);
-        span.dataset.dragX = e.offsetX;
-        span.dataset.dragY = e.offsetY;
-      });
-
-      span.addEventListener('dragend', e => {
-        span.style.left = `${e.pageX - span.dataset.dragX}px`;
-        span.style.top = `${e.pageY - span.dataset.dragY}px`;
-      });
-
-      document.getElementById('canvas-container').appendChild(span);
+    if (style === 'brushed') {
+      ctx.globalAlpha = 0.5; // For a more transparent, brushed look
+      ctx.shadowBlur = 0; // No shadow for brushed
+    } else if (style === 'neon') {
+      ctx.shadowColor = color;
+      ctx.shadowBlur = thickness * 2;
+      ctx.globalAlpha = 1.0;
+    } else {
+      ctx.shadowBlur = 0; // Reset shadow for normal
+      ctx.globalAlpha = 1.0;
     }
   }
-}
 
-function handleMouseMove(e) {
-  if (!drawing) return;
-  ctx.lineTo(e.offsetX, e.offsetY);
-  ctx.stroke();
-}
+  function drawGrid(type) {
+    gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
+    gridCtx.strokeStyle = gridcolor;
+    gridCtx.lineWidth = 0.5;
 
-function applyStyle(ctx, style, color) {
-  ctx.shadowBlur = 0;
-  ctx.shadowColor = 'transparent';
-  if (style === 'normal') {
-    ctx.strokeStyle = color;
-  } else if (style === 'brushed') {
-    ctx.strokeStyle = color;
-    ctx.shadowBlur = 5;
-    ctx.shadowColor = color;
-  } else if (style === 'neon') {
-    ctx.strokeStyle = color;
-    ctx.shadowBlur = 15;
-    ctx.shadowColor = color;
-  }
-}
-
-function savePage() {
-  pages[currentPage] = canvas.toDataURL();
-}
-
-function loadPage(index) {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (pages[index]) {
-    const img = new Image();
-    img.src = pages[index];
-    img.onload = () => ctx.drawImage(img, 0, 0);
-  } else {
-    ctx.fillStyle = bgcolor;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-  document.getElementById('page-info').innerText = `Page ${index + 1}`;
-}
-
-function nextPage() {
-  savePage();
-  currentPage++;
-  loadPage(currentPage);
-}
-
-function prevPage() {
-  if (currentPage === 0) return;
-  savePage();
-  currentPage--;
-  loadPage(currentPage);
-}
-
-function deletePage() {
-  saveState();
-  if (pages.length === 0) return;
-  pages.splice(currentPage, 1);
-  currentPage = Math.max(0, currentPage - 1);
-  loadPage(currentPage);
-}
-
-function confirmClear() {
-  if (localStorage.getItem("skipClearConfirm") === "true") {
-    clearCanvas();
-    return;
-  }
-
-  if (confirm("Are you sure you want to clear the page?")) {
-    if (confirm("Don't show this again?")) {
-      localStorage.setItem("skipClearConfirm", "true");
-    }
-    clearCanvas();
-  }
-}
-
-function clearCanvas() {
-  saveState();
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = bgcolor;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  document.querySelectorAll('.emoji').forEach(el => el.remove());
-}
-
-function drawGrid(type) {
-  gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
-  gridCtx.strokeStyle = gridcolor;
-  gridCtx.fillStyle = gridcolor;
-
-  if (type === 'dot') {
-    for (let x = 0; x < gridCanvas.width; x += 20) {
-      for (let y = 0; y < gridCanvas.height; y += 20) {
+    if (type === 'dot') {
+      const dotSize = 2;
+      const spacing = 20;
+      for (let x = 0; x < gridCanvas.width; x += spacing) {
+        for (let y = 0; y < gridCanvas.height; y += spacing) {
+          gridCtx.beginPath();
+          gridCtx.arc(x, y, dotSize / 2, 0, Math.PI * 2);
+          gridCtx.fillStyle = gridcolor;
+          gridCtx.fill();
+        }
+      }
+    } else if (type === 'line') {
+      const spacing = 20;
+      for (let x = 0; x < gridCanvas.width; x += spacing) {
         gridCtx.beginPath();
-        gridCtx.arc(x, y, 1, 0, 2 * Math.PI);
-        gridCtx.fill();
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, gridCanvas.height);
+        gridCtx.stroke();
+      }
+      for (let y = 0; y < gridCanvas.height; y += spacing) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(canvas.width, y); // Use canvas.width/height for consistency
+        gridCtx.stroke();
+      }
+    } else if (type === 'square') {
+      const spacing = 50; // Larger squares
+      gridCtx.lineWidth = 1; // Thicker lines for squares
+      for (let x = 0; x < gridCanvas.width; x += spacing) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(x, 0);
+        gridCtx.lineTo(x, gridCanvas.height);
+        gridCtx.stroke();
+      }
+      for (let y = 0; y < gridCanvas.height; y += spacing) {
+        gridCtx.beginPath();
+        gridCtx.moveTo(0, y);
+        gridCtx.lineTo(canvas.width, y);
+        gridCtx.stroke();
       }
     }
-  } else if (type === 'line') {
-    for (let y = 0; y < gridCanvas.height; y += 40) {
-      gridCtx.beginPath();
-      gridCtx.moveTo(0, y);
-      gridCtx.lineTo(gridCanvas.width, y);
-      gridCtx.stroke();
+  }
+
+  function addText(text, x, y) {
+    const textElement = document.createElement('div');
+    textElement.textContent = text;
+    textElement.classList.add('emoji', 'selectable');
+    textElement.style.left = `${x}px`;
+    textElement.style.top = `${y}px`;
+    textElement.style.fontFamily = document.getElementById('font-family').value;
+    textElement.style.fontSize = `${document.getElementById('font-size').value}px`;
+    textElement.style.color = document.getElementById('color').value; // Apply current color to text
+    document.getElementById('canvas-container').appendChild(textElement);
+
+    // Make text element draggable (works for mouse and touch)
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    function startDrag(e) {
+        if (tool !== 'select') return;
+        e.preventDefault(); // Prevent default browser touch actions
+
+        isDragging = true;
+        const pointer = e.touches ? e.touches[0] : e;
+        offsetX = pointer.clientX - textElement.getBoundingClientRect().left;
+        offsetY = pointer.clientY - textElement.getBoundingClientRect().top;
+
+        document.addEventListener('mousemove', drag);
+        document.addEventListener('mouseup', endDrag);
+        document.addEventListener('touchmove', drag, { passive: false });
+        document.addEventListener('touchend', endDrag);
+        document.addEventListener('touchcancel', endDrag);
     }
-  } else if (type === 'square') {
-    for (let x = 0; x < gridCanvas.width; x += 40) {
-      gridCtx.beginPath();
-      gridCtx.moveTo(x, 0);
-      gridCtx.lineTo(x, gridCanvas.height);
-      gridCtx.stroke();
+
+    function drag(e) {
+        if (!isDragging) return;
+        e.preventDefault(); // Prevent default browser touch actions
+
+        const pointer = e.touches ? e.touches[0] : e;
+        textElement.style.left = `${pointer.clientX - offsetX}px`;
+        textElement.style.top = `${pointer.clientY - offsetY}px`;
     }
-    for (let y = 0; y < gridCanvas.height; y += 40) {
-      gridCtx.beginPath();
-      gridCtx.moveTo(0, y);
-      gridCtx.lineTo(gridCanvas.width, y);
-      gridCtx.stroke();
+
+    function endDrag() {
+        isDragging = false;
+        document.removeEventListener('mousemove', drag);
+        document.removeEventListener('mouseup', endDrag);
+        document.removeEventListener('touchmove', drag);
+        document.removeEventListener('touchend', endDrag);
+        document.removeEventListener('touchcancel', endDrag);
+        saveState(); // Save state after moving text
+    }
+
+    textElement.addEventListener('mousedown', startDrag);
+    textElement.addEventListener('touchstart', startDrag, { passive: false });
+
+    saveState(); // Save state after adding text
+  }
+
+
+  function handleImageUpload(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const img = new Image();
+      img.onload = function() {
+        const imgElement = document.createElement('img');
+        imgElement.src = img.src;
+        imgElement.classList.add('selectable'); // Make images selectable
+        imgElement.style.position = 'absolute';
+        imgElement.style.left = '50px'; // Default position
+        imgElement.style.top = '50px';
+        imgElement.style.maxWidth = '200px'; // Set a max width for images
+        imgElement.style.height = 'auto';
+        imgElement.style.touchAction = 'none'; // Disable default touch actions
+
+        // Make image draggable (works for mouse and touch)
+        let isDragging = false;
+        let offsetX, offsetY;
+
+        function startDrag(e) {
+            if (tool !== 'select') return;
+            e.preventDefault(); // Prevent default browser touch actions
+
+            isDragging = true;
+            const pointer = e.touches ? e.touches[0] : e;
+            offsetX = pointer.clientX - imgElement.getBoundingClientRect().left;
+            offsetY = pointer.clientY - imgElement.getBoundingClientRect().top;
+
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', endDrag);
+            document.addEventListener('touchmove', drag, { passive: false });
+            document.addEventListener('touchend', endDrag);
+            document.addEventListener('touchcancel', endDrag);
+        }
+
+        function drag(e) {
+            if (!isDragging) return;
+            e.preventDefault(); // Prevent default browser touch actions
+
+            const pointer = e.touches ? e.touches[0] : e;
+            imgElement.style.left = `${pointer.clientX - offsetX}px`;
+            imgElement.style.top = `${pointer.clientY - offsetY}px`;
+        }
+
+        function endDrag() {
+            isDragging = false;
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('mouseup', endDrag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('touchend', endDrag);
+            document.removeEventListener('touchcancel', endDrag);
+            saveState(); // Save state after moving image
+        }
+
+        imgElement.addEventListener('mousedown', startDrag);
+        imgElement.addEventListener('touchstart', startDrag, { passive: false });
+
+
+        document.getElementById('canvas-container').appendChild(imgElement);
+        saveState(); // Save state after adding image
+      };
+      img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function confirmClear() {
+    if (confirm("Are you sure you want to clear the current page? This action cannot be undone.")) {
+      clearCanvas();
+      saveState();
     }
   }
-}
 
-function saveState() {
-  undoStack.push(canvas.toDataURL());
-  if (undoStack.length > 50) undoStack.shift();
-  redoStack = [];
-}
-
-function undo() {
-  if (undoStack.length === 0) return;
-  redoStack.push(canvas.toDataURL());
-  const previous = undoStack.pop();
-  restoreState(previous);
-}
-
-function redo() {
-  if (redoStack.length === 0) return;
-  undoStack.push(canvas.toDataURL());
-  const next = redoStack.pop();
-  restoreState(next);
-}
-
-function restoreState(dataURL) {
-  const img = new Image();
-  img.onload = () => {
+  function clearCanvas() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-  };
-  img.src = dataURL;
-}
-
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key === 'z' && !e.shiftKey) {
-    e.preventDefault();
-    undo();
+    ctx.fillStyle = bgcolor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Remove all text and image elements
+    document.querySelectorAll('.emoji, .selectable').forEach(el => el.remove());
+    drawGrid(document.getElementById('grid').value);
   }
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z') {
-    e.preventDefault();
-    redo();
+
+  function saveState() {
+    redoStack = []; // Clear redo stack on new action
+    const currentCanvasState = canvas.toDataURL(); // Save canvas as image data URL
+    const elements = [];
+    document.querySelectorAll('.emoji, .selectable').forEach(el => {
+      elements.push({
+        type: el.tagName.toLowerCase(),
+        content: el.tagName.toLowerCase() === 'img' ? el.src : el.textContent,
+        style: el.style.cssText,
+        left: el.style.left,
+        top: el.style.top,
+        // Add more properties as needed for styling
+        fontFamily: el.style.fontFamily,
+        fontSize: el.style.fontSize,
+        color: el.style.color
+      });
+    });
+    pages[currentPage] = {
+      canvasState: currentCanvasState,
+      elements: elements,
+      backgroundColor: bgcolor // Save background color with the page state
+    };
+    undoStack.push(currentPage); // Push current page index to undo stack
+    if (undoStack.length > 20) undoStack.shift(); // Keep stack size reasonable
+    updatePageInfo();
   }
-});
 
-window.prevPage = prevPage;
-window.nextPage = nextPage;
-window.clearCanvas = clearCanvas;
-window.confirmClear = confirmClear;
-window.deletePage = deletePage;
-window.undo = undo;
-window.redo = redo;
+  function restoreState(pageIndex) {
+    if (pages[pageIndex]) {
+      const page = pages[pageIndex];
+      const img = new Image();
+      img.onload = function() {
+        clearCanvas(); // Clear current content first
+        ctx.fillStyle = page.backgroundColor; // Restore background color
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height); // Draw saved canvas image
+        drawGrid(document.getElementById('grid').value); // Redraw grid
 
-window.onload = initWhiteboard;
+        // Restore elements
+        page.elements.forEach(elData => {
+          if (elData.type === 'div') { // Assuming text elements are divs with class 'emoji'
+            const textElement = document.createElement('div');
+            textElement.textContent = elData.content;
+            textElement.classList.add('emoji', 'selectable');
+            textElement.style.cssText = elData.style; // Apply saved styles
+            textElement.style.left = elData.left;
+            textElement.style.top = elData.top;
+            textElement.style.fontFamily = elData.fontFamily;
+            textElement.style.fontSize = elData.fontSize;
+            textElement.style.color = elData.color;
 
-// ⌨️ Ctrl + I toggle instructions
-const modal = document.getElementById('instructionModal');
-const overlay = document.getElementById('overlay');
+            // Re-attach draggable listeners
+            let isDragging = false;
+            let offsetX, offsetY;
 
-function toggleInstructions() {
-  const isOpen = modal.style.display === 'block';
-  modal.style.display = isOpen ? 'none' : 'block';
-  overlay.style.display = isOpen ? 'none' : 'block';
-}
+            function startDrag(e) {
+                if (tool !== 'select') return;
+                e.preventDefault(); // Prevent default browser touch actions
 
-document.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.key.toLowerCase() === 'i') {
-    e.preventDefault();
-    toggleInstructions();
+                isDragging = true;
+                const pointer = e.touches ? e.touches[0] : e;
+                offsetX = pointer.clientX - textElement.getBoundingClientRect().left;
+                offsetY = pointer.clientY - textElement.getBoundingClientRect().top;
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', endDrag);
+                document.addEventListener('touchcancel', endDrag);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault(); // Prevent default browser touch actions
+
+                const pointer = e.touches ? e.touches[0] : e;
+                textElement.style.left = `${pointer.clientX - offsetX}px`;
+                textElement.style.top = `${pointer.clientY - offsetY}px`;
+            }
+
+            function endDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', endDrag);
+                document.removeEventListener('touchcancel', endDrag);
+                saveState(); // Save state after moving text
+            }
+
+            textElement.addEventListener('mousedown', startDrag);
+            textElement.addEventListener('touchstart', startDrag, { passive: false });
+
+            document.getElementById('canvas-container').appendChild(textElement);
+          } else if (elData.type === 'img') {
+            const imgElement = document.createElement('img');
+            imgElement.src = elData.content;
+            imgElement.classList.add('selectable');
+            imgElement.style.cssText = elData.style;
+            imgElement.style.left = elData.left;
+            imgElement.style.top = elData.top;
+            imgElement.style.maxWidth = '200px'; // Ensure images retain max-width on load
+            imgElement.style.height = 'auto';
+            imgElement.style.touchAction = 'none'; // Disable default touch actions
+
+            // Re-attach draggable listeners
+            let isDragging = false;
+            let offsetX, offsetY;
+
+            function startDrag(e) {
+                if (tool !== 'select') return;
+                e.preventDefault(); // Prevent default browser touch actions
+
+                isDragging = true;
+                const pointer = e.touches ? e.touches[0] : e;
+                offsetX = pointer.clientX - imgElement.getBoundingClientRect().left;
+                offsetY = pointer.clientY - imgElement.getBoundingClientRect().top;
+
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', endDrag);
+                document.addEventListener('touchmove', drag, { passive: false });
+                document.addEventListener('touchend', endDrag);
+                document.addEventListener('touchcancel', endDrag);
+            }
+
+            function drag(e) {
+                if (!isDragging) return;
+                e.preventDefault(); // Prevent default browser touch actions
+
+                const pointer = e.touches ? e.touches[0] : e;
+                imgElement.style.left = `${pointer.clientX - offsetX}px`;
+                imgElement.style.top = `${pointer.clientY - offsetY}px`;
+            }
+
+            function endDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('mouseup', endDrag);
+                document.removeEventListener('touchmove', drag);
+                document.removeEventListener('touchend', endDrag);
+                document.removeEventListener('touchcancel', endDrag);
+                saveState(); // Save state after moving image
+            }
+
+            imgElement.addEventListener('mousedown', startDrag);
+            imgElement.addEventListener('touchstart', startDrag, { passive: false });
+
+            document.getElementById('canvas-container').appendChild(imgElement);
+          }
+        });
+        // Set background color picker to the loaded background color
+        document.getElementById('bgcolor').value = page.backgroundColor;
+        bgcolor = page.backgroundColor; // Also update the JS variable
+      };
+      img.src = page.canvasState;
+    }
   }
-});
 
-overlay.addEventListener('click', toggleInstructions);
-// Show instructions on first load (once per session)
-window.addEventListener('load', () => {
-  if (!sessionStorage.getItem('shownInstructions')) {
-    toggleInstructions();
-    sessionStorage.setItem('shownInstructions', 'true');
+  function redrawCurrentPage() {
+    // This function clears and redraws the current page based on its stored state
+    // It's useful after canvas resize or background color change
+    if (pages[currentPage]) {
+      restoreState(currentPage);
+    } else {
+      clearCanvas(); // If no page saved, just clear
+    }
   }
-});
+
+  function undo() {
+    if (undoStack.length > 1) { // Need at least two states to undo (current and previous)
+      const lastStateIndex = undoStack.pop(); // Remove current state from undo stack
+      redoStack.push(lastStateIndex); // Add it to redo stack
+      const prevStateIndex = undoStack[undoStack.length - 1]; // Get the previous state
+      loadPage(prevStateIndex); // Load the previous state
+      currentPage = prevStateIndex; // Update current page
+      updatePageInfo();
+    } else if (undoStack.length === 1) { // If only one state left, clear canvas
+        clearCanvas();
+        redoStack.push(undoStack.pop());
+        updatePageInfo();
+    }
+  }
+
+  function redo() {
+    if (redoStack.length > 0) {
+      const nextStateIndex = redoStack.pop(); // Get next state from redo stack
+      undoStack.push(nextStateIndex); // Add it back to undo stack
+      loadPage(nextStateIndex); // Load the next state
+      currentPage = nextStateIndex; // Update current page
+      updatePageInfo();
+    }
+  }
+
+  function addNewPage() {
+    const newPageIndex = pages.length;
+    pages.push({
+      canvasState: '', // Will be updated by saveState
+      elements: [],
+      backgroundColor: '#ffffff'
+    });
+    currentPage = newPageIndex;
+    clearCanvas(); // Clear canvas for new page
+    saveState(); // Save initial state of the new page
+    updatePageInfo();
+  }
+
+  function nextPage() {
+    if (currentPage < pages.length - 1) {
+      currentPage++;
+      loadPage(currentPage);
+    } else {
+      addNewPage();
+    }
+    updatePageInfo();
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      loadPage(currentPage);
+    }
+    updatePageInfo();
+  }
+
+  function loadPage(pageIndex) {
+    if (pages[pageIndex]) {
+      // Temporarily store current tool and thickness
+      const tempTool = tool;
+      const tempThickness = thickness;
+
+      // Restore elements first, which also clears the canvas
+      restoreState(pageIndex);
+
+      // Restore tool and thickness
+      tool = tempTool;
+      thickness = tempThickness;
+
+      // Ensure that the background color picker reflects the loaded page's background
+      document.getElementById('bgcolor').value = pages[pageIndex].backgroundColor;
+
+      // Redraw grid after restoring everything
+      drawGrid(document.getElementById('grid').value);
+    } else {
+      console.error(`Page at index ${pageIndex} not found.`);
+      // Optionally create a new blank page if it's beyond existing range
+      addNewPage();
+    }
+  }
 
 
+  function deletePage() {
+    if (pages.length <= 1) {
+      alert("Cannot delete the last page.");
+      return;
+    }
+    if (confirm(`Are you sure you want to delete Page ${currentPage + 1}?`)) {
+      pages.splice(currentPage, 1); // Remove current page
+      if (currentPage >= pages.length) {
+        currentPage = pages.length - 1; // Go to last page if current was deleted
+      }
+      loadPage(currentPage);
+      updatePageInfo();
+    }
+  }
+
+  function updatePageInfo() {
+    document.getElementById('page-info').textContent = `Page ${currentPage + 1}/${pages.length}`;
+  }
+
+  // Instructions Modal
+  function toggleInstructions() {
+    const modal = document.getElementById('instructionModal');
+    const overlay = document.getElementById('overlay');
+    if (modal.style.display === 'block') {
+      modal.style.display = 'none';
+      overlay.style.display = 'none';
+    } else {
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+  }
+
+  // Keyboard shortcut for instructions (Ctrl + I)
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 'i') {
+      e.preventDefault(); // Prevent browser's default action for Ctrl+I
+      toggleInstructions();
+    }
+  });
+
+
+  // Initialize whiteboard when DOM is ready
+  document.addEventListener('DOMContentLoaded', () => {
+    initWhiteboard();
+    // Show instructions on first visit or if flag not set
+    if (!localStorage.getItem('whiteboardInstructionsShown')) {
+      toggleInstructions();
+      localStorage.setItem('whiteboardInstructionsShown', 'true');
+    }
+  });
 </script>
-
 </body>
 </html>

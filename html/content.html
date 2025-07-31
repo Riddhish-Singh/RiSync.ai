@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RiSync UI</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     html, body {
       font-family: Arial, sans-serif;
@@ -11,7 +12,7 @@
       padding: 0;
       background-color: #ffffff;
       height: 100vh;
-      overflow: hidden;
+      overflow-x: hidden; /* Prevent horizontal scroll */
     }
     .top-bar {
       background-color: #0c0c2d;
@@ -21,6 +22,7 @@
       justify-content: space-between;
       padding: 10px 20px;
       position: relative;
+      flex-wrap: wrap; /* Allow items to wrap on smaller screens */
     }
     .logo {
       display: flex;
@@ -35,6 +37,8 @@
       position: relative;
       display: flex;
       align-items: center;
+      flex-wrap: wrap; /* Allow items to wrap */
+      justify-content: flex-end; /* Align to the right */
     }
     .settings-icon {
       font-size: 24px;
@@ -44,37 +48,46 @@
     .settings-menu {
       display: none;
       position: absolute;
-      top: 40px;
+      top: 40px; /* Adjusted for better spacing */
       right: 0;
       background: white;
       border: 1px solid #ccc;
       padding: 10px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      z-index: 100; /* Ensure it's above other content */
+      min-width: 120px; /* Ensure buttons fit */
+      box-sizing: border-box; /* Include padding and border in the element's total width and height */
     }
     .settings-menu button {
       background-color: #f58220;
       color: white;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 15px; /* Adjusted padding */
       cursor: pointer;
       border-radius: 10px;
+      width: 100%; /* Full width within the menu */
+      margin-bottom: 5px; /* Space between buttons */
+    }
+    .settings-menu button:last-child {
+      margin-bottom: 0;
     }
     .settings-menu button:hover {
       background-color: #d96d1a;
     }
     .container {
       display: flex;
-      height: calc(100vh - 60px);
+      height: calc(100vh - 60px); /* Adjust height based on top-bar height */
     }
     .sidebar {
       background-color: #ffffff;
       padding: 20px;
-      width: 30%;
+      width: 30%; /* Original width */
       display: flex;
       flex-direction: column;
       gap: 20px;
       justify-content: flex-start;
       align-items: center;
+      border-right: 1px solid #eee; /* Added a subtle separator */
     }
     .button {
       background-color: #f58220;
@@ -97,6 +110,7 @@
       flex-grow: 1;
       padding: 20px;
       background-color: #ffffff;
+      overflow-y: auto; /* Enable scrolling for content if it overflows */
     }
     .profile-upload {
       display: none;
@@ -107,12 +121,212 @@
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
+      margin-left: 15px; /* Space from language selector */
     }
     #languageSelector {
       margin-left: 20px;
       padding: 5px;
       border-radius: 5px;
       font-size: 16px;
+      appearance: none; /* Remove default arrow */
+      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.7l-116.5%20116.5-116.5-116.5a17.6%2017.6%200%200%200-24.7%200%2017.6%2017.6%200%200%200%200%2024.7l129.5%20129.4a17.6%2017.6%200%200%200%2024.7%200l129.5-129.4a17.6%2017.6%200%200%200%200-24.7z%22/%3E%3C/svg%3E'); /* Custom arrow */
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      background-size: 12px;
+      padding-right: 25px; /* Space for the custom arrow */
+      border: 1px solid #ccc;
+      color: #333; /* Dark text for better contrast */
+    }
+
+    /* Music button styling */
+    #music-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #004aad;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+    #music-btn:hover {
+      background-color: #f28b30;
+      transform: scale(1.05);
+    }
+
+    /* --- Responsive Adjustments --- */
+
+    /* For screens smaller than 768px (tablets and larger phones) */
+    @media (max-width: 768px) {
+      .top-bar {
+        padding: 8px 15px;
+        flex-direction: column; /* Stack items vertically */
+        align-items: flex-start; /* Align logo to the left */
+        gap: 10px; /* Space between logo and settings */
+      }
+
+      .logo img {
+        width: 50px;
+      }
+      .logo h2 {
+        font-size: 20px;
+      }
+      .logo p {
+        font-size: 14px;
+      }
+
+      .settings-container {
+        width: 100%; /* Take full width */
+        justify-content: flex-end; /* Align settings to the right */
+      }
+
+      .profile-icon {
+        width: 60px; /* Slightly smaller on tablets */
+        height: 60px;
+        margin-left: 10px;
+      }
+      #languageSelector {
+        margin-left: 10px;
+      }
+
+      .settings-icon {
+        font-size: 22px;
+        margin-left: 10px;
+      }
+      .settings-menu {
+        top: auto; /* Reset top */
+        bottom: 0; /* Position at the bottom of top-bar */
+        right: 15px; /* Adjust right position */
+        transform: translateY(calc(100% + 10px)); /* Move it out of the way when closed */
+        transition: transform 0.3s ease-out;
+      }
+      .settings-menu.active { /* Use a class to show/hide for animation */
+        transform: translateY(0);
+      }
+
+
+      .container {
+        flex-direction: column; /* Stack sidebar and content vertically */
+        height: calc(100vh - 120px); /* Adjust height, assuming top-bar is now taller */
+        overflow-y: auto; /* Allow scrolling for entire content */
+      }
+
+      .sidebar {
+        width: 100%; /* Full width for sidebar */
+        padding: 15px;
+        flex-direction: row; /* Buttons laid out horizontally now */
+        flex-wrap: wrap; /* Allow buttons to wrap */
+        justify-content: center;
+        gap: 10px; /* Reduce gap between buttons */
+        border-right: none;
+        border-bottom: 1px solid #eee; /* Separator at the bottom */
+      }
+      .sidebar .button {
+        width: auto; /* Auto width to fit content */
+        min-width: 120px; /* Minimum width for buttons */
+        padding: 10px 15px;
+        font-size: 15px;
+        flex-grow: 1; /* Allow buttons to grow */
+      }
+
+      .content-area {
+        padding: 15px;
+      }
+
+      #music-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 22px;
+        bottom: 15px;
+        right: 15px;
+      }
+    }
+
+    /* For screens smaller than 480px (mobile phones) */
+    @media (max-width: 480px) {
+      .top-bar {
+        padding: 10px;
+        flex-direction: column;
+        align-items: center; /* Center align items */
+        gap: 8px;
+      }
+      .logo {
+        flex-direction: column;
+        align-items: center;
+      }
+      .logo img {
+        width: 45px;
+        margin-right: 0;
+        margin-bottom: 5px;
+      }
+      .logo h2 {
+        font-size: 18px;
+      }
+      .logo p {
+        font-size: 13px;
+      }
+
+      .settings-container {
+        justify-content: center; /* Center the settings controls */
+        gap: 10px; /* Space between controls */
+      }
+      .profile-icon {
+        width: 50px; /* Smaller profile icon */
+        height: 50px;
+        margin-left: 0;
+      }
+      #languageSelector {
+        font-size: 14px;
+        margin-left: 0;
+      }
+      .settings-icon {
+        font-size: 20px;
+        margin-left: 0;
+      }
+      .settings-menu {
+        right: 50%;
+        transform: translateX(50%) translateY(calc(100% + 10px)); /* Center and move out */
+        min-width: 100px;
+      }
+      .settings-menu.active {
+        transform: translateX(50%) translateY(0);
+      }
+
+      .container {
+        height: calc(100vh - 120px); /* Still adjusting for top-bar */
+      }
+
+      .sidebar {
+        padding: 10px;
+        flex-direction: column; /* Stack buttons vertically again */
+        gap: 10px;
+      }
+      .sidebar .button {
+        width: 90%; /* Almost full width for buttons */
+        padding: 12px 10px;
+        font-size: 14px;
+      }
+
+      .content-area {
+        padding: 10px;
+      }
+
+      #music-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        bottom: 10px;
+        right: 10px;
+      }
     }
   </style>
 </head>
@@ -166,10 +380,10 @@ function openProfilePage() {
 }
 
 const translations = {
-  hi: { title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", subjects: "विषय", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।" },
-  fr: { title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", subjects: "Sujets", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer." },
-  en: { title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", subjects: "Subjects", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started." },
-  pu: { title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", subjects: "ਵਿਸ਼ੇ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।" }
+  hi: { title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", search: "खोज इंजन", subjects: "विषय", "white-board": "श्वेतपट", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।" },
+  fr: { title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", search: "Moteur de recherche", subjects: "Sujets", "white-board": "Tableau blanc", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer." },
+  en: { title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", search: "Search Engine", subjects: "Subjects", "white-board": "White Board", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started." },
+  pu: { title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", search: "ਖੋਜ ਇੰਜਣ", subjects: "ਵਿਸ਼ੇ", "white-board": "ਵਾਈਟ ਬੋਰਡ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।" }
 };
 
 function applyLanguage(lang) {
@@ -226,13 +440,28 @@ document.getElementById("profileUpload").addEventListener("change", function (ev
     alert("Please upload a .png or .jpg image file.");
   }
 });
+
 function toggleSettings() {
   var menu = document.getElementById("settingsMenu");
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
+  // Toggle a class for more control over transitions
+  menu.classList.toggle('active');
 }
+
+// Close settings menu if clicked outside
+document.addEventListener("click", function (event) {
+  var settingsMenu = document.getElementById("settingsMenu");
+  var settingsIcon = document.querySelector(".settings-icon");
+  var isClickInsideSettings = settingsMenu.contains(event.target) || settingsIcon.contains(event.target);
+
+  if (!isClickInsideSettings && settingsMenu.classList.contains('active')) {
+    settingsMenu.classList.remove('active');
+  }
+});
+
+
 function logout() {
   localStorage.clear();
-  window.location.href = "../index.html"; 
+  window.location.href = "../index.html";
 }
 
 // ✅ Updated navigateTo with new-tab logic for only specific URLs
@@ -240,7 +469,8 @@ function navigateTo(page) {
   const openInNewTab = [
     "https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en",
     "https://calendar.google.com",
-    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort="
+    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=",
+    "https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing" // Added AI Studio link to open in new tab
   ];
 
   if (openInNewTab.includes(page)) {
@@ -249,20 +479,6 @@ function navigateTo(page) {
     window.location.href = page;
   }
 }
-
-document.addEventListener("click", function (event) {
-  var settingsMenu = document.getElementById("settingsMenu");
-  var logoutButton = document.getElementById("logoutButton");
-  if (
-    settingsMenu.style.display === "block" &&
-    event.target !== logoutButton &&
-    event.target !== settingsMenu &&
-    event.target !== document.querySelector(".settings-icon")
-  ) {
-    logoutButton.style.display = "block";
-    settingsMenu.style.display = "none";
-  }
-});
 
 // 🎵 Background Music Controls
 const audio = document.getElementById('bg-music');
@@ -294,30 +510,9 @@ function updateIcon() {
 }
 audio.onplay = updateIcon;
 audio.onpause = updateIcon;
-</script>
 
-<style>
-  #music-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background-color: #004aad;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 999;
-  }
-  #music-btn:hover {
-    background-color: #f28b30;
-  }
-</style>
+// Initial icon update on load
+document.addEventListener('DOMContentLoaded', updateIcon);
+</script>
 </body>
 </html>
