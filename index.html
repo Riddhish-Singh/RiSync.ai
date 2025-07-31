@@ -19,16 +19,16 @@
     }
 
     body {
-      font-family: 'Poppins', sans-serif; /* Changed font to Poppins for modern look */
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
       background:
-        url('assets/image.png') no-repeat center top / cover, /* Adjusted background properties */
+        url('assets/image.png') no-repeat center top / cover,
         linear-gradient(to bottom, transparent 60%, var(--primary-blue) 100%);
       background-attachment: fixed;
       min-height: 100vh;
       color: var(--white);
-      overflow-x: hidden; /* Prevent horizontal scroll due to animations */
+      overflow-x: hidden;
     }
 
     /* General Animations */
@@ -61,14 +61,14 @@
     }
 
     header img {
-      max-width: 120px; /* Slightly larger logo */
+      max-width: 120px;
       display: block;
       margin: 0 auto 20px;
       animation: slideInDown 0.8s ease-out;
     }
 
     header h1 {
-      font-size: 42px; /* Larger heading */
+      font-size: 42px;
       color: var(--secondary-orange);
       text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
       margin-bottom: 10px;
@@ -92,7 +92,7 @@
     nav a {
       color: var(--white);
       text-decoration: none;
-      padding: 18px 25px; /* More padding for nav links */
+      padding: 18px 25px;
       font-size: 19px;
       font-weight: bold;
       text-transform: uppercase;
@@ -102,25 +102,25 @@
     nav a:hover {
       background-color: var(--secondary-orange);
       color: var(--dark-blue);
-      transform: translateY(-3px); /* Slight lift on hover */
+      transform: translateY(-3px);
     }
 
     main {
       padding: 40px;
-      background-color: rgba(244, 244, 244, 0.9); /* Slightly less transparent */
+      background-color: rgba(244, 244, 244, 0.9);
       min-height: 80vh;
       color: var(--text-color);
-      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
+      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
     section {
-      margin-bottom: 40px; /* More space between sections */
+      margin-bottom: 40px;
       padding: 35px;
       background-color: var(--white);
       border-radius: 12px;
       box-shadow: var(--box-shadow);
-      opacity: 0; /* Hidden by default, animated by JS */
-      transform: translateY(20px); /* Slightly below, animated by JS */
+      opacity: 0;
+      transform: translateY(20px);
       transition: opacity 0.6s ease-out, transform 0.6s ease-out;
     }
 
@@ -149,7 +149,7 @@
 
     .subject-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly larger min-width */
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       gap: 30px;
     }
 
@@ -159,10 +159,10 @@
       border-radius: 10px;
       text-align: center;
       cursor: default;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
       transition: box-shadow var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
-      opacity: 0; /* Hidden by default, animated by JS */
-      transform: scale(0.9); /* Smaller, animated by JS */
+      opacity: 0;
+      transform: scale(0.9);
     }
 
     .subject {
@@ -174,30 +174,30 @@
     }
 
     .subject.animate-in, .classes.animate-in {
-        animation: popIn 0.5s ease-out forwards; /* Applied by JS with staggered delay */
+        animation: popIn 0.5s ease-out forwards;
     }
 
     .subject:hover {
-      box-shadow: 0 8px 20px rgba(242, 139, 48, 0.5); /* Enhanced glow */
-      transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
-      background-color: #e07a21; /* Slightly darker orange */
+      box-shadow: 0 8px 20px rgba(242, 139, 48, 0.5);
+      transform: translateY(-5px) scale(1.02);
+      background-color: #e07a21;
     }
 
     .classes:hover {
-      box-shadow: 0 8px 20px rgba(0, 74, 173, 0.5); /* Enhanced glow */
-      transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
-      background-color: #003a8d; /* Slightly darker blue */
+      box-shadow: 0 8px 20px rgba(0, 74, 173, 0.5);
+      transform: translateY(-5px) scale(1.02);
+      background-color: #003a8d;
     }
 
     .button {
       display: block;
-      width: fit-content; /* Adjust width to content */
-      margin: 30px auto 0; /* Center button with more margin */
+      width: fit-content;
+      margin: 30px auto 0;
       padding: 16px 30px;
       background-color: var(--primary-blue);
       color: var(--white);
       border: none;
-      border-radius: 8px; /* Slightly more rounded */
+      border-radius: 8px;
       font-size: 20px;
       cursor: pointer;
       text-transform: uppercase;
@@ -215,7 +215,7 @@
     #self-learning p,
     #self-learning ul {
       color: var(--dark-blue);
-      line-height: 1.7; /* Better readability */
+      line-height: 1.7;
       font-size: 17px;
     }
 
@@ -231,7 +231,7 @@
     }
 
     #self-learning ul {
-        list-style: disc; /* Ensure bullet points */
+        list-style: disc;
         padding-left: 25px;
     }
 
@@ -269,9 +269,9 @@
       color: var(--white);
       border: none;
       border-radius: 50%;
-      width: 55px; /* Slightly larger */
+      width: 55px;
       height: 55px;
-      font-size: 24px; /* Larger icon */
+      font-size: 24px;
       cursor: pointer;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       z-index: 1000;
@@ -293,9 +293,9 @@
     }
 
     #ai-btn {
-      bottom: 90px; /* Position above music button */
+      bottom: 90px;
       right: 25px;
-      font-size: 28px; /* Slightly larger AI icon */
+      font-size: 28px;
     }
 
     /* AI Chatbot Container */
@@ -303,19 +303,19 @@
       position: fixed;
       bottom: 20px;
       right: 90px;
-      width: 380px; /* Slightly wider */
-      height: 520px; /* Slightly taller */
+      width: 380px;
+      height: 520px;
       background-color: var(--white);
-      border-radius: 15px; /* More rounded corners */
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); /* Stronger shadow */
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       z-index: 998;
-      transform: scale(0.5); /* Starts smaller */
-      opacity: 0; /* Starts hidden */
+      transform: scale(0.5);
+      opacity: 0;
       transform-origin: bottom right;
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), /* Springy transition */
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55),
                   opacity 0.4s ease-out,
                   width 0.3s ease, height 0.3s ease,
                   top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
@@ -343,15 +343,15 @@
     .ai-chatbot-header {
       background-color: var(--primary-blue);
       color: var(--white);
-      padding: 18px 20px; /* More padding */
+      padding: 18px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 20px; /* Larger header text */
+      font-size: 20px;
       font-weight: bold;
       border-top-left-radius: 15px;
       border-top-right-radius: 15px;
-      flex-shrink: 0; /* Prevent header from shrinking */
+      flex-shrink: 0;
     }
 
     .ai-chatbot-container.fullscreen .ai-chatbot-header {
@@ -360,14 +360,14 @@
 
     .ai-chatbot-header .header-controls {
         display: flex;
-        gap: 12px; /* More space between buttons */
+        gap: 12px;
     }
 
     .ai-chatbot-header button {
       background: none;
       border: none;
       color: var(--white);
-      font-size: 26px; /* Larger control icons */
+      font-size: 26px;
       cursor: pointer;
       line-height: 1;
       transition: color var(--transition-speed), transform var(--transition-speed);
@@ -384,23 +384,23 @@
       background-color: #f9f9f9;
       color: var(--text-color);
       display: flex;
-      flex-direction: column; /* Ensure messages stack vertically */
+      flex-direction: column;
     }
 
     .ai-chatbot-message {
-      margin-bottom: 12px; /* More space between messages */
+      margin-bottom: 12px;
       padding: 10px 15px;
-      border-radius: 20px; /* More rounded messages */
-      max-width: 85%; /* Slightly wider max-width */
+      border-radius: 20px;
+      max-width: 85%;
       position: relative;
-      animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; /* Animation for new messages */
+      animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out;
     }
 
     .ai-chatbot-message.user {
       background-color: #e0e0e0;
       align-self: flex-end;
       margin-left: auto;
-      border-bottom-right-radius: 5px; /* Tail effect */
+      border-bottom-right-radius: 5px;
     }
 
     .ai-chatbot-message.bot {
@@ -409,8 +409,8 @@
       margin-right: auto;
       display: flex;
       flex-direction: column;
-      padding-right: 40px; /* Space for the icon */
-      border-bottom-left-radius: 5px; /* Tail effect */
+      padding-right: 40px;
+      border-bottom-left-radius: 5px;
     }
 
     .ai-chatbot-message.bot .message-text-content {
@@ -470,12 +470,12 @@
       background-color: #f1f1f1;
       display: flex;
       flex-wrap: wrap;
-      gap: 10px; /* More space between buttons */
-      max-height: 180px; /* Increased max-height */
+      gap: 10px;
+      max-height: 180px;
       overflow-y: auto;
-      scrollbar-width: thin; /* Firefox scrollbar */
-      scrollbar-color: var(--secondary-orange) #f1f1f1; /* Firefox scrollbar color */
-      flex-shrink: 0; /* Prevent from shrinking */
+      scrollbar-width: thin;
+      scrollbar-color: var(--secondary-orange) #f1f1f1;
+      flex-shrink: 0;
     }
 
     /* Webkit scrollbar styles */
@@ -500,13 +500,13 @@
       background-color: var(--secondary-orange);
       color: var(--white);
       border: none;
-      border-radius: 25px; /* More rounded pills */
-      padding: 10px 18px; /* More padding */
+      border-radius: 25px;
+      padding: 10px 18px;
       cursor: pointer;
       font-size: 15px;
       transition: background-color 0.2s, transform 0.1s;
-      flex-shrink: 0; /* Prevent buttons from shrinking too much */
-      animation: fadeIn 0.4s ease-out; /* Fade in effect */
+      flex-shrink: 0;
+      animation: fadeIn 0.4s ease-out;
     }
 
     .ai-chatbot-predefined-questions button:hover {
@@ -519,6 +519,275 @@
 
     /* Poppins Font Import */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+    /* --- Responsive Adjustments --- */
+
+    /* For screens smaller than 768px (tablets and larger phones) */
+    @media (max-width: 768px) {
+      body {
+        background-attachment: scroll; /* Change fixed background for better mobile performance */
+      }
+
+      header {
+        padding: 30px 15px;
+      }
+
+      header img {
+        max-width: 100px;
+        margin-bottom: 15px;
+      }
+
+      header h1 {
+        font-size: 34px;
+      }
+
+      header p {
+        font-size: 18px;
+      }
+
+      nav {
+        flex-direction: column; /* Stack navigation links vertically */
+        padding: 10px 0;
+      }
+
+      nav a {
+        padding: 12px 15px;
+        font-size: 17px;
+        width: 100%; /* Make links take full width */
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Separator */
+      }
+      nav a:last-child {
+        border-bottom: none;
+      }
+
+      main {
+        padding: 20px;
+      }
+
+      section {
+        margin-bottom: 30px;
+        padding: 25px;
+      }
+
+      h2 {
+        font-size: 28px;
+        margin-bottom: 20px;
+      }
+
+      .subject-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjust grid for smaller screens */
+        gap: 20px;
+      }
+
+      .subject, .classes {
+        padding: 20px;
+      }
+
+      .button {
+        padding: 14px 25px;
+        font-size: 18px;
+      }
+
+      #self-learning p,
+      #self-learning ul {
+        font-size: 16px;
+      }
+
+      footer {
+        padding: 20px;
+        font-size: 14px;
+      }
+
+      .floating-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        bottom: 20px;
+        right: 20px;
+      }
+
+      #ai-btn {
+        bottom: 80px; /* Adjust position for AI button */
+        right: 20px;
+      }
+
+      /* Chatbot adjustments for tablets/smaller screens */
+      .ai-chatbot-container {
+        width: 320px; /* Slightly narrower for more screen space */
+        height: 480px; /* Slightly shorter */
+        right: 70px; /* Adjust based on new button positions */
+        bottom: 70px;
+      }
+
+      .ai-chatbot-header {
+        padding: 15px 18px;
+        font-size: 18px;
+      }
+
+      .ai-chatbot-header button {
+        font-size: 24px;
+      }
+
+      .ai-chatbot-messages {
+        padding: 15px;
+      }
+
+      .ai-chatbot-message {
+        font-size: 15px;
+        padding: 8px 12px;
+        max-width: 90%; /* Allow messages to take more width */
+      }
+
+      .ai-chatbot-message.bot .speaker-icon {
+        font-size: 1em;
+      }
+
+      .ai-chatbot-predefined-questions {
+        padding: 10px 15px;
+        gap: 8px;
+        max-height: 150px; /* Adjust max-height for predefined questions */
+      }
+
+      .ai-chatbot-predefined-questions button {
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+    }
+
+    /* For screens smaller than 480px (mobile phones) */
+    @media (max-width: 480px) {
+      header {
+        padding: 25px 10px;
+      }
+
+      header img {
+        max-width: 80px;
+        margin-bottom: 10px;
+      }
+
+      header h1 {
+        font-size: 28px;
+      }
+
+      header p {
+        font-size: 16px;
+      }
+
+      nav {
+        padding: 8px 0;
+      }
+
+      nav a {
+        padding: 10px 10px;
+        font-size: 16px;
+      }
+
+      main {
+        padding: 15px;
+      }
+
+      section {
+        margin-bottom: 25px;
+        padding: 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-bottom: 15px;
+      }
+
+      .subject-grid {
+        grid-template-columns: 1fr; /* Stack subjects in a single column */
+        gap: 15px;
+      }
+
+      .subject, .classes {
+        padding: 18px;
+      }
+
+      .button {
+        width: 90%; /* Almost full width for call to action */
+        padding: 12px 20px;
+        font-size: 17px;
+      }
+
+      #self-learning p,
+      #self-learning ul {
+        font-size: 15px;
+      }
+
+      #self-learning ul {
+        padding-left: 20px;
+      }
+
+      footer {
+        padding: 15px;
+        font-size: 13px;
+      }
+
+      .floating-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+        bottom: 15px;
+        right: 15px;
+      }
+
+      #ai-btn {
+        bottom: 70px;
+        right: 15px;
+      }
+
+      /* Chatbot full-screen on small phones when active */
+      .ai-chatbot-container.active {
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        transform: scale(1);
+        opacity: 1;
+        z-index: 1001;
+      }
+      .ai-chatbot-container:not(.active) {
+        /* This ensures it scales down off-screen if not active */
+        transform: scale(0.0) translate(100vw, 100vh);
+        opacity: 0;
+      }
+
+      .ai-chatbot-header {
+        padding: 12px 15px;
+        font-size: 16px;
+      }
+
+      .ai-chatbot-header button {
+        font-size: 22px;
+      }
+
+      .ai-chatbot-messages {
+        padding: 10px;
+      }
+
+      .ai-chatbot-message {
+        font-size: 14px;
+        padding: 7px 10px;
+        max-width: 95%; /* Even wider messages */
+      }
+
+      .ai-chatbot-predefined-questions {
+        padding: 8px 10px;
+        gap: 6px;
+        max-height: 120px; /* Further reduce max-height for very small screens */
+      }
+
+      .ai-chatbot-predefined-questions button {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -775,6 +1044,12 @@
 
         populatePredefinedQuestions();
         aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
+
+        // For mobile, make chatbot fullscreen by default when opened
+        if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
+            toggleFullscreen();
+        }
+
       } else {
         stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
         // If chatbot is closed, ensure it's not in fullscreen mode
@@ -843,40 +1118,63 @@
     }
 
     function toggleFullscreen() {
-        if (!document.fullscreenElement) {
-            if (aiChatbotContainer.requestFullscreen) {
-                aiChatbotContainer.requestFullscreen();
-            } else if (aiChatbotContainer.webkitRequestFullscreen) { /* Safari */
-                aiChatbotContainer.webkitRequestFullscreen();
-            } else if (aiChatbotContainer.msRequestFullscreen) { /* IE11 */
-                aiChatbotContainer.msRequestFullscreen();
+        // Check if the current environment allows fullscreen API usage directly (e.g., if inside an iframe on some platforms this might be restricted)
+        // This is a more robust check before attempting fullscreen
+        if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) {
+            if (!document.fullscreenElement) {
+                if (aiChatbotContainer.requestFullscreen) {
+                    aiChatbotContainer.requestFullscreen();
+                } else if (aiChatbotContainer.webkitRequestFullscreen) { /* Safari */
+                    aiChatbotContainer.webkitRequestFullscreen();
+                } else if (aiChatbotContainer.msRequestFullscreen) { /* IE11 */
+                    aiChatbotContainer.msRequestFullscreen();
+                } else if (aiChatbotContainer.mozRequestFullScreen) { /* Firefox */
+                    aiChatbotContainer.mozRequestFullScreen();
+                }
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) { /* Safari */
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) { /* IE11 */
+                    document.msExitFullscreen();
+                } else if (document.mozCancelFullScreen) { /* Firefox */
+                    document.mozCancelFullScreen();
+                }
             }
         } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) { /* Safari */
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) { /* IE11 */
-                document.msExitFullscreen();
-            }
+            // Fallback for browsers that don't support fullscreen API or when in an environment that restricts it.
+            // In this case, we just toggle the 'fullscreen' class to apply CSS for full screen appearance
+            // without actually entering native fullscreen mode.
+            aiChatbotContainer.classList.toggle('fullscreen');
+            updateFullscreenButtonIcon(); // Manually update icon if native fullscreen isn't available
         }
-        // Class will be toggled by the 'fullscreenchange' event listener
+        // Class will be toggled by the 'fullscreenchange' event listener normally,
+        // but for the fallback, we handle it directly.
     }
 
     // Event listener for native fullscreen change (e.g., when user presses F11 or Esc)
     document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
     document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
     document.addEventListener('msfullscreenchange', updateFullscreenButtonIcon);
+    document.addEventListener('mozfullscreenchange', updateFullscreenButtonIcon);
+
 
     function updateFullscreenButtonIcon() {
-        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement) {
+        if (document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || document.mozFullScreenElement || aiChatbotContainer.classList.contains('fullscreen')) {
             fullscreenBtn.innerHTML = '<i class="fas fa-compress-alt"></i>'; // Change to exit fullscreen icon
             fullscreenBtn.title = 'Exit Fullscreen';
-            aiChatbotContainer.classList.add('fullscreen'); // Ensure class is added if fullscreen was triggered externally
+            // Ensure class is added if fullscreen was triggered externally or by fallback
+            if (!aiChatbotContainer.classList.contains('fullscreen')) {
+                aiChatbotContainer.classList.add('fullscreen');
+            }
         } else {
             fullscreenBtn.innerHTML = '<i class="fas fa-expand-alt"></i>'; // Change to enter fullscreen icon
             fullscreenBtn.title = 'Toggle Fullscreen';
-            aiChatbotContainer.classList.remove('fullscreen'); // Ensure class is removed
+            // Ensure class is removed
+            if (aiChatbotContainer.classList.contains('fullscreen')) {
+                aiChatbotContainer.classList.remove('fullscreen');
+            }
         }
     }
 
