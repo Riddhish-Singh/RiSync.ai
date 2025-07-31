@@ -24,7 +24,7 @@
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 
-    #toolbar select, #toolbar input[type="color"], #toolbar input[type="range"], #toolbar input[type="number"], #toolbar button {
+    #toolbar select, #toolbar input, #toolbar button {
       margin: 0 5px;
       padding: 5px;
       border-radius: 4px;
@@ -33,11 +33,12 @@
       color: #fff;
       font-family: Arial, sans-serif;
     }
+     #toolbar input[type="checkbox"] { height: 16px; width: 16px; vertical-align: middle; }
+     #toolbar input:disabled { background: #555; cursor: not-allowed; }
+
     #toolbar button { cursor: pointer; transition: background-color 0.2s; }
     #toolbar button:hover { background-color: #555; }
     #toolbar input[type="color"] { padding: 2px; height: 28px; }
-    #toolbar input[type="checkbox"] { height: 16px; width: 16px; vertical-align: middle; }
-
 
     #canvas-container {
       position: relative;
@@ -65,7 +66,7 @@
       position: absolute;
       z-index: 30;
       font-size: 24px;
-      cursor: move;
+      cursor: grab;
       border: 2px dashed transparent;
       padding: 2px;
       user-select: none;
@@ -77,6 +78,7 @@
 
     .selected {
       border-color: #007bff !important;
+      cursor: move;
     }
 
     .page-controls { color: white; margin-left: auto; display: flex; gap: 10px; align-items: center; }
@@ -221,18 +223,15 @@
 <div id="instructionModal">
   <div class="close-btn" onclick="toggleInstructions()">✖</div>
   <h2>📋 Whiteboard Instructions</h2>
-  <p>🖌 <strong>Tool:</strong> Choose between Pencil ✏️, Eraser 🧼, Text 🅰️, or Select 🔲 to modify items. New: Rectangle ▭, Circle ◯, Line ╱</p>
-  <p>🎨 <strong>Style:</strong> Use Normal, Brushed, or Neon for your pencil strokes.</p>
+  <p>🖌 <strong>Tool:</strong> Choose between Pencil ✏️, Eraser 🧼, Text 🅰️, or Shapes.</p>
+  <p><strong>✨ NEW Select Tool:</strong> The "Select" 🔲 tool is now very powerful!
+     <ul>
+        <li>Click on any shape (rectangle, circle) or text to select it.</li>
+        <li>Click and drag a selected item to move it.</li>
+        <li>While an item is selected, use the toolbar to change its color, thickness, or fill settings on the fly.</li>
+     </ul>
+  </p>
   <p>🎨 <strong>Fill Shape:</strong> For Rectangles and Circles, check the "Fill Shape" box to draw a solid shape instead of an outline.</p>
-  <p>🎯 <strong>Color:</strong> Pick a pen color and background color you like.</p>
-  <p>🔠 <strong>Font & Size:</strong><br/>
-  Add text using your chosen font. Try our custom "RiSync" font too!</p>
-  <p>📌 <strong>IMPORTANT:</strong> To change the font/size of any placed text: set your font or size first in the toolbar, then switch to "Select" 🔲 and click on the text.</p>
-  <p>📐 <strong>Grid:</strong> Want structure? Choose Dot, Line, or Square grids.</p>
-  <p>🖼️ <strong>Upload:</strong> Click "Upload Image" to add any image to your canvas. Images are added like objects.</p>
-  <p>🧽 <strong>Clear:</strong> Click "Clear" to clean the page (you’ll be asked once for confirmation).</p>
-  <p>↩️ <strong>Undo / ↪️ Redo:</strong> Made a mistake? Undo or redo easily.</p>
-  <p>📄 <strong>Pages:</strong> Use ⬅️ ➡️ to move across multiple pages. You can also delete pages.</p>
   <p>💡 <strong>Pro Tip:</strong> 1) Use <kbd>Ctrl</kbd> + <kbd>Z</kbd> to undo and <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd> to redo quickly!   <p>   2) Use <kbd>Ctrl</kbd> + <kbd>I</kbd> to open instructions. </p> </p>
   <p>✨ <em>Designed for creativity, learning, and collaboration. Enjoy your whiteboarding experience!</em></p>
 </div>
@@ -249,7 +248,6 @@
 
 <script>
 let mainCanvas, ctx, previewCanvas, previewCtx, gridCanvas, gridCtx;
-let selectedElement = null; // For HTML text elements
 let tool = 'pencil';
 let style = 'normal';
 let color, gridcolor, thickness;
@@ -261,10 +259,17 @@ let undoStack = [];
 let redoStack = [];
 
 // --- Drawing State ---
-let drawing = false; // For pencil/eraser
-let isDrawingShape = false; // For shapes
+let drawing = false;
+let isDrawingShape = false;
 let startX, startY;
-let path = []; // For pencil strokes
+let path = [];
+
+// --- Selection and Dragging State ---
+let selectedDomElement = null; // For HTML text elements
+let selectedCanvasElement = null; // For canvas shapes
+let isDragging = false;
+let dragOffsetX, dragOffsetY;
+
 
 // --- Constants for Canvas Size ---
 const CANVAS_WIDTH = 1600;
@@ -280,41 +285,49 @@ function initWhiteboard() {
   gridCanvas = document.getElementById('gridCanvas');
   gridCtx = gridCanvas.getContext('2d');
 
-  // Set canvas dimensions
   [mainCanvas, previewCanvas, gridCanvas].forEach(canvas => {
     canvas.width = CANVAS_WIDTH;
     canvas.height = CANVAS_HEIGHT;
   });
 
-  // Load initial values from toolbar
   color = document.getElementById('color').value;
   gridcolor = document.getElementById('gridcolor').value;
   thickness = parseInt(document.getElementById('thickness').value);
   document.getElementById('bgcolor').value = pages[currentPage].backgroundColor;
 
-  // Add event listeners
   mainCanvas.addEventListener('mousedown', handleMouseDown);
   mainCanvas.addEventListener('mousemove', handleMouseMove);
   mainCanvas.addEventListener('mouseup', handleMouseUp);
   mainCanvas.addEventListener('mouseout', handleMouseUp);
-  document.addEventListener('click', handleSelectionClick);
+  
+  setupToolbarListeners();
 
-  // Toolbar event listeners
+  loadPage(currentPage);
+  saveHistoryState();
+}
+
+function setupToolbarListeners() {
   document.getElementById('tool').onchange = e => {
     tool = e.target.value;
-    if (tool !== 'select' && selectedElement) {
-      selectedElement.classList.remove('selected');
-      selectedElement = null;
-    }
-    // Show/hide fill option based on selected tool
+    deselectAll();
+    redrawPage();
     const fillContainer = document.getElementById('fill-shape-container');
     fillContainer.style.display = ['rectangle', 'circle'].includes(tool) ? 'flex' : 'none';
   };
-  document.getElementById('style').onchange = e => style = e.target.value;
+
   document.getElementById('color').onchange = e => {
     color = e.target.value;
-    updateSelectedText();
+    updateSelectedProperties();
   };
+  document.getElementById('thickness').oninput = e => {
+    thickness = parseInt(e.target.value);
+    if(selectedCanvasElement) updateSelectedProperties();
+  };
+  document.getElementById('fill-shape').onchange = () => {
+    if(selectedCanvasElement) updateSelectedProperties();
+  };
+
+  document.getElementById('style').onchange = e => style = e.target.value;
   document.getElementById('bgcolor').onchange = e => {
     saveHistoryState();
     pages[currentPage].backgroundColor = e.target.value;
@@ -324,24 +337,54 @@ function initWhiteboard() {
     gridcolor = e.target.value;
     drawGrid(document.getElementById('grid').value);
   };
-  document.getElementById('thickness').oninput = e => thickness = parseInt(e.target.value);
   document.getElementById('grid').onchange = e => drawGrid(e.target.value);
   document.getElementById('image-upload').onchange = handleImageUpload;
   document.getElementById('font-family').onchange = updateSelectedText;
   document.getElementById('font-size').onchange = updateSelectedText;
-
-  // Initial load
-  loadPage(currentPage);
-  saveHistoryState();
 }
 
 
-// --- Event Handlers ---
+// --- Event Handlers (MouseDown, MouseMove, MouseUp) ---
 
 function handleMouseDown(e) {
   const x = e.offsetX, y = e.offsetY;
-  saveHistoryState(); // Save state before any new action
+  
+  if (tool === 'select') {
+    // Priority: DOM elements (text) > canvas elements
+    if (e.target.classList.contains('text-element')) {
+      deselectAll();
+      selectedDomElement = e.target;
+      selectedDomElement.classList.add('selected');
+      isDragging = false; // Dragging for DOM elements is handled by 'draggable'
+      updateToolbarForSelection();
+      redrawPage();
+      return; // Stop further processing
+    }
 
+    const clickedElement = findClickedElement(x, y);
+    if (selectedCanvasElement && clickedElement && selectedCanvasElement.id === clickedElement.id) {
+        // Start dragging the already selected element
+        isDragging = true;
+        dragOffsetX = x - selectedCanvasElement.x;
+        dragOffsetY = y - selectedCanvasElement.y;
+        saveHistoryState();
+    } else {
+        deselectAll();
+        if (clickedElement) {
+            selectedCanvasElement = clickedElement;
+            isDragging = true;
+            dragOffsetX = x - selectedCanvasElement.x;
+            dragOffsetY = y - selectedCanvasElement.y;
+            saveHistoryState(); // Save state before drag starts
+        }
+    }
+    updateToolbarForSelection();
+    redrawPage();
+    return;
+  }
+  
+  saveHistoryState(); // Save state for any new drawing action
+  
   if (tool === 'pencil' || tool === 'eraser') {
     drawing = true;
     path = [{ x, y }];
@@ -350,7 +393,7 @@ function handleMouseDown(e) {
     if (tool === 'pencil') {
       applyStyle(ctx, style, color);
       ctx.lineWidth = thickness;
-    } else { // Eraser
+    } else {
       ctx.strokeStyle = pages[currentPage].backgroundColor;
       ctx.lineWidth = thickness;
       ctx.shadowBlur = 0;
@@ -358,43 +401,49 @@ function handleMouseDown(e) {
   } else if (tool === 'text') {
     const input = prompt('Enter text:');
     if (input) {
-      const textId = `text-${Date.now()}`;
       const newText = {
-        type: 'text', id: textId, content: input,
-        x: x, y: y,
+        type: 'text', id: `el-${Date.now()}`, content: input, x, y,
         font: document.getElementById('font-family').value,
         size: parseInt(document.getElementById('font-size').value),
         color: document.getElementById('color').value
       };
       pages[currentPage].elements.push(newText);
-      recreateAllTextElements(); // Redraw text elements
+      redrawPage();
     }
   } else if (['rectangle', 'circle', 'line'].includes(tool)) {
     isDrawingShape = true;
     startX = x;
     startY = y;
-    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
   }
 }
 
 function handleMouseMove(e) {
   const x = e.offsetX, y = e.offsetY;
 
-  if (drawing) { // Pencil or Eraser
+  if (tool === 'select' && isDragging && selectedCanvasElement) {
+    // Move logic for canvas elements
+    const newX = x - dragOffsetX;
+    const newY = y - dragOffsetY;
+
+    // For circles and rectangles, the position is simply x, y
+    if(selectedCanvasElement.type === 'circle' || selectedCanvasElement.type === 'rectangle'){
+       selectedCanvasElement.x = newX;
+       selectedCanvasElement.y = newY;
+    }
+    redrawPage();
+    return;
+  }
+
+  if (drawing) { // Pencil/Eraser
     path.push({ x, y });
     ctx.lineTo(x, y);
     ctx.stroke();
-  } else if (isDrawingShape) {
+  } else if (isDrawingShape) { // Shape preview
     const isFilled = document.getElementById('fill-shape').checked;
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     previewCtx.shadowBlur = 0;
-
-    if (isFilled && tool !== 'line') {
-        previewCtx.fillStyle = color;
-    } else {
-        previewCtx.strokeStyle = color;
-        previewCtx.lineWidth = thickness;
-    }
+    isFilled && tool !== 'line' ? (previewCtx.fillStyle = color) : (previewCtx.strokeStyle = color);
+    previewCtx.lineWidth = thickness;
 
     if (tool === 'rectangle') {
       const rectArgs = [startX, startY, x - startX, y - startY];
@@ -415,14 +464,16 @@ function handleMouseMove(e) {
 }
 
 function handleMouseUp(e) {
+  if (isDragging) {
+    isDragging = false;
+  }
   if (drawing) {
     drawing = false;
     ctx.closePath();
     pages[currentPage].elements.push({
-      type: 'stroke', path: [...path],
+      type: 'stroke', id: `el-${Date.now()}`, path: [...path],
       color: tool === 'pencil' ? color : pages[currentPage].backgroundColor,
-      thickness: thickness,
-      style: tool === 'pencil' ? style : 'normal'
+      thickness, style: tool === 'pencil' ? style : 'normal'
     });
     path = [];
   } else if (isDrawingShape) {
@@ -430,57 +481,138 @@ function handleMouseUp(e) {
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     const x = e.offsetX, y = e.offsetY;
     const isFilled = document.getElementById('fill-shape').checked;
-    let shapeData = null;
+    let shapeData = { id: `el-${Date.now()}`, color, thickness, isFilled };
 
     if (tool === 'rectangle') {
-      shapeData = { type: 'rectangle', x: startX, y: startY, width: x - startX, height: y - startY, color, thickness, isFilled };
+      Object.assign(shapeData, { type: 'rectangle', x: startX, y: startY, width: x - startX, height: y - startY });
     } else if (tool === 'circle') {
       const dx = x - startX, dy = y - startY;
       const radius = Math.abs(Math.sqrt(dx * dx + dy * dy) / 2);
-      shapeData = { type: 'circle', x: startX + dx / 2, y: startY + dy / 2, radius, color, thickness, isFilled };
+      Object.assign(shapeData, { type: 'circle', x: startX + dx / 2, y: startY + dy / 2, radius });
     } else if (tool === 'line') {
-      shapeData = { type: 'line', x1: startX, y1: startY, x2: x, y2: y, color, thickness };
+      Object.assign(shapeData, { type: 'line', x1: startX, y1: startY, x2: x, y2: y, isFilled: false });
     }
-
-    if (shapeData) {
-      pages[currentPage].elements.push(shapeData);
-      redrawPage();
-    }
+    pages[currentPage].elements.push(shapeData);
+    redrawPage();
   }
 }
 
-function handleImageUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (event) => {
-    const img = new Image();
-    img.onload = () => {
-      saveHistoryState();
-      pages[currentPage].elements.push({
-        type: 'image',
-        src: event.target.result,
-        x: 50, y: 50,
-        width: img.width,
-        height: img.height
-      });
-      redrawPage();
-    };
-    img.src = event.target.result;
-  };
-  reader.readAsDataURL(file);
-  e.target.value = null;
+// --- Selection & Modification ---
+
+function findClickedElement(x, y) {
+    // Iterate backwards to check topmost elements first
+    for (let i = pages[currentPage].elements.length - 1; i >= 0; i--) {
+        const element = pages[currentPage].elements[i];
+        if (isPointInElement(x, y, element)) {
+            return element;
+        }
+    }
+    return null;
+}
+
+function isPointInElement(x, y, element) {
+    const margin = 5; // Click margin for outlines
+    switch (element.type) {
+        case 'rectangle':
+            // Normalize for negative width/height
+            const rectX = Math.min(element.x, element.x + element.width);
+            const rectY = Math.min(element.y, element.y + element.height);
+            const rectW = Math.abs(element.width);
+            const rectH = Math.abs(element.height);
+            return x > rectX && x < rectX + rectW && y > rectY && y < rectY + rectH;
+        case 'circle':
+            const dist = Math.sqrt((x - element.x) ** 2 + (y - element.y) ** 2);
+            if (element.isFilled) return dist < element.radius;
+            // Check if click is on the circumference
+            return Math.abs(dist - element.radius) < margin + element.thickness / 2;
+        default:
+            return false;
+    }
+}
+
+function deselectAll() {
+    if (selectedDomElement) {
+        selectedDomElement.classList.remove('selected');
+        selectedDomElement = null;
+    }
+    selectedCanvasElement = null;
+    isDragging = false;
+    // Don't call redraw here to avoid flicker, caller will redraw.
+}
+
+function updateToolbarForSelection() {
+    const thicknessInput = document.getElementById('thickness');
+    const colorInput = document.getElementById('color');
+    const fillCheck = document.getElementById('fill-shape');
+    const fontControls = ['font-family', 'font-size'];
+
+    let target = selectedCanvasElement || (selectedDomElement ? pages[currentPage].elements.find(el => el.id === selectedDomElement.id) : null);
+
+    if (target) {
+        colorInput.value = target.color;
+        thicknessInput.value = target.thickness || 1;
+        thicknessInput.disabled = typeof target.thickness === 'undefined';
+        fillCheck.checked = target.isFilled || false;
+        fillCheck.disabled = typeof target.isFilled === 'undefined';
+        fontControls.forEach(id => document.getElementById(id).disabled = target.type !== 'text');
+        if (target.type === 'text') {
+            document.getElementById('font-family').value = target.font;
+            document.getElementById('font-size').value = target.size;
+        }
+    } else {
+        // No selection, reset toolbar states
+        thicknessInput.disabled = false;
+        fillCheck.disabled = false;
+        fontControls.forEach(id => document.getElementById(id).disabled = false);
+    }
+}
+
+function updateSelectedProperties() {
+    if (!selectedCanvasElement) return;
+    saveHistoryState();
+    selectedCanvasElement.color = document.getElementById('color').value;
+    selectedCanvasElement.thickness = parseInt(document.getElementById('thickness').value);
+    if(typeof selectedCanvasElement.isFilled !== 'undefined') {
+        selectedCanvasElement.isFilled = document.getElementById('fill-shape').checked;
+    }
+    redrawPage();
 }
 
 
 // --- Drawing and Rendering ---
 
-function applyStyle(context, style, color) {
-  context.strokeStyle = color;
-  context.shadowColor = color;
-  context.shadowBlur = (style === 'brushed') ? 5 : (style === 'neon') ? 15 : 0;
-  context.lineCap = 'round';
-  context.lineJoin = 'round';
+const imageCache = new Map();
+
+async function redrawPage() {
+  const page = pages[currentPage];
+  if (!page) return;
+
+  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+  ctx.fillStyle = page.backgroundColor || '#ffffff';
+  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  const loadImage = (src) => {
+    if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => { imageCache.set(src, img); resolve(img); };
+      img.onerror = reject;
+      img.src = src;
+    });
+  };
+
+  for (const element of page.elements) {
+    if (element.type === 'image') {
+      try {
+        const img = await loadImage(element.src);
+        ctx.drawImage(img, element.x, element.y, element.width, element.height);
+      } catch (error) { console.error("Error drawing image:", error); }
+    } else if (element.type !== 'text') {
+      drawElement(element, ctx);
+    }
+  }
+  recreateAllTextElements();
+  drawSelectionUI();
 }
 
 function drawElement(element, context) {
@@ -493,9 +625,7 @@ function drawElement(element, context) {
       applyStyle(context, element.style, element.color);
       context.beginPath();
       context.moveTo(element.path[0].x, element.path[0].y);
-      for (let i = 1; i < element.path.length; i++) {
-        context.lineTo(element.path[i].x, element.path[i].y);
-      }
+      element.path.forEach(p => context.lineTo(p.x, p.y));
       context.stroke();
       break;
     case 'rectangle':
@@ -528,58 +658,47 @@ function drawElement(element, context) {
       context.lineTo(element.x2, element.y2);
       context.stroke();
       break;
-    case 'image':
-      // Async image drawing is handled in redrawPage
-      break;
   }
 }
 
-const imageCache = new Map();
+function drawSelectionUI() {
+    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    if (!selectedCanvasElement) return;
 
-async function redrawPage() {
-  const page = pages[currentPage];
-  if (!page) return;
+    previewCtx.strokeStyle = '#007bff';
+    previewCtx.lineWidth = 2;
+    previewCtx.setLineDash([5, 5]);
+    
+    const el = selectedCanvasElement;
+    let x, y, w, h;
 
-  // 1. Clear and draw background
-  ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-  ctx.fillStyle = page.backgroundColor || '#ffffff';
-  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
-
-  // 2. Draw all elements
-  const loadImage = (src) => {
-    if (imageCache.has(src)) return Promise.resolve(imageCache.get(src));
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      img.onload = () => { imageCache.set(src, img); resolve(img); };
-      img.onerror = reject;
-      img.src = src;
-    });
-  };
-
-  for (const element of page.elements) {
-    if (element.type === 'image') {
-      try {
-        const img = await loadImage(element.src);
-        ctx.drawImage(img, element.x, element.y, element.width, element.height);
-      } catch (error) {
-        console.error("Error drawing image:", error);
-      }
-    } else if (element.type !== 'text') {
-      drawElement(element, ctx);
+    if (el.type === 'rectangle') {
+        x = Math.min(el.x, el.x + el.width);
+        y = Math.min(el.y, el.y + el.height);
+        w = Math.abs(el.width);
+        h = Math.abs(el.height);
+    } else if (el.type === 'circle') {
+        x = el.x - el.radius;
+        y = el.y - el.radius;
+        w = h = el.radius * 2;
     }
-  }
-
-  // 3. Recreate text elements
-  recreateAllTextElements();
+    previewCtx.strokeRect(x - 5, y - 5, w + 10, h + 10);
+    previewCtx.setLineDash([]);
 }
 
-// --- Text and Selection ---
+function applyStyle(context, style, color) {
+  context.strokeStyle = color;
+  context.shadowColor = color;
+  context.shadowBlur = (style === 'brushed') ? 5 : (style === 'neon') ? 15 : 0;
+  context.lineCap = 'round';
+  context.lineJoin = 'round';
+}
+
+// --- Text Elements ---
 
 function recreateAllTextElements() {
   document.querySelectorAll('.text-element').forEach(el => el.remove());
-  selectedElement = null;
-
-  if (pages[currentPage] && pages[currentPage].elements) {
+  if (pages[currentPage]?.elements) {
     pages[currentPage].elements
       .filter(el => el.type === 'text')
       .forEach(createTextElement);
@@ -590,72 +709,29 @@ function createTextElement(textData) {
   const span = document.createElement('span');
   span.className = 'text-element';
   span.id = textData.id;
+  if(selectedDomElement && selectedDomElement.id === textData.id) {
+      span.classList.add('selected');
+      selectedDomElement = span; // Keep the reference to the new DOM element
+  }
   span.innerText = textData.content;
   span.style.left = `${textData.x}px`;
   span.style.top = `${textData.y}px`;
   span.style.color = textData.color;
   span.style.fontFamily = textData.font;
   span.style.fontSize = `${textData.size}px`;
-  span.draggable = true;
-
-  span.addEventListener('dragstart', e => {
-    span.dataset.dragX = e.offsetX;
-    span.dataset.dragY = e.offsetY;
-    saveHistoryState();
-  });
-
-  span.addEventListener('dragend', e => {
-    const containerRect = mainCanvas.getBoundingClientRect();
-    const newLeft = e.clientX - containerRect.left - span.dataset.dragX;
-    const newTop = e.clientY - containerRect.top - span.dataset.dragY;
-    span.style.left = `${newLeft}px`;
-    span.style.top = `${newTop}px`;
-
-    const element = pages[currentPage].elements.find(el => el.id === span.id);
-    if (element) {
-      element.x = newLeft;
-      element.y = newTop;
-    }
-  });
-
+  
   document.getElementById('canvas-container').appendChild(span);
 }
 
-function handleSelectionClick(e) {
-  if (tool !== 'select') return;
-  if (selectedElement) selectedElement.classList.remove('selected');
-
-  if (e.target.classList.contains('text-element')) {
-    selectedElement = e.target;
-    selectedElement.classList.add('selected');
-    const elementData = pages[currentPage].elements.find(el => el.id === selectedElement.id);
-    if (elementData) {
-        document.getElementById('font-family').value = elementData.font;
-        document.getElementById('font-size').value = elementData.size;
-        document.getElementById('color').value = elementData.color;
-    }
-  } else {
-    selectedElement = null;
-  }
-}
-
 function updateSelectedText() {
-  if (!selectedElement) return;
+  if (!selectedDomElement) return;
   saveHistoryState();
-
-  const newFont = document.getElementById('font-family').value;
-  const newSize = `${document.getElementById('font-size').value}px`;
-  const newColor = document.getElementById('color').value;
-
-  selectedElement.style.fontFamily = newFont;
-  selectedElement.style.fontSize = newSize;
-  selectedElement.style.color = newColor;
-
-  const elementData = pages[currentPage].elements.find(el => el.id === selectedElement.id);
+  const elementData = pages[currentPage].elements.find(el => el.id === selectedDomElement.id);
   if (elementData) {
-    elementData.font = newFont;
-    elementData.size = parseInt(newSize);
-    elementData.color = newColor;
+    elementData.font = document.getElementById('font-family').value;
+    elementData.size = parseInt(document.getElementById('font-size').value);
+    elementData.color = document.getElementById('color').value;
+    redrawPage();
   }
 }
 
@@ -672,6 +748,7 @@ function undo() {
   redoStack.push(undoStack.pop());
   pages = JSON.parse(JSON.stringify(undoStack[undoStack.length - 1]));
   currentPage = Math.min(currentPage, pages.length - 1);
+  deselectAll();
   loadPage(currentPage);
 }
 
@@ -681,6 +758,7 @@ function redo() {
   undoStack.push(nextState);
   pages = JSON.parse(JSON.stringify(nextState));
   currentPage = Math.min(currentPage, pages.length - 1);
+  deselectAll();
   loadPage(currentPage);
 }
 
@@ -701,25 +779,25 @@ function nextPage() {
     saveHistoryState();
     pages.push({ elements: [], backgroundColor: '#ffffff' });
   }
+  deselectAll();
   loadPage(currentPage);
 }
 
 function prevPage() {
   if (currentPage > 0) {
     currentPage--;
+    deselectAll();
     loadPage(currentPage);
   }
 }
 
 function deletePage() {
-  if (pages.length <= 1) {
-    confirmClear();
-    return;
-  }
+  if (pages.length <= 1) { confirmClear(); return; }
   if (confirm("Are you sure you want to delete this page?")) {
     saveHistoryState();
     pages.splice(currentPage, 1);
     currentPage = Math.max(0, currentPage - 1);
+    deselectAll();
     loadPage(currentPage);
   }
 }
@@ -728,8 +806,31 @@ function confirmClear() {
   if (confirm("Are you sure you want to clear this page?")) {
     saveHistoryState();
     pages[currentPage].elements = [];
+    deselectAll();
     redrawPage();
   }
+}
+
+
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new Image();
+    img.onload = () => {
+      saveHistoryState();
+      pages[currentPage].elements.push({
+        type: 'image', id: `el-${Date.now()}`,
+        src: event.target.result, x: 50, y: 50,
+        width: img.width, height: img.height
+      });
+      redrawPage();
+    };
+    img.src = event.target.result;
+  };
+  reader.readAsDataURL(file);
+  e.target.value = null;
 }
 
 // --- Utility Functions ---
@@ -737,11 +838,9 @@ function confirmClear() {
 function drawGrid(type) {
   gridCtx.clearRect(0, 0, gridCanvas.width, gridCanvas.height);
   if (type === 'none') return;
-
   gridCtx.strokeStyle = gridcolor;
   gridCtx.fillStyle = gridcolor;
   const step = type === 'line' || type === 'square' ? 40 : 20;
-
   if (type === 'dot') {
     for (let x = 0; x < gridCanvas.width; x += step) {
       for (let y = 0; y < gridCanvas.height; y += step) {
