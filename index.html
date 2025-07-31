@@ -6,229 +6,324 @@
   <title>P2P Tutoring Platform</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
+    :root {
+      --primary-blue: #004aad;
+      --secondary-orange: #f28b30;
+      --dark-blue: #002454;
+      --darker-blue: rgba(3, 0, 48, 0.7);
+      --light-grey: #f4f4f4;
+      --white: #ffffff;
+      --text-color: #333;
+      --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      --transition-speed: 0.3s ease;
+    }
+
     body {
-      font-family: 'Arial', sans-serif;
+      font-family: 'Poppins', sans-serif; /* Changed font to Poppins for modern look */
       margin: 0;
       padding: 0;
       background:
-        url('assets/image.png') no-repeat top center,
-        linear-gradient(to bottom, transparent 60%, #0b4599 100%);
-      background-size: cover;
+        url('assets/image.png') no-repeat center top / cover, /* Adjusted background properties */
+        linear-gradient(to bottom, transparent 60%, var(--primary-blue) 100%);
       background-attachment: fixed;
-      height: 100vh;
-      color: white;
+      min-height: 100vh;
+      color: var(--white);
+      overflow-x: hidden; /* Prevent horizontal scroll due to animations */
+    }
+
+    /* General Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideInDown {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes slideInUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
     }
 
     header {
-      background-color: rgba(3, 0, 48, 0.7);
-      padding: 40px;
+      background-color: var(--darker-blue);
+      padding: 40px 20px;
       text-align: center;
-      border-bottom: 5px solid #f28b30;
+      border-bottom: 5px solid var(--secondary-orange);
+      animation: fadeIn 1s ease-out;
     }
 
     header img {
-      max-width: 100px;
+      max-width: 120px; /* Slightly larger logo */
       display: block;
       margin: 0 auto 20px;
+      animation: slideInDown 0.8s ease-out;
     }
 
     header h1 {
-      font-size: 36px;
-      color: #f28b30;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      font-size: 42px; /* Larger heading */
+      color: var(--secondary-orange);
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      margin-bottom: 10px;
+      animation: slideInDown 1s ease-out;
     }
 
     header p {
-      font-size: 20px;
-      color: #f28b30;
+      font-size: 22px;
+      color: var(--secondary-orange);
+      animation: slideInDown 1.2s ease-out;
     }
 
     nav {
-      background-color: #002454;
+      background-color: var(--dark-blue);
       display: flex;
       justify-content: center;
       align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
 
     nav a {
-      color: white;
+      color: var(--white);
       text-decoration: none;
-      padding: 16px 20px;
-      font-size: 18px;
+      padding: 18px 25px; /* More padding for nav links */
+      font-size: 19px;
       font-weight: bold;
       text-transform: uppercase;
+      transition: background-color var(--transition-speed), color var(--transition-speed), transform var(--transition-speed);
     }
 
     nav a:hover {
-      background-color: #f28b30;
-      color: black;
+      background-color: var(--secondary-orange);
+      color: var(--dark-blue);
+      transform: translateY(-3px); /* Slight lift on hover */
     }
 
     main {
       padding: 40px;
-      background-color: rgba(244, 244, 244, 0.8);
+      background-color: rgba(244, 244, 244, 0.9); /* Slightly less transparent */
       min-height: 80vh;
-      color: black;
+      color: var(--text-color);
+      box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05); /* Inner shadow for depth */
     }
 
     section {
-      margin-bottom: 30px;
-      padding: 30px;
-      background-color: #ffffff;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 40px; /* More space between sections */
+      padding: 35px;
+      background-color: var(--white);
+      border-radius: 12px;
+      box-shadow: var(--box-shadow);
+      opacity: 0; /* Hidden by default, animated by JS */
+      transform: translateY(20px); /* Slightly below, animated by JS */
+      transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    }
+
+    section.animate-in {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     h2 {
-      font-size: 28px;
-      color: #004aad;
-      margin-bottom: 20px;
+      font-size: 32px;
+      color: var(--primary-blue);
+      margin-bottom: 25px;
+      text-align: center;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      display: block;
+      width: 60px;
+      height: 4px;
+      background: var(--secondary-orange);
+      margin: 10px auto 0;
+      border-radius: 2px;
     }
 
     .subject-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Slightly larger min-width */
       gap: 30px;
     }
 
-    .subject {
-      background-color: #f28b30;
-      color: white;
-      padding: 20px;
+    .subject, .classes {
+      color: var(--white);
+      padding: 25px;
       border-radius: 10px;
       text-align: center;
-      cursor: default; /* not clickable */
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.3s ease;
+      cursor: default;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Stronger shadow */
+      transition: box-shadow var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
+      opacity: 0; /* Hidden by default, animated by JS */
+      transform: scale(0.9); /* Smaller, animated by JS */
     }
 
-    .subject:hover {
-      box-shadow: 0 0 12px rgba(242, 139, 48, 0.7); /* soft glow effect */
+    .subject {
+      background-color: var(--secondary-orange);
     }
 
     .classes {
-      background-color: #004aad;
-      color: white;
-      padding: 14px;
-      border: none;
-      border-radius: 5px;
-      text-align: center;
-      cursor: default; /* not clickable */
-      font-size: 18px;
-      font-weight: bold;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      transition: box-shadow 0.3s ease;
+      background-color: var(--primary-blue);
+    }
+
+    .subject.animate-in, .classes.animate-in {
+        animation: popIn 0.5s ease-out forwards; /* Applied by JS with staggered delay */
+    }
+
+    .subject:hover {
+      box-shadow: 0 8px 20px rgba(242, 139, 48, 0.5); /* Enhanced glow */
+      transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
+      background-color: #e07a21; /* Slightly darker orange */
     }
 
     .classes:hover {
-      box-shadow: 0 0 12px rgba(0, 74, 173, 0.7); /* soft glow effect */
+      box-shadow: 0 8px 20px rgba(0, 74, 173, 0.5); /* Enhanced glow */
+      transform: translateY(-5px) scale(1.02); /* Lift and slight scale */
+      background-color: #003a8d; /* Slightly darker blue */
     }
 
     .button {
       display: block;
-      width: 100%;
-      padding: 14px;
-      background-color: #004aad;
-      color: white;
+      width: fit-content; /* Adjust width to content */
+      margin: 30px auto 0; /* Center button with more margin */
+      padding: 16px 30px;
+      background-color: var(--primary-blue);
+      color: var(--white);
       border: none;
-      border-radius: 5px;
-      font-size: 18px;
+      border-radius: 8px; /* Slightly more rounded */
+      font-size: 20px;
       cursor: pointer;
-      margin-top: 20px; /* Added margin for spacing */
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
     }
 
     .button:hover {
-      background-color: #f28b30;
+      background-color: var(--secondary-orange);
+      transform: translateY(-3px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
     }
 
     #self-learning p,
     #self-learning ul {
-      color: #002454;
+      color: var(--dark-blue);
+      line-height: 1.7; /* Better readability */
+      font-size: 17px;
+    }
+
+    #self-learning a {
+        color: var(--secondary-orange);
+        font-weight: bold;
+        text-decoration: none;
+        transition: color var(--transition-speed);
+    }
+    #self-learning a:hover {
+        color: var(--primary-blue);
+        text-decoration: underline;
+    }
+
+    #self-learning ul {
+        list-style: disc; /* Ensure bullet points */
+        padding-left: 25px;
+    }
+
+    #self-learning li {
+        margin-bottom: 8px;
     }
 
     footer {
-      background-color: #004aad;
-      padding: 20px;
+      background-color: var(--primary-blue);
+      padding: 25px;
       text-align: center;
-      color: white;
+      color: var(--white);
+      font-size: 16px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
 
     footer a {
-      color: #f28b30;
+      color: var(--secondary-orange);
       text-decoration: none;
       font-weight: bold;
+      transition: text-decoration var(--transition-speed), color var(--transition-speed);
     }
 
     footer a:hover {
       text-decoration: underline;
+      color: var(--white);
     }
 
-    /* Floating Music Button */
-    #music-btn {
+    /* Floating Buttons */
+    .floating-btn {
       position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background-color: #004aad;
-      color: white;
+      bottom: 25px;
+      right: 25px;
+      background-color: var(--primary-blue);
+      color: var(--white);
       border: none;
       border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 20px;
+      width: 55px; /* Slightly larger */
+      height: 55px;
+      font-size: 24px; /* Larger icon */
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      z-index: 1000; /* Ensure it's above other content */
-    }
-
-    #music-btn:hover {
-      background-color: #f28b30;
-    }
-
-    /* AI Chatbot Button */
-    #ai-btn {
-      position: fixed;
-      bottom: 80px; /* Position above music button */
-      right: 20px;
-      background-color: #004aad;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
     }
 
-    #ai-btn:hover {
-      background-color: #f28b30;
+    .floating-btn:hover {
+      background-color: var(--secondary-orange);
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    #music-btn {
+      bottom: 25px;
+      right: 25px;
+    }
+
+    #ai-btn {
+      bottom: 90px; /* Position above music button */
+      right: 25px;
+      font-size: 28px; /* Slightly larger AI icon */
     }
 
     /* AI Chatbot Container */
     .ai-chatbot-container {
       position: fixed;
       bottom: 20px;
-      right: 90px; /* Position next to the buttons */
-      width: 350px;
-      height: 500px;
-      background-color: #fff;
-      border-radius: 10px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      right: 90px;
+      width: 380px; /* Slightly wider */
+      height: 520px; /* Slightly taller */
+      background-color: var(--white);
+      border-radius: 15px; /* More rounded corners */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); /* Stronger shadow */
       display: flex;
       flex-direction: column;
       overflow: hidden;
       z-index: 998;
-      transform: scale(0);
+      transform: scale(0.5); /* Starts smaller */
+      opacity: 0; /* Starts hidden */
       transform-origin: bottom right;
-      transition: transform 0.3s ease-in-out, width 0.3s ease-in-out, height 0.3s ease-in-out, top 0.3s ease-in-out, right 0.3s ease-in-out, bottom 0.3s ease-in-out, left 0.3s ease-in-out;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), /* Springy transition */
+                  opacity 0.4s ease-out,
+                  width 0.3s ease, height 0.3s ease,
+                  top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
     }
 
     .ai-chatbot-container.active {
       transform: scale(1);
+      opacity: 1;
     }
 
     /* Full-screen mode for chatbot */
@@ -240,124 +335,190 @@
       width: 100vw;
       height: 100vh;
       border-radius: 0;
-      transform: scale(1); /* Ensure it's visible and full size */
-      z-index: 1001; /* Above other elements */
+      transform: scale(1);
+      opacity: 1;
+      z-index: 1001;
     }
 
     .ai-chatbot-header {
-      background-color: #004aad;
-      color: white;
-      padding: 15px;
+      background-color: var(--primary-blue);
+      color: var(--white);
+      padding: 18px 20px; /* More padding */
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 18px;
+      font-size: 20px; /* Larger header text */
       font-weight: bold;
-      border-top-left-radius: 10px;
-      border-top-right-radius: 10px;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      flex-shrink: 0; /* Prevent header from shrinking */
     }
 
     .ai-chatbot-container.fullscreen .ai-chatbot-header {
-      border-radius: 0; /* No border-radius in fullscreen */
+      border-radius: 0;
     }
 
     .ai-chatbot-header .header-controls {
         display: flex;
-        gap: 10px; /* Space between buttons */
+        gap: 12px; /* More space between buttons */
     }
 
     .ai-chatbot-header button {
       background: none;
       border: none;
-      color: white;
-      font-size: 24px;
+      color: var(--white);
+      font-size: 26px; /* Larger control icons */
       cursor: pointer;
-      line-height: 1; /* Align icons vertically */
+      line-height: 1;
+      transition: color var(--transition-speed), transform var(--transition-speed);
     }
     .ai-chatbot-header button:hover {
-        color: #f28b30;
+        color: var(--secondary-orange);
+        transform: scale(1.1);
     }
 
     .ai-chatbot-messages {
       flex-grow: 1;
-      padding: 15px;
+      padding: 20px;
       overflow-y: auto;
       background-color: #f9f9f9;
-      color: #333;
+      color: var(--text-color);
+      display: flex;
+      flex-direction: column; /* Ensure messages stack vertically */
     }
 
     .ai-chatbot-message {
-      margin-bottom: 10px;
-      padding: 8px 12px;
-      border-radius: 15px;
-      max-width: 80%;
-      position: relative; /* Added for speaker icon positioning */
+      margin-bottom: 12px; /* More space between messages */
+      padding: 10px 15px;
+      border-radius: 20px; /* More rounded messages */
+      max-width: 85%; /* Slightly wider max-width */
+      position: relative;
+      animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; /* Animation for new messages */
     }
 
     .ai-chatbot-message.user {
       background-color: #e0e0e0;
       align-self: flex-end;
       margin-left: auto;
+      border-bottom-right-radius: 5px; /* Tail effect */
     }
 
     .ai-chatbot-message.bot {
       background-color: #d1e7dd;
       align-self: flex-start;
       margin-right: auto;
-      display: flex; /* To align text and icon */
-      flex-direction: column; /* To stack text and timestamp */
-      padding-right: 35px; /* Space for the icon */
+      display: flex;
+      flex-direction: column;
+      padding-right: 40px; /* Space for the icon */
+      border-bottom-left-radius: 5px; /* Tail effect */
     }
 
     .ai-chatbot-message.bot .message-text-content {
         flex-grow: 1;
+        font-size: 16px;
     }
 
-    /* Speaker icon styles within bot messages */
     .ai-chatbot-message.bot .speaker-icon {
         position: absolute;
-        right: 8px; /* Adjust as needed */
-        top: 50%; /* Center vertically */
+        right: 10px;
+        top: 50%;
         transform: translateY(-50%);
         cursor: pointer;
         color: #888;
-        font-size: 0.9em;
+        font-size: 1.1em;
         transition: color 0.2s ease-in-out, transform 0.2s ease;
     }
     .ai-chatbot-message.bot .speaker-icon:hover {
-        color: #2c7cbd;
-        transform: translateY(-50%) scale(1.1);
+        color: var(--primary-blue);
+        transform: translateY(-50%) scale(1.15);
     }
     .ai-chatbot-message.bot .speaker-icon:active {
         transform: translateY(-50%) scale(0.95);
     }
 
+    /* Typing indicator */
+    .ai-chatbot-message.typing-indicator {
+        background-color: #e0e0e0;
+        display: flex;
+        gap: 4px;
+        padding: 10px 15px;
+        width: fit-content;
+        align-items: center;
+    }
+    .ai-chatbot-message.typing-indicator span {
+        width: 8px;
+        height: 8px;
+        background-color: #888;
+        border-radius: 50%;
+        animation: bounce 1.4s infinite ease-in-out;
+    }
+    .ai-chatbot-message.typing-indicator span:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+    .ai-chatbot-message.typing-indicator span:nth-child(3) {
+        animation-delay: 0.4s;
+    }
+    @keyframes bounce {
+        0%, 80%, 100% { transform: scale(0); }
+        40% { transform: scale(1); }
+    }
+
 
     .ai-chatbot-predefined-questions {
-      padding: 15px;
+      padding: 15px 20px;
       border-top: 1px solid #eee;
       background-color: #f1f1f1;
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      max-height: 150px; /* Set a max-height */
-      overflow-y: auto; /* Enable vertical scrolling */
+      gap: 10px; /* More space between buttons */
+      max-height: 180px; /* Increased max-height */
+      overflow-y: auto;
+      scrollbar-width: thin; /* Firefox scrollbar */
+      scrollbar-color: var(--secondary-orange) #f1f1f1; /* Firefox scrollbar color */
+      flex-shrink: 0; /* Prevent from shrinking */
     }
 
+    /* Webkit scrollbar styles */
+    .ai-chatbot-predefined-questions::-webkit-scrollbar {
+        width: 8px;
+    }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb {
+        background-color: var(--secondary-orange);
+        border-radius: 10px;
+        border: 2px solid #f1f1f1;
+    }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb:hover {
+        background-color: #e07a21;
+    }
+
+
     .ai-chatbot-predefined-questions button {
-      background-color: #f28b30;
-      color: white;
+      background-color: var(--secondary-orange);
+      color: var(--white);
       border: none;
-      border-radius: 20px;
-      padding: 8px 15px;
+      border-radius: 25px; /* More rounded pills */
+      padding: 10px 18px; /* More padding */
       cursor: pointer;
-      font-size: 14px;
-      transition: background-color 0.2s;
+      font-size: 15px;
+      transition: background-color 0.2s, transform 0.1s;
+      flex-shrink: 0; /* Prevent buttons from shrinking too much */
+      animation: fadeIn 0.4s ease-out; /* Fade in effect */
     }
 
     .ai-chatbot-predefined-questions button:hover {
       background-color: #e07a21;
+      transform: translateY(-2px);
     }
+    .ai-chatbot-predefined-questions button:active {
+        transform: translateY(0);
+    }
+
+    /* Poppins Font Import */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
   </style>
 </head>
 <body>
@@ -378,24 +539,24 @@
     <section id="subjects">
       <h2>Core Subjects</h2>
       <div class="subject-grid">
-        <div class="subject inactive">Math</div>
-        <div class="subject inactive">Science</div>
-        <div class="subject inactive">IT</div>
-        <div class="subject inactive">Social Sciences</div>
+        <div class="subject">Math</div>
+        <div class="subject">Science</div>
+        <div class="subject">IT</div>
+        <div class="subject">Social Sciences</div>
       </div>
     </section>
 
     <section id="classes">
       <h2>Classes Covered</h2>
       <div class="subject-grid">
-        <div class="classes inactive">1st</div>
-        <div class="classes inactive">2nd</div>
-        <div class="classes inactive">3rd</div>
-        <div class="classes inactive">4th</div>
-        <div class="classes inactive">5th</div>
-        <div class="classes inactive">6th</div>
-        <div class="classes inactive">7th</div>
-        <div class="classes inactive">8th</div>
+        <div class="classes">1st</div>
+        <div class="classes">2nd</div>
+        <div class="classes">3rd</div>
+        <div class="classes">4th</div>
+        <div class="classes">5th</div>
+        <div class="classes">6th</div>
+        <div class="classes">7th</div>
+        <div class="classes">8th</div>
       </div>
     </section>
 
@@ -424,9 +585,13 @@
     Your browser does not support the audio element.
   </audio>
 
-  <button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
+  <button id="music-btn" class="floating-btn" onclick="toggleMusic()" title="Toggle Music">
+    <i class="fas fa-volume-mute"></i>
+  </button>
 
-  <button id="ai-btn" onclick="toggleAIChat()" title="Ask AI">🧠</button>
+  <button id="ai-btn" class="floating-btn" onclick="toggleAIChat()" title="Ask AI">
+    <i class="fas fa-brain"></i>
+  </button>
 
   <div class="ai-chatbot-container" id="ai-chatbot-container">
     <div class="ai-chatbot-header">
@@ -435,7 +600,9 @@
         <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
             <i class="fas fa-expand-alt"></i>
         </button>
-        <button class="close-btn" onclick="toggleAIChat()">×</button>
+        <button class="close-btn" onclick="toggleAIChat()" title="Close Chat">
+            <i class="fas fa-times"></i>
+        </button>
       </div>
     </div>
     <div class="ai-chatbot-messages" id="ai-chatbot-messages">
@@ -460,7 +627,7 @@
           hasInteracted = true;
           updateMusicIcon();
         }).catch(err => {
-          console.warn("Autoplay blocked:", err);
+          console.warn("Autoplay blocked or failed:", err);
         });
       } else {
         if (audio.paused) {
@@ -474,7 +641,7 @@
 
     function updateMusicIcon() {
       if (!musicButton) return;
-      musicButton.textContent = audio.paused ? '🔇' : '🔊';
+      musicButton.innerHTML = audio.paused ? '<i class="fas fa-volume-mute"></i>' : '<i class="fas fa-volume-up"></i>';
     }
 
     audio.onplay = updateMusicIcon;
@@ -500,6 +667,7 @@
                     console.log("Selected voice for speech synthesis:", selectedVoice.name);
                 }
             };
+            // Call immediately if voices are already loaded (e.g., page reloaded)
             if (speechSynthesis.getVoices().length > 0) {
                 selectedVoice = getHumanLikeVoice();
             }
@@ -511,12 +679,16 @@
     function getHumanLikeVoice() {
         const voices = speechSynthesis.getVoices();
         let chosenVoice = null;
+        // Prioritize Google US English
         chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
         if (chosenVoice) return chosenVoice;
+        // Then any Google or Microsoft English voice
         chosenVoice = voices.find(voice => voice.lang.startsWith('en-') && (voice.name.includes('Google') || voice.name.includes('Microsoft')));
         if (chosenVoice) return chosenVoice;
+        // Fallback to any English voice
         chosenVoice = voices.find(voice => voice.lang.startsWith('en-'));
         if (chosenVoice) return chosenVoice;
+        // Finally, the first available voice
         return voices[0] || null;
     }
 
@@ -539,6 +711,7 @@
         }
 
         if (window.speechSynthesis.speaking) {
+            // Get the text content of the currently speaking message to restore its icon
             const previouslySpeakingIconText = currentSpeakerIcon ? (currentSpeakerIcon.closest('.ai-chatbot-message')?.querySelector('.message-text-content')?.textContent || '') : '';
             stopSpeaking(currentSpeakerIcon, previouslySpeakingIconText);
         }
@@ -613,10 +786,11 @@
 
     function populatePredefinedQuestions() {
       predefinedQuestionsDiv.innerHTML = ''; // Clear previous questions
-      predefinedQuestions.forEach(q => {
+      predefinedQuestions.forEach((q, index) => {
         const button = document.createElement('button');
         button.textContent = q.text;
         button.onclick = () => askQuestion(q.id);
+        button.style.animationDelay = `${0.1 * index}s`; // Stagger animation for buttons
         predefinedQuestionsDiv.appendChild(button);
       });
     }
@@ -631,6 +805,7 @@
         userMessage.classList.add('ai-chatbot-message', 'user');
         userMessage.textContent = question.text;
         aiChatbotMessages.appendChild(userMessage);
+        aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
 
         // Simulate RiBot typing/thinking
         const typingIndicator = document.createElement('div');
@@ -641,7 +816,9 @@
 
         setTimeout(() => {
           // Remove typing indicator
-          aiChatbotMessages.removeChild(typingIndicator);
+          if (aiChatbotMessages.contains(typingIndicator)) {
+            aiChatbotMessages.removeChild(typingIndicator);
+          }
 
           // Add RiBot's answer to chat
           const botMessage = document.createElement('div');
@@ -649,19 +826,19 @@
 
           const textContentSpan = document.createElement('span');
           textContentSpan.classList.add('message-text-content');
-          textContentSpan.innerHTML = question.answer; // Use innerHTML to allow for HTML tags like <strong> or links if they were ever added to answers
+          textContentSpan.innerHTML = question.answer;
           botMessage.appendChild(textContentSpan);
 
           const speakerIcon = document.createElement('i');
           speakerIcon.className = 'fas fa-volume-up speaker-icon';
           speakerIcon.title = 'Read aloud';
           speakerIcon.setAttribute('aria-label', 'Read message aloud');
-          speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon); // Use textContent for speaking
+          speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon);
           botMessage.appendChild(speakerIcon);
 
           aiChatbotMessages.appendChild(botMessage);
           aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
-        }, 1000); // Simulate 1 second delay for bot response
+        }, 1200); // Simulate 1.2 second delay for bot response for typing animation
       }
     }
 
@@ -683,9 +860,7 @@
                 document.msExitFullscreen();
             }
         }
-        // Toggle the 'fullscreen' class immediately to apply styles
-        aiChatbotContainer.classList.toggle('fullscreen');
-        updateFullscreenButtonIcon();
+        // Class will be toggled by the 'fullscreenchange' event listener
     }
 
     // Event listener for native fullscreen change (e.g., when user presses F11 or Esc)
@@ -705,6 +880,31 @@
         }
     }
 
+    // Intersection Observer for section animations
+    const sections = document.querySelectorAll('section');
+
+    const sectionObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-in');
+          const gridItems = entry.target.querySelectorAll('.subject, .classes');
+          gridItems.forEach((item, index) => {
+            item.style.animationDelay = `${0.1 * index + 0.3}s`; // Stagger delay for grid items
+            item.classList.add('animate-in'); // Trigger popIn animation
+          });
+          observer.unobserve(entry.target); // Unobserve once animated
+        }
+      });
+    }, {
+      threshold: 0.1, // Trigger when 10% of the section is visible
+      rootMargin: "0px 0px -50px 0px" // Adjust to trigger slightly sooner or later
+    });
+
+    sections.forEach(section => {
+      sectionObserver.observe(section);
+    });
+
+
     // Initialize speech synthesis and predefined questions when the page loads
     document.addEventListener('DOMContentLoaded', () => {
         initializeSpeechSynthesis();
@@ -720,7 +920,6 @@
 
         updateFullscreenButtonIcon(); // Set initial icon for fullscreen button
     });
-
   </script>
 </body>
 </html>
