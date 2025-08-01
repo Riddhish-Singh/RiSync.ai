@@ -547,6 +547,7 @@
       <button class="button" onclick="navigateTo('https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing')" data-i18n="chatbot">Chat Bot</button>
       <button class="button" onclick="navigateTo('https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=')" data-i18n="search">Search Engine</button>
       <button class="button" onclick="navigateTo('subjects.html')" data-i18n="subjects">Subjects</button>
+	  <button class="button" onclick="navigateTo('ncert.html')" data-i18n="ncert">NCERT</button>
       <button class="button" onclick="navigateTo('Whiteboard.html')" data-i18n="white-board">White Board</button>
     </div>
     <div class="content-area">
@@ -567,11 +568,68 @@ function openProfilePage() {
 }
 
 const translations = {
-  hi: { title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", search: "खोज इंजन", subjects: "विषय", "white-board": "श्वेतपट", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।" },
-  fr: { title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", search: "Moteur de recherche", subjects: "Sujets", "white-board": "Tableau blanc", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer." },
-  en: { title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", search: "Search Engine", subjects: "Subjects", "white-board": "White Board", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started." },
-  pu: { title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", search: "ਖੋਜ ਇੰਜਣ", subjects: "ਵਿਸ਼ੇ", "white-board": "ਵਾਈਟ ਬੋਰਡ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।" }
+  hi: {
+    title: "RiSync",
+    tagline: "RiSync के साथ फिर से सिंक करें",
+    chat: "RiSync चैट",
+    schedule: "बैठक शेड्यूल करें",
+    calendar: "कैलेंडर",
+    database: "डेटाबेस",
+    chatbot: "चैट बोट",
+    search: "खोज इंजन",
+    subjects: "विषय",
+    "white-board": "श्वेतपट",
+    ncert: "एनसीईआरटी",
+    welcome: "RiSync में आपका स्वागत है",
+    instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।"
+  },
+  fr: {
+    title: "RiSync",
+    tagline: "Resynchronisez avec RiSync",
+    chat: "Chat RiSync",
+    schedule: "Planifier une réunion",
+    calendar: "Calendrier",
+    database: "Base de données",
+    chatbot: "Chat Bot",
+    search: "Moteur de recherche",
+    subjects: "Sujets",
+    "white-board": "Tableau blanc",
+    ncert: "NCERT",
+    welcome: "Bienvenue à RiSync",
+    instruction: "Sélectionnez une option dans le menu de gauche pour commencer."
+  },
+  en: {
+    title: "RiSync",
+    tagline: "Let's Re Sync With RiSync",
+    chat: "RiSync Chat",
+    schedule: "Schedule Meeting",
+    calendar: "Calendar",
+    database: "Database",
+    chatbot: "Chat Bot",
+    search: "Search Engine",
+    subjects: "Subjects",
+    "white-board": "White Board",
+    ncert: "NCERT",
+    welcome: "Welcome to RiSync",
+    instruction: "Select an option from the left menu to get started."
+  },
+  pu: {
+    title: "RiSync",
+    tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ",
+    chat: "RiSync ਚੈਟ",
+    schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ",
+    calendar: "ਕੈਲੰਡਰ",
+    database: "ਡਾਟਾਬੇਸ",
+    chatbot: "ਚੈਟ ਬੋਟ",
+    search: "ਖੋਜ ਇੰਜਣ",
+    subjects: "ਵਿਸ਼ੇ",
+    "white-board": "ਵਾਈਟ ਬੋਰਡ",
+    ncert: "ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ",
+    welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ",
+    instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।"
+  }
 };
+
 
 function applyLanguage(lang) {
   const dict = translations[lang];

@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Class 6 Learning Platform</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .container {
+            max-width: 1200px;
+        }
+        /* Custom styles for the interactive elements and dashboard */
+        .card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .button-primary {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .button-primary:hover {
+            background-color: #4338ca;
+        }
+        .progress-bar-container {
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            height: 10px;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: #4f46e5;
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-content {
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+        .modal.open .modal-content {
+            transform: scale(1);
+        }
+        .quiz-option, .matching-item {
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .quiz-option:hover, .matching-item:hover {
+            background-color: #f3f4f6;
+            transform: translateY(-2px);
+        }
+        .quiz-option.correct, .matching-item.correct {
+            background-color: #10b981;
+            color: white;
+            font-weight: 700;
+        }
+        .quiz-option.incorrect, .matching-item.incorrect {
+            background-color: #ef4444;
+            color: white;
+            font-weight: 700;
+        }
+        .quiz-option.disabled, .matching-item.disabled {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        .matching-item.selected {
+            border: 2px solid #4f46e5;
+            background-color: #eef2ff;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 flex flex-col items-center">
+
+    <!-- Main Container -->
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-xl mt-8">
+
+        <!-- Header with Logo -->
+        <header class="flex flex-col md:flex-row items-center justify-center mb-8">
+            <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" onerror="this.onerror=null;this.src='https://placehold.co/60x60/4f46e5/ffffff?text=Logo';" alt="Platform Logo" class="h-16 w-16 md:mr-4 mb-4 md:mb-0 rounded-full">
+            <div>
+                <h1 class="text-4xl font-bold text-gray-800 text-center">Class 6 Learning Platform</h1>
+                <p class="text-lg text-gray-500 mt-2 text-center">Aligned with NCERT & NEP 2020</p>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <div id="dashboard" class="transition-all duration-300">
+
+            <!-- Student Progress Summary -->
+            <div class="bg-indigo-50 p-6 rounded-lg mb-8">
+                <h2 class="text-2xl font-semibold text-indigo-700 mb-4">Your Progress Dashboard</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <p class="text-3xl font-bold text-indigo-500" id="completed-subjects">0</p>
+                        <p class="text-gray-500">Subjects Completed</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <p class="text-3xl font-bold text-indigo-500" id="total-quizzes">0</p>
+                        <p class="text-gray-500">Quizzes Attempted</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <p class="text-3xl font-bold text-indigo-500" id="average-score">0%</p>
+                        <p class="text-gray-500">Average Score</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Selection -->
+            <h2 class="text-3xl font-bold text-gray-700 mb-6">Select a Subject to Begin</h2>
+            <div id="subject-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Subject cards will be dynamically generated here -->
+            </div>
+        </div>
+
+        <!-- Lesson View -->
+        <div id="lesson-view" class="hidden transition-all duration-300">
+            <button id="back-to-dashboard" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Dashboard</button>
+            <h2 id="lesson-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
+            
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">Chapter Concepts</h3>
+                <div class="text-gray-600 space-y-4" id="lesson-content">
+                    <!-- Lesson content will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center space-x-2">
+                    <p class="text-lg font-semibold text-gray-700">Progress:</p>
+                    <div class="progress-bar-container w-48">
+                        <div id="lesson-progress-bar" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+                    <span id="progress-percentage" class="text-sm font-semibold text-gray-700">0%</span>
+                </div>
+                <div class="flex space-x-4">
+                    <button id="previous-lesson" class="button-primary px-4 py-2 text-sm disabled:opacity-50" disabled><i class="fas fa-chevron-left"></i> Previous</button>
+                    <button id="next-lesson" class="button-primary px-4 py-2 text-sm disabled:opacity-50">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+            
+            <!-- Interactive Activities & Exam Prep Buttons -->
+            <h3 class="text-2xl font-bold text-gray-700 mb-4">Interactive Activities & Exam Prep</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <button id="start-quiz-button" class="button-primary w-full"><i class="fas fa-question-circle mr-2"></i> Take Quiz</button>
+                <button id="start-game-button" class="button-primary w-full"><i class="fas fa-gamepad mr-2"></i> Play Game</button>
+                <button id="show-exam-prep-button" class="button-primary w-full"><i class="fas fa-graduation-cap mr-2"></i> Exam Prep</button>
+            </div>
+        </div>
+
+        <!-- Quiz View -->
+        <div id="quiz-view" class="hidden transition-all duration-300">
+            <button id="back-to-lesson" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
+            <h2 id="quiz-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
+            <div class="bg-indigo-50 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-indigo-700 mb-4" id="quiz-question"></h3>
+                <div id="quiz-options" class="space-y-3">
+                    <!-- Quiz options will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Game View (Matching Game) -->
+        <div id="game-view" class="hidden transition-all duration-300">
+            <button id="back-to-lesson-from-game" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
+            <h2 id="game-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
+            <div class="bg-indigo-50 p-6 rounded-lg mb-6">
+                <h3 class="text-xl font-semibold text-indigo-700 mb-4 text-center">Match the Terms with their Definitions</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="matching-grid">
+                    <!-- Game items will be loaded here -->
+                </div>
+                <div class="mt-4 text-center" id="game-message"></div>
+            </div>
+        </div>
+        
+        <!-- Exam Prep View -->
+        <div id="exam-prep-view" class="hidden transition-all duration-300">
+            <button id="back-to-lesson-from-prep" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
+            <h2 class="text-3xl font-bold text-gray-700 mb-4">Exam Preparation: How to Write Long Answers</h2>
+            <div class="bg-gray-50 p-6 rounded-lg mb-6">
+                <h3 class="text-2xl font-bold text-gray-700 mb-2">Sample Long-Answer Question:</h3>
+                <p id="long-answer-question" class="text-lg italic text-gray-600 mb-4"></p>
+                <div id="long-answer-content" class="space-y-4 text-gray-600">
+                    <!-- Long answer content will be loaded here -->
+                </div>
+            </div>
+            
+            <div class="bg-indigo-50 p-6 rounded-lg mb-6">
+                <h3 class="text-2xl font-bold text-indigo-700 mb-2">General Tips for Board Exams</h3>
+                <div id="exam-tips-content" class="space-y-4 text-gray-700">
+                    <!-- Exam tips will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scorecard Modal -->
+    <div id="scorecard-modal" class="modal fixed inset-0 flex items-center justify-center p-4 z-50 opacity-0 invisible">
+        <div class="modal-content bg-white p-8 rounded-lg shadow-2xl max-w-xl w-full">
+            <h3 class="text-3xl font-bold text-gray-800 mb-4 text-center">Quiz Results</h3>
+            <div class="text-center mb-6">
+                <div class="text-5xl font-extrabold text-indigo-600" id="quiz-score"></div>
+                <p class="text-lg text-gray-500">Time Spent: <span id="time-spent"></span></p>
+            </div>
+            <div class="bg-gray-100 p-4 rounded-lg mb-6">
+                <h4 class="text-xl font-semibold text-gray-700 mb-2">Detailed Performance & Suggestions</h4>
+                <div class="space-y-2">
+                    <p class="text-gray-600">Correct Answers: <span id="correct-count" class="font-bold"></span></p>
+                    <p class="text-gray-600">Incorrect Answers: <span id="incorrect-count" class="font-bold"></span></p>
+                    <p class="text-gray-600">Areas for Improvement: <span id="improvement-areas" class="font-bold text-red-500"></span></p>
+                </div>
+            </div>
+            <div class="flex justify-end">
+                <button id="close-modal-button" class="button-primary">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Data Definitions (In-memory Course Content) ---
+        // This is a comprehensive data structure that now includes quizzes, games, and exam prep content.
+        const courseData = {
+            'mathematics': {
+                icon: 'fas fa-calculator',
+                title: 'Mathematics',
+                description: 'Explore the world of numbers, algebra, and geometry with interactive lessons.',
+                lessons: [
+                    {
+                        title: 'Knowing Our Numbers',
+                        content: `
+                            <p>In this lesson, we will learn about large numbers, place values (Indian and International systems), and how to read and write them.</p>
+                            <p>We will also explore estimation and basic arithmetic operations involving large numbers.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Developing foundational numeracy skills and logical thinking.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the difference between the Indian and International systems of numeration with an example.',
+                            answer: `
+                                <p>The main difference lies in how we use commas and group the digits in a number.</p>
+                                <p><strong>Indian System:</strong> Commas are used to mark thousands, lakhs, and crores. The first comma comes after the hundreds place (three digits from the right), and subsequent commas come after every two digits. For example, the number 5,64,32,100 is read as Five crore sixty-four lakh thirty-two thousand one hundred.</p>
+                                <p><strong>International System:</strong> Commas are used to mark thousands, millions, and billions. Commas are placed after every three digits from the right. For example, the number 56,432,100 is read as Fifty-six million four hundred thirty-two thousand one hundred.</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Introduction:</strong> Start by defining the topic clearly. For a question on numeration systems, define both the Indian and International systems briefly.</p>
+                            <p><strong>Step 2: Main Body:</strong> Use bullet points or separate paragraphs to explain the key differences. Focus on the use of commas and the names of the place values (lakhs vs. millions).</p>
+                            <p><strong>Step 3: Example:</strong> Provide a clear, well-written example for each system to illustrate your points. Use the same number for both systems to make the comparison easy for the examiner.</p>
+                            <p><strong>Step 4: Conclusion:</strong> Summarize the main points in a final sentence or two. Example: "In conclusion, while both systems are used to represent large numbers, the grouping of digits and the terminology for place values are the key distinguishing features."</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'What is the place value of the digit 7 in the number 7,85,921?',
+                                options: ['Seven hundred', 'Seven thousand', 'Seventy thousand', 'Seven lakh'],
+                                answer: 'Seven lakh'
+                            },
+                            {
+                                question: 'What is the sum of the largest 3-digit number and the smallest 4-digit number?',
+                                options: ['1999', '2000', '1000', '999'],
+                                answer: '1999'
+                            },
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Number Concepts Match',
+                            pairs: [
+                                { term: 'Smallest 4-digit number', definition: '1000' },
+                                { term: 'Largest 3-digit number', definition: '999' },
+                                { term: 'Predecessor of 100', definition: '99' },
+                                { term: 'Successor of 9999', definition: '10000' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Whole Numbers',
+                        content: `
+                            <p>This chapter introduces you to whole numbers, their properties, and operations like addition, subtraction, multiplication, and division on a number line.</p>
+                            <p>We'll also discuss the patterns of numbers and their uses in daily life.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Conceptual understanding and real-world application of mathematical concepts.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the associative property of addition and multiplication for whole numbers.',
+                            answer: `
+                                <p>The associative property states that when you add or multiply three or more whole numbers, the way in which the numbers are grouped does not affect the final result.</p>
+                                <p><strong>Associative Property of Addition:</strong> For any three whole numbers 'a', 'b', and 'c', the property is represented as: a + (b + c) = (a + b) + c. For example, 2 + (3 + 4) = 2 + 7 = 9. And (2 + 3) + 4 = 5 + 4 = 9.</p>
+                                <p><strong>Associative Property of Multiplication:</strong> For any three whole numbers 'a', 'b', and 'c', the property is represented as: a × (b × c) = (a × b) × c. For example, 2 × (3 × 4) = 2 × 12 = 24. And (2 × 3) × 4 = 6 × 4 = 24.</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: State the Definition:</strong> Begin by clearly defining the associative property. Mention that it applies to addition and multiplication.</p>
+                            <p><strong>Step 2: Show the Formula:</strong> Write down the algebraic representation of the property for both operations (e.g., a + (b + c) = (a + b) + c).</p>
+                            <p><strong>Step 3: Provide a Concrete Example:</strong> Use simple, small numbers (like 2, 3, and 4) to demonstrate how the property works. Show the calculation step-by-step for both sides of the equation to prove they are equal.</p>
+                            <p><strong>Step 4: Conclude:</strong> End with a summary statement about the importance of the property in simplifying calculations.</p>
+                        `,
+                        quiz: [
+                             {
+                                question: 'Is 0 a natural number?',
+                                options: ['Yes', 'No'],
+                                answer: 'No'
+                            },
+                            {
+                                question: 'What is the successor of 999?',
+                                options: ['1000', '998', '1001', '1010'],
+                                answer: '1000'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Whole Numbers Match',
+                            pairs: [
+                                { term: 'Smallest whole number', definition: '0' },
+                                { term: 'Closure property of addition', definition: 'Sum of two whole numbers is always a whole number' },
+                                { term: 'Commutative property of multiplication', definition: 'a × b = b × a' },
+                                { term: 'Identity for addition', definition: '0' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Integers',
+                        content: `
+                            <p>This chapter introduces you to the concept of **integers**, which include natural numbers, zero, and the negative of natural numbers. We'll learn how to represent them on a number line, compare them, and perform basic operations like addition and subtraction.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Building a foundational understanding of number systems beyond just positive numbers.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain how to perform subtraction of integers on a number line.',
+                            answer: `
+                                <p>Subtracting a positive integer means moving to the left on the number line. Subtracting a negative integer means moving to the right, which is equivalent to adding a positive integer.</p>
+                                <p><strong>Example 1: Subtracting a positive integer.</strong> To solve $5 - 3$:</p>
+                                <ol>
+                                    <li>Start at 5 on the number line.</li>
+                                    <li>Since we are subtracting a positive number (3), move 3 steps to the left.</li>
+                                    <li>You will land on 2. So, $5 - 3 = 2$.</li>
+                                </ol>
+                                <p><strong>Example 2: Subtracting a negative integer.</strong> To solve $2 - (-4)$:</p>
+                                <ol>
+                                    <li>Start at 2 on the number line.</li>
+                                    <li>Subtracting a negative number is the same as adding its positive counterpart. So, $2 - (-4)$ becomes $2 + 4$.</li>
+                                    <li>From 2, move 4 steps to the right.</li>
+                                    <li>You will land on 6. So, $2 - (-4) = 6$.</li>
+                                </ol>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Define the Operation:</strong> Start by explaining the general rule for subtracting integers on a number line (e.g., subtracting a positive means moving left).</p>
+                            <p><strong>Step 2: Use Concrete Examples:</strong> Provide a clear example for both cases: subtracting a positive integer and subtracting a negative integer. Use simple numbers to avoid confusion.</p>
+                            <p><strong>Step 3: Show the Steps:</strong> For each example, list the steps clearly (e.g., "Start at 5," "Move 3 steps to the left"). This demonstrates a thorough understanding of the process.</p>
+                            <p><strong>Step 4: Use a Conclusion:</strong> Conclude by summarizing the key takeaway, such as "subtraction of a negative integer is equivalent to addition."</p>
+                        `,
+                        quiz: [
+                             {
+                                question: 'Which of the following is not an integer?',
+                                options: ['-5', '0', '1/2', '10'],
+                                answer: '1/2'
+                            },
+                            {
+                                question: 'What is the sum of -5 and 8?',
+                                options: ['3', '-3', '13', '-13'],
+                                answer: '3'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Integer Concepts Match',
+                            pairs: [
+                                { term: 'Additive inverse of 7', definition: '-7' },
+                                { term: 'Sum of -2 and 2', definition: '0' },
+                                { term: 'Predecessor of -5', definition: '-6' },
+                                { term: 'The number between -2 and 0', definition: '-1' }
+                            ]
+                        }
+                    }
+                ]
+            },
+            'science': {
+                icon: 'fas fa-flask',
+                title: 'Science',
+                description: 'Dive into the wonders of the natural world, from food and plants to electricity.',
+                lessons: [
+                    {
+                        title: 'Food: Where Does It Come From?',
+                        content: `
+                            <p>We'll investigate where our food comes from and categorize organisms based on their eating habits (herbivores, carnivores, omnivores).</p>
+                            <p>We'll also learn about the different parts of a plant that we eat.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Connecting classroom learning to real-world phenomena and promoting critical inquiry.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the different types of food based on their sources and give examples.',
+                            answer: `
+                                <p>Based on their sources, food can be broadly classified into two main types: plant-based food and animal-based food.</p>
+                                <p><strong>Plant-based food:</strong> This category includes all food items we get from plants. We eat different parts of plants, such as stems (e.g., potato, sugarcane), roots (e.g., carrot, radish), leaves (e.g., spinach, cabbage), fruits (e.g., mango, apple), seeds (e.g., wheat, rice), and flowers (e.g., cauliflower). These foods are rich in carbohydrates, vitamins, and minerals.</p>
+                                <p><strong>Animal-based food:</strong> These are food items we get from animals. Examples include milk (from cows, buffaloes), eggs (from hens, ducks), and meat (from goats, fish, chicken). Animal products are generally a good source of protein and fat.</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Introduction:</strong> Begin with a clear statement classifying food sources into two main categories: plants and animals. This immediately structures your answer.</p>
+                            <p><strong>Step 2: Use Subheadings:</strong> Use bold subheadings like 'Plant-based food' and 'Animal-based food' to organize your answer. This makes it easy for the examiner to read and understand your points.</p>
+                            <p><strong>Step 3: Provide Examples:</strong> For each category, list several specific examples. For plants, mention different parts we eat. For animals, mention different products we get. Use bullet points or lists to make the examples stand out.</p>
+                            <p><strong>Step 4: Highlight Key Information:</strong> Briefly mention what nutritional value each food type provides (e.g., plants are rich in carbohydrates, animals in protein). This adds depth to your answer.</p>
+                        `,
+                        quiz: [
+                             {
+                                question: 'Which of these is a herbivore?',
+                                options: ['Lion', 'Cow', 'Tiger', 'Bear'],
+                                answer: 'Cow'
+                            },
+                            {
+                                question: 'What part of the potato plant do we eat?',
+                                options: ['Flower', 'Root', 'Stem', 'Leaf'],
+                                answer: 'Stem'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Food Sources Match',
+                            pairs: [
+                                { term: 'Carrot', definition: 'Root' },
+                                { term: 'Potato', definition: 'Stem' },
+                                { term: 'Spinach', definition: 'Leaf' },
+                                { term: 'Apple', definition: 'Fruit' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Sorting Materials into Groups',
+                        content: `
+                            <p>This lesson teaches you to classify objects based on their properties like luster, hardness, solubility, and transparency.</p>
+                            <p>Understanding these properties helps us in our daily lives, from choosing materials for building to cooking.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Developing scientific temperament, observation skills, and logical reasoning.</p>
+                        `,
+                        long_answers: {
+                            question: 'Describe the properties of materials that help us to group them. Give an example for each.',
+                            answer: `
+                                <p>The properties of materials help us to group them for easy identification and use. Some key properties include:</p>
+                                <ul>
+                                    <li><strong>Appearance (Luster):</strong> Materials can be classified based on whether they have a shine or not. Metals like gold and iron have luster, while wood and chalk do not.</li>
+                                    <li><strong>Hardness:</strong> This refers to how easily a material can be compressed or scratched. Materials like a diamond are very hard, while chalk and wax are soft.</li>
+                                    <li><strong>Solubility:</strong> This is the ability of a substance to dissolve in a liquid. Salt and sugar are soluble in water, but sand and oil are insoluble.</li>
+                                    <li><strong>Transparency:</strong> This property determines whether light can pass through a material. Transparent objects like glass allow light to pass completely, while translucent objects allow only partial light, and opaque objects like wood block all light.</li>
+                                </ul>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Introduction:</strong> Start by defining why we need to group materials and what properties help us do so.</p>
+                            <p><strong>Step 2: Use a List Structure:</strong> Use a numbered or bulleted list for each property. For each point, clearly define the property and provide a contrasting example (e.g., hard vs. soft, soluble vs. insoluble).</p>
+                            <p><strong>Step 3: Be Specific:</strong> Use precise scientific terms like 'luster,' 'hardness,' and 'solubility.' The definitions should be concise and accurate.</p>
+                            <p><strong>Step 4: Use Examples:</strong> Make sure each property is supported by at least one clear example. This helps demonstrate your understanding of the concept.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'Which of the following is an example of a soluble substance in water?',
+                                options: ['Sand', 'Oil', 'Salt', 'Wood'],
+                                answer: 'Salt'
+                            },
+                            {
+                                question: 'Which property describes a material that can be compressed easily?',
+                                options: ['Hardness', 'Luster', 'Solubility', 'Malleability'],
+                                answer: 'Hardness'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Material Properties Match',
+                            pairs: [
+                                { term: 'Glass', definition: 'Transparent' },
+                                { term: 'Wood', definition: 'Opaque' },
+                                { term: 'Salt', definition: 'Soluble in water' },
+                                { term: 'Diamond', definition: 'Hardest material' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Components of Food',
+                        content: `
+                            <p>This chapter explores the various **nutrients** present in the food we eat, such as carbohydrates, proteins, fats, vitamins, and minerals. We'll also learn about roughage and water and how a **balanced diet** is essential for our health.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Promoting health and wellness, and developing a scientific understanding of nutrition.</p>
+                        `,
+                        long_answers: {
+                            question: 'What is a balanced diet? Explain why it is important for our body.',
+                            answer: `
+                                <p>A **balanced diet** is a diet that contains all the essential nutrients—carbohydrates, proteins, fats, vitamins, and minerals—in the right quantities, along with adequate amounts of roughage and water.</p>
+                                <p>It is important because:</p>
+                                <ul>
+                                    <li><strong>Energy:</strong> Carbohydrates and fats provide the energy needed for daily activities.</li>
+                                    <li><strong>Growth and Repair:</strong> Proteins are the building blocks of the body, essential for growth and repairing damaged tissues.</li>
+                                    <li><strong>Protection:</strong> Vitamins and minerals help our body fight diseases and keep it healthy.</li>
+                                    <li><strong>Proper Functioning:</strong> A balanced diet ensures that all body systems, from digestion to immunity, function properly.</li>
+                                </ul>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Define the Key Term:</strong> Start your answer with a clear definition of what a balanced diet is. Mention all the components it should contain.</p>
+                            <p><strong>Step 2: Use a List or Subheadings:</strong> Organize the reasons for its importance using a list with bold keywords like **Energy**, **Growth and Repair**, and **Protection**. This makes the points easy to grasp.</p>
+                            <p><strong>Step 3: Explain Each Point:</strong> For each point, provide a brief explanation of how that nutrient or component contributes to the body's function.</p>
+                            <p><strong>Step 4: Conclude:</strong> End with a summary statement that reinforces the importance of a balanced diet for overall health.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'Which nutrient is primarily responsible for the growth and repair of our body?',
+                                options: ['Fats', 'Carbohydrates', 'Proteins', 'Vitamins'],
+                                answer: 'Proteins'
+                            },
+                            {
+                                question: 'A deficiency of Vitamin D can cause which disease?',
+                                options: ['Scurvy', 'Rickets', 'Beriberi', 'Anaemia'],
+                                answer: 'Rickets'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Nutrients Match',
+                            pairs: [
+                                { term: 'Energy-giving nutrients', definition: 'Carbohydrates & Fats' },
+                                { term: 'Body-building nutrients', definition: 'Proteins' },
+                                { term: 'Protective nutrients', definition: 'Vitamins & Minerals' },
+                                { term: 'Roughage', definition: 'Dietary fibres' }
+                            ]
+                        }
+                    }
+                ]
+            },
+            'social_science': {
+                icon: 'fas fa-globe-asia',
+                title: 'Social Science',
+                description: 'Journey through history, geography, and civics to understand our world.',
+                lessons: [
+                    {
+                        title: 'The Earth in the Solar System',
+                        content: `
+                            <p>We will explore the planets, stars, and other celestial bodies in our solar system. We'll learn about the Earth's unique place in space.</p>
+                            <p>This lesson covers topics like the Sun, Moon, and the constellations we see in the night sky.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Fostering an appreciation for the natural world and a global perspective.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain why the Earth is called a "unique planet."',
+                            answer: `
+                                <p>Earth is considered a unique planet because it is the only known planet in our solar system to support life. This is due to several key factors:</p>
+                                <ul>
+                                    <li><strong>Presence of Water:</strong> Water is essential for all life forms. Earth is the only planet with liquid water, which covers a large portion of its surface.</li>
+                                    <li><strong>Optimal Temperature:</strong> Earth's position in the "Goldilocks zone" (not too hot, not too cold) allows for a temperature range that is conducive to life.</li>
+                                    <li><strong>Life-Sustaining Atmosphere:</strong> The atmosphere contains the right balance of gases, including oxygen, which is vital for most living organisms. The ozone layer also protects us from the Sun's harmful ultraviolet rays.</li>
+                                    <li><strong>Protective Magnetic Field:</strong> Earth's magnetic field acts as a shield, deflecting harmful solar winds and radiation, which is crucial for protecting the atmosphere and life on the surface.</li>
+                                </ul>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Create a Strong Introduction:</strong> Begin your answer by stating clearly that Earth is unique because it supports life. This immediately answers the core of the question.</p>
+                            <p><strong>Step 2: Use Bullet Points for Key Factors:</strong> List the reasons why Earth is unique using bullet points or subheadings (e.g., Presence of Water, Optimal Temperature). This makes the answer structured and easy to follow.</p>
+                            <p><strong>Step 3: Explain Each Point in Detail:</strong> For each bullet point, provide a brief but clear explanation. For example, don't just say "water," explain why water is important for life.</p>
+                            <p><strong>Step 4: Conclude:</strong> End with a powerful concluding statement that summarizes the key reasons, reiterating that these combined factors make Earth unique for life.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'Which planet is known as the "Red Planet"?',
+                                options: ['Jupiter', 'Venus', 'Mars', 'Saturn'],
+                                answer: 'Mars'
+                            },
+                            {
+                                question: 'What is a group of stars forming a pattern called?',
+                                options: ['Galaxy', 'Planet', 'Constellation', 'Comet'],
+                                answer: 'Constellation'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Solar System Match',
+                            pairs: [
+                                { term: 'Hottest Planet', definition: 'Venus' },
+                                { term: 'Largest Planet', definition: 'Jupiter' },
+                                { term: 'Farthest from Sun', definition: 'Neptune' },
+                                { term: 'Red Planet', definition: 'Mars' }
+                            ]
+                        }
+                    },
+                     {
+                        title: 'What, Where, How and When?',
+                        content: `
+                            <p>This history lesson introduces us to the methods historians use to study the past, from deciphering manuscripts to understanding archaeological findings.</p>
+                            <p>We'll learn about the different sources of information and how they help us piece together our history.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Encouraging critical thinking, historical inquiry, and a sense of belonging.</p>
+                        `,
+                        long_answers: {
+                            question: 'What are the main sources used by historians to study the past? Explain with examples.',
+                            answer: `
+                                <p>Historians use a variety of sources to reconstruct the past. These can be broadly classified into two categories:</p>
+                                <ul>
+                                    <li><strong>Archaeological Sources:</strong> These are physical remains of the past. Examples include tools, pottery, coins, buildings, and inscriptions. Inscriptions are writings on hard surfaces like stone or metal and are very valuable as they provide direct information.</li>
+                                    <li><strong>Literary Sources:</strong> These are written records of the past. Examples include manuscripts (written on materials like palm leaves or bark), religious texts, travelogues by foreign visitors, and biographies of kings and rulers.</li>
+                                </ul>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Introduction:</strong> Start with a clear and concise introduction defining what historical sources are and their importance.</p>
+                            <p><strong>Step 2: Classification:</strong> Classify the sources into two main types: archaeological and literary. This provides a good framework for your answer.</p>
+                            <p><strong>Step 3: Explain Each Type with Examples:</strong> For each type, explain what it is and provide specific examples. For instance, for archaeological sources, mention coins, inscriptions, and pottery. For literary sources, mention manuscripts and religious texts.</p>
+                            <p><strong>Step 4: Conclusion:</strong> Summarize by stating that a combination of both types of sources helps historians build a complete picture of the past.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'Which of these is not a source for studying history?',
+                                options: ['Manuscripts', 'Inscriptions', 'Coins', 'Science Fiction Books'],
+                                answer: 'Science Fiction Books'
+                            },
+                            {
+                                question: 'What is the study of inscriptions called?',
+                                options: ['Archaeology', 'Epigraphy', 'Palaeontology', 'Numismatics'],
+                                answer: 'Epigraphy'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'History Sources Match',
+                            pairs: [
+                                { term: 'Manuscript', definition: 'Written on palm leaves' },
+                                { term: 'Inscriptions', definition: 'Written on hard surfaces' },
+                                { term: 'Archaeology', definition: 'Study of physical remains' },
+                                { term: 'Numismatics', definition: 'Study of coins' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Urban Administration',
+                        content: `
+                            <p>This chapter focuses on how cities and towns are governed. We will learn about the different levels of urban administration, such as the **Municipal Corporation** and the **Municipal Council**, and their responsibilities in managing services like water supply, sanitation, and public health.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Developing civic sense, understanding democratic processes, and fostering a sense of social responsibility.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the main functions of a Municipal Corporation.',
+                            answer: `
+                                <p>A Municipal Corporation is responsible for providing essential services to the people living in a large city. Its main functions include:</p>
+                                <ul>
+                                    <li><strong>Public Health and Sanitation:</strong> Managing garbage collection and disposal, providing clean drinking water, and maintaining public hospitals and dispensaries.</li>
+                                    <li><strong>Civic Amenities:</strong> Ensuring the construction and maintenance of roads, bridges, and public transport systems.</li>
+                                    <li><strong>Education:</strong> Running primary schools and providing facilities for public education.</li>
+                                    <li><strong>Registration:</strong> Keeping records of births and deaths in the city.</li>
+                                    <li><strong>Tax Collection:</strong> Collecting taxes from property, water, and other services to fund its work.</li>
+                                </ul>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Introduction:</strong> Start by defining what a Municipal Corporation is and its role in urban governance.</p>
+                            <p><strong>Step 2: Use a Bulleted List:</strong> A bulleted list is an excellent way to present the functions of the Municipal Corporation. Each point should be a clear, concise function.</p>
+                            <p><strong>Step 3: Add Details:</strong> Briefly explain each function to show a deeper understanding. For example, for "Public Health," you can mention specific services like "garbage collection" and "clean drinking water."</p>
+                            <p><strong>Step 4: Conclude:</strong> Summarize by stating that these functions are vital for the smooth and healthy running of a city.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'What is the elected head of a Municipal Corporation called?',
+                                options: ['Councillor', 'Mayor', 'Minister', 'MLA'],
+                                answer: 'Mayor'
+                            },
+                            {
+                                question: 'The taxes collected by the Municipal Corporation are used for:',
+                                options: ['Building national highways', 'Funding its work', 'Paying government officials', 'None of the above'],
+                                answer: 'Funding its work'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Urban Admin Match',
+                            pairs: [
+                                { term: 'Municipal Corporation head', definition: 'Mayor' },
+                                { term: 'Responsible for public health', definition: 'Municipal Corporation' },
+                                { term: 'Elected representative from a ward', definition: 'Councillor' },
+                                { term: 'Manages a smaller town', definition: 'Municipal Council' }
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+
+        // --- Application State and DOM Elements ---
+        const state = {
+            currentSubject: null,
+            currentLessonIndex: 0,
+            quizAttempts: {},
+            performance: {},
+            startTime: null,
+            matchingGame: {
+                termSelected: null,
+                completedPairs: 0
+            }
+        };
+
+        const elements = {
+            dashboard: document.getElementById('dashboard'),
+            subjectList: document.getElementById('subject-list'),
+            lessonView: document.getElementById('lesson-view'),
+            lessonTitle: document.getElementById('lesson-title'),
+            lessonContent: document.getElementById('lesson-content'),
+            previousButton: document.getElementById('previous-lesson'),
+            nextButton: document.getElementById('next-lesson'),
+            startQuizButton: document.getElementById('start-quiz-button'),
+            startGameButton: document.getElementById('start-game-button'),
+            showExamPrepButton: document.getElementById('show-exam-prep-button'),
+            quizView: document.getElementById('quiz-view'),
+            quizTitle: document.getElementById('quiz-title'),
+            quizQuestion: document.getElementById('quiz-question'),
+            quizOptions: document.getElementById('quiz-options'),
+            gameView: document.getElementById('game-view'),
+            gameTitle: document.getElementById('game-title'),
+            matchingGrid: document.getElementById('matching-grid'),
+            gameMessage: document.getElementById('game-message'),
+            examPrepView: document.getElementById('exam-prep-view'),
+            longAnswerQuestion: document.getElementById('long-answer-question'),
+            longAnswerContent: document.getElementById('long-answer-content'),
+            examTipsContent: document.getElementById('exam-tips-content'),
+            backToDashboardButton: document.getElementById('back-to-dashboard'),
+            backToLessonButton: document.getElementById('back-to-lesson'),
+            backToLessonFromGame: document.getElementById('back-to-lesson-from-game'),
+            backToLessonFromPrep: document.getElementById('back-to-lesson-from-prep'),
+            scorecardModal: document.getElementById('scorecard-modal'),
+            closeModalButton: document.getElementById('close-modal-button'),
+            completedSubjects: document.getElementById('completed-subjects'),
+            totalQuizzes: document.getElementById('total-quizzes'),
+            averageScore: document.getElementById('average-score'),
+            quizScore: document.getElementById('quiz-score'),
+            timeSpent: document.getElementById('time-spent'),
+            correctCount: document.getElementById('correct-count'),
+            incorrectCount: document.getElementById('incorrect-count'),
+            improvementAreas: document.getElementById('improvement-areas'),
+            lessonProgressBar: document.getElementById('lesson-progress-bar'),
+            progressPercentage: document.getElementById('progress-percentage')
+        };
+
+        // --- Functions ---
+
+        /**
+         * Renders the subject selection cards on the dashboard.
+         */
+        function renderSubjectCards() {
+            elements.subjectList.innerHTML = '';
+            for (const key in courseData) {
+                const subject = courseData[key];
+                const card = document.createElement('div');
+                card.className = 'card bg-gray-100 p-6 rounded-lg shadow-md cursor-pointer flex flex-col items-center text-center';
+                card.innerHTML = `
+                    <div class="text-4xl text-indigo-500 mb-4"><i class="${subject.icon}"></i></div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${subject.title}</h3>
+                    <p class="text-gray-600">${subject.description}</p>
+                `;
+                card.addEventListener('click', () => {
+                    selectSubject(key);
+                });
+                elements.subjectList.appendChild(card);
+            }
+        }
+
+        /**
+         * Updates the dashboard with current performance metrics.
+         */
+        function updateDashboard() {
+            let totalQuizzesAttempted = 0;
+            let totalScore = 0;
+            let completedSubjects = 0;
+
+            for (const subjectKey in state.performance) {
+                const subjectPerformance = state.performance[subjectKey];
+                let subjectComplete = true;
+                for (const lessonIndex in subjectPerformance) {
+                    if (subjectPerformance[lessonIndex] && subjectPerformance[lessonIndex].completed) {
+                        totalQuizzesAttempted++;
+                        totalScore += subjectPerformance[lessonIndex].score;
+                    } else {
+                        subjectComplete = false;
+                    }
+                }
+                if (subjectComplete) {
+                    completedSubjects++;
+                }
+            }
+
+            const average = totalQuizzesAttempted > 0 ? (totalScore / totalQuizzesAttempted).toFixed(2) : 0;
+            elements.completedSubjects.textContent = completedSubjects;
+            elements.totalQuizzes.textContent = totalQuizzesAttempted;
+            elements.averageScore.textContent = `${average}%`;
+        }
+
+        /**
+         * Switches to the lesson view for a selected subject.
+         * @param {string} subjectKey The key for the selected subject.
+         */
+        function selectSubject(subjectKey) {
+            state.currentSubject = subjectKey;
+            state.currentLessonIndex = 0;
+            elements.dashboard.classList.add('hidden');
+            elements.lessonView.classList.remove('hidden');
+            state.startTime = new Date(); // Start time for the first lesson
+            loadLesson();
+        }
+
+        /**
+         * Loads the content for the current lesson.
+         * This function ensures content is loaded chapter-wise, not randomly.
+         */
+        function loadLesson() {
+            const subject = courseData[state.currentSubject];
+            const lesson = subject.lessons[state.currentLessonIndex];
+            elements.lessonTitle.textContent = lesson.title;
+            elements.lessonContent.innerHTML = lesson.content;
+            
+            // Update lesson navigation buttons
+            elements.previousButton.disabled = state.currentLessonIndex === 0;
+            elements.nextButton.disabled = state.currentLessonIndex === subject.lessons.length - 1;
+
+            // Enable/disable buttons based on content availability
+            elements.startQuizButton.disabled = !lesson.quiz;
+            elements.startGameButton.disabled = !lesson.game;
+            elements.showExamPrepButton.disabled = !lesson.long_answers || !lesson.exam_tips;
+
+            // Update progress bar
+            const progress = (state.currentLessonIndex + 1) / subject.lessons.length * 100;
+            elements.lessonProgressBar.style.width = `${progress}%`;
+            elements.progressPercentage.textContent = `${Math.round(progress)}%`;
+        }
+
+        /**
+         * Loads and displays the quiz for the current lesson.
+         */
+        function loadQuiz() {
+            const lesson = courseData[state.currentSubject].lessons[state.currentLessonIndex];
+            if (!lesson.quiz) return;
+            elements.lessonView.classList.add('hidden');
+            elements.quizView.classList.remove('hidden');
+            elements.quizTitle.textContent = `Quiz: ${lesson.title}`;
+            state.quizAttempts[state.currentLessonIndex] = { correct: 0, incorrect: 0 };
+            state.startTime = new Date(); // Reset timer for quiz
+            renderQuestion(0);
+        }
+        
+        /**
+         * Renders a single quiz question.
+         * @param {number} questionIndex The index of the question to render.
+         */
+        function renderQuestion(questionIndex) {
+            const quiz = courseData[state.currentSubject].lessons[state.currentLessonIndex].quiz;
+            const questionData = quiz[questionIndex];
+            elements.quizQuestion.textContent = questionData.question;
+            elements.quizOptions.innerHTML = '';
+
+            questionData.options.forEach(option => {
+                const optionElement = document.createElement('div');
+                optionElement.className = 'quiz-option bg-white p-4 rounded-lg shadow cursor-pointer';
+                optionElement.textContent = option;
+                optionElement.addEventListener('click', () => checkAnswer(option, questionData.answer, optionElement));
+                elements.quizOptions.appendChild(optionElement);
+            });
+        }
+
+        /**
+         * Checks the user's answer and provides feedback.
+         * @param {string} selectedOption The option selected by the user.
+         * @param {string} correctAnswer The correct answer for the question.
+         * @param {HTMLElement} element The HTML element for the selected option.
+         */
+        function checkAnswer(selectedOption, correctAnswer, element) {
+            // Disable all options after selection
+            Array.from(elements.quizOptions.children).forEach(child => {
+                child.classList.add('disabled');
+            });
+            
+            if (selectedOption === correctAnswer) {
+                element.classList.add('correct');
+                state.quizAttempts[state.currentLessonIndex].correct++;
+            } else {
+                element.classList.add('incorrect');
+                state.quizAttempts[state.currentLessonIndex].incorrect++;
+                // Also highlight the correct answer
+                const correctElement = Array.from(elements.quizOptions.children).find(child => child.textContent === correctAnswer);
+                if (correctElement) correctElement.classList.add('correct');
+            }
+
+            // Move to the next question or show results
+            const quizLength = courseData[state.currentSubject].lessons[state.currentLessonIndex].quiz.length;
+            const currentQuestionIndex = state.quizAttempts[state.currentLessonIndex].correct + state.quizAttempts[state.currentLessonIndex].incorrect;
+            
+            if (currentQuestionIndex < quizLength) {
+                setTimeout(() => {
+                    renderQuestion(currentQuestionIndex);
+                }, 1000); // 1 second delay before next question
+            } else {
+                setTimeout(showResults, 1500); // 1.5 second delay before showing results
+            }
+        }
+
+        /**
+         * Loads and displays the matching game for the current lesson.
+         */
+        function loadGame() {
+            const lesson = courseData[state.currentSubject].lessons[state.currentLessonIndex];
+            if (!lesson.game) return;
+            
+            elements.lessonView.classList.add('hidden');
+            elements.gameView.classList.remove('hidden');
+            elements.gameTitle.textContent = `Game: ${lesson.title}`;
+            
+            state.matchingGame.termSelected = null;
+            state.matchingGame.completedPairs = 0;
+            elements.matchingGrid.innerHTML = '';
+            elements.gameMessage.textContent = '';
+
+            const pairs = [...lesson.game.pairs];
+            const allItems = shuffle([...pairs.map(p => p.term), ...pairs.map(p => p.definition)]);
+
+            allItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'matching-item bg-white p-4 rounded-lg shadow-md cursor-pointer text-center font-semibold';
+                itemElement.textContent = item;
+                itemElement.addEventListener('click', () => handleMatchClick(itemElement, item));
+                elements.matchingGrid.appendChild(itemElement);
+            });
+        }
+        
+        /**
+         * Handles the logic for the matching game clicks.
+         * @param {HTMLElement} element The clicked element.
+         * @param {string} value The text content of the clicked element.
+         */
+        function handleMatchClick(element, value) {
+            // If nothing is selected, select the current item
+            if (!state.matchingGame.termSelected) {
+                state.matchingGame.termSelected = { element, value };
+                element.classList.add('selected');
+            } else {
+                // If an item is already selected, check for a match
+                const selected = state.matchingGame.termSelected;
+                const lesson = courseData[state.currentSubject].lessons[state.currentLessonIndex];
+                const isMatch = lesson.game.pairs.some(pair => 
+                    (pair.term === selected.value && pair.definition === value) ||
+                    (pair.definition === selected.value && pair.term === value)
+                );
+
+                if (isMatch) {
+                    selected.element.classList.add('correct', 'disabled');
+                    element.classList.add('correct', 'disabled');
+                    elements.gameMessage.textContent = 'Match Found!';
+                    state.matchingGame.completedPairs++;
+                    if (state.matchingGame.completedPairs === lesson.game.pairs.length) {
+                        setTimeout(() => {
+                           elements.gameMessage.textContent = 'Congratulations! You matched all pairs!';
+                        }, 500);
+                    }
+                } else {
+                    selected.element.classList.add('incorrect');
+                    element.classList.add('incorrect');
+                    elements.gameMessage.textContent = 'Incorrect match. Try again!';
+                    setTimeout(() => {
+                        selected.element.classList.remove('selected', 'incorrect');
+                        element.classList.remove('incorrect');
+                        elements.gameMessage.textContent = '';
+                    }, 800);
+                }
+                
+                // Reset selection
+                state.matchingGame.termSelected = null;
+            }
+        }
+        
+        /**
+         * Utility function to shuffle an array.
+         * @param {Array} array The array to shuffle.
+         * @returns {Array} The shuffled array.
+         */
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        /**
+         * Loads and displays the exam preparation content.
+         */
+        function loadExamPrep() {
+            const lesson = courseData[state.currentSubject].lessons[state.currentLessonIndex];
+            if (!lesson.long_answers || !lesson.exam_tips) return;
+
+            elements.lessonView.classList.add('hidden');
+            elements.examPrepView.classList.remove('hidden');
+
+            elements.longAnswerQuestion.textContent = lesson.long_answers.question;
+            elements.longAnswerContent.innerHTML = lesson.long_answers.answer;
+            elements.examTipsContent.innerHTML = lesson.exam_tips;
+        }
+
+        /**
+         * Calculates and displays the quiz results in a modal.
+         */
+        function showResults() {
+            const endTime = new Date();
+            const timeDiff = (endTime - state.startTime) / 1000; // time in seconds
+            const minutes = Math.floor(timeDiff / 60);
+            const seconds = Math.floor(timeDiff % 60);
+
+            const attempt = state.quizAttempts[state.currentLessonIndex];
+            const totalQuestions = courseData[state.currentSubject].lessons[state.currentLessonIndex].quiz.length;
+            const score = (attempt.correct / totalQuestions) * 100 || 0;
+
+            // Save performance data
+            if (!state.performance[state.currentSubject]) {
+                state.performance[state.currentSubject] = {};
+            }
+            state.performance[state.currentSubject][state.currentLessonIndex] = {
+                score: score,
+                timeSpent: timeDiff,
+                completed: true
+            };
+            
+            // Update modal content
+            elements.quizScore.textContent = `${Math.round(score)}%`;
+            elements.timeSpent.textContent = `${minutes}m ${seconds}s`;
+            elements.correctCount.textContent = attempt.correct;
+            elements.incorrectCount.textContent = attempt.incorrect;
+
+            // Generate improvement areas based on incorrect answers
+            const improvementSuggestions = [];
+            if (attempt.incorrect > 0) {
+                const incorrectRatio = attempt.incorrect / totalQuestions;
+                if (incorrectRatio > 0.5) {
+                    improvementSuggestions.push('Revisit the core concepts of this lesson.');
+                } else if (incorrectRatio > 0.25) {
+                    improvementSuggestions.push('Focus on the topics you got wrong, and try the quiz again.');
+                }
+                improvementSuggestions.push('Practice similar questions to build confidence.');
+            } else {
+                improvementSuggestions.push('You did great! Move on to the next lesson.');
+            }
+            elements.improvementAreas.textContent = improvementSuggestions.join(' ');
+            
+            elements.quizView.classList.add('hidden');
+            elements.scorecardModal.classList.remove('invisible', 'opacity-0');
+            elements.scorecardModal.classList.add('open', 'opacity-100');
+            updateDashboard(); // Update dashboard with new scores
+        }
+
+        // --- Event Listeners and Initialization ---
+
+        // Back to Dashboard
+        elements.backToDashboardButton.addEventListener('click', () => {
+            elements.lessonView.classList.add('hidden');
+            elements.dashboard.classList.remove('hidden');
+        });
+
+        // Back to Lesson from Quiz
+        elements.backToLessonButton.addEventListener('click', () => {
+            elements.quizView.classList.add('hidden');
+            elements.lessonView.classList.remove('hidden');
+        });
+
+        // Back to Lesson from Game
+        elements.backToLessonFromGame.addEventListener('click', () => {
+            elements.gameView.classList.add('hidden');
+            elements.lessonView.classList.remove('hidden');
+        });
+
+        // Back to Lesson from Exam Prep
+        elements.backToLessonFromPrep.addEventListener('click', () => {
+            elements.examPrepView.classList.add('hidden');
+            elements.lessonView.classList.remove('hidden');
+        });
+
+        // Previous Lesson button
+        elements.previousButton.addEventListener('click', () => {
+            if (state.currentLessonIndex > 0) {
+                state.currentLessonIndex--;
+                loadLesson();
+            }
+        });
+
+        // Next Lesson button
+        elements.nextButton.addEventListener('click', () => {
+            const subject = courseData[state.currentSubject];
+            if (state.currentLessonIndex < subject.lessons.length - 1) {
+                state.currentLessonIndex++;
+                loadLesson();
+            }
+        });
+
+        // Start Quiz button
+        elements.startQuizButton.addEventListener('click', loadQuiz);
+        
+        // Start Game button
+        elements.startGameButton.addEventListener('click', loadGame);
+
+        // Show Exam Prep button
+        elements.showExamPrepButton.addEventListener('click', loadExamPrep);
+
+
+        // Close Modal button
+        elements.closeModalButton.addEventListener('click', () => {
+            elements.scorecardModal.classList.remove('open', 'opacity-100');
+            elements.scorecardModal.classList.add('invisible', 'opacity-0');
+            elements.lessonView.classList.remove('hidden'); // Go back to lesson view
+        });
+
+        // Initial render
+        window.onload = () => {
+            renderSubjectCards();
+            updateDashboard();
+        };
+
+    </script>
+</body>
+</html>
