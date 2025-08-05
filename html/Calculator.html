@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RiSync Super Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+        .bg-gradient-light {
+            background-image: linear-gradient(to bottom right, #f0f4f8, #e2e8f0);
+        }
+        .bg-gradient-dark {
+            background-image: linear-gradient(to bottom right, #1f2937, #111827);
+        }
+        .prose p {
+            margin-bottom: 0.5em;
+        }
+        .prose strong {
+            font-weight: 600;
+        }
+        .keypad-button {
+            transition: all 0.2s ease;
+        }
+        .keypad-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .keypad-button:active {
+            transform: scale(0.95);
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-light dark:bg-gradient-dark text-gray-900 dark:text-gray-100 transition-colors duration-500">
+
+    <div class="min-h-screen p-4 sm:p-8 flex items-center justify-center">
+        <div class="w-full max-w-2xl p-6 md:p-8 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md rounded-3xl shadow-2xl border border-gray-200 dark:border-gray-700 transition-colors duration-500">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-indigo-600 dark:text-indigo-400">RiSync Calculator 🚀</h1>
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-300">
+                    <svg id="sun-icon" class="w-6 h-6 text-gray-800 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="moon-icon" class="w-6 h-6 text-gray-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <div class="relative mb-4">
+                    <input
+                        id="math-input"
+                        type="text"
+                        class="w-full p-4 text-2xl border-2 border-indigo-200 dark:border-indigo-700 rounded-2xl bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-indigo-300 dark:focus:ring-indigo-600 transition-all duration-300 shadow-inner"
+                        placeholder="e.g., (5 + 3) * 4"
+                    />
+                </div>
+                <div id="solution-container" class="min-h-[4rem] p-4 text-2xl font-bold rounded-2xl bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 shadow-inner flex items-center justify-end">
+                    <span id="solution-text" class="text-right text-gray-800 dark:text-gray-200">0</span>
+                </div>
+                <div id="error-message" class="hidden mt-2 p-2 bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 rounded-xl shadow-inner text-sm">
+                    <p class="font-bold">Error!</p>
+                    <p id="error-text"></p>
+                </div>
+            </div>
+
+            <div id="keypad" class="grid grid-cols-4 gap-3 mb-6">
+                <button data-key="7" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">7</button>
+                <button data-key="8" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">8</button>
+                <button data-key="9" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">9</button>
+                <button data-key="/" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-600">÷</button>
+                <button data-key="4" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">4</button>
+                <button data-key="5" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">5</button>
+                <button data-key="6" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">6</button>
+                <button data-key="*" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-600">×</button>
+                <button data-key="1" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">1</button>
+                <button data-key="2" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">2</button>
+                <button data-key="3" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">3</button>
+                <button data-key="-" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-600">−</button>
+                <button data-key="." class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">.</button>
+                <button data-key="0" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">0</button>
+                <button id="clear-input" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-red-500 hover:bg-red-600 col-span-1">C</button>
+                <button id="calculate" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-purple-600 hover:bg-purple-700 dark:bg-purple-700 dark:hover:bg-purple-600">=</button>
+                <button data-key="(" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">(</button>
+                <button data-key=")" class="keypad-button p-4 text-2xl font-bold rounded-xl text-gray-900 dark:text-white bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500">)</button>
+                <button data-key="+" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-700 dark:hover:bg-indigo-600">+</button>
+                <button id="backspace" class="keypad-button p-4 text-2xl font-bold rounded-xl text-white bg-gray-400 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500">←</button>
+            </div>
+
+            <div class="flex items-center justify-between gap-4 mb-4">
+                <div class="flex items-center gap-2">
+                    <label for="calculator-mood" class="font-bold text-lg text-indigo-700 dark:text-indigo-300">Mood:</label>
+                    <select id="calculator-mood" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="normal">Normal</option>
+                        <option value="sarcastic">Sarcastic</option>
+                        <option value="confused">Confused</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label for="unit-from" class="font-bold text-lg text-indigo-700 dark:text-indigo-300">Convert:</label>
+                    <select id="unit-from" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">(None)</option>
+                        <option value="cm">Centimeters</option>
+                        <option value="m">Meters</option>
+                        <option value="in">Inches</option>
+                        <option value="ft">Feet</option>
+                    </select>
+                    <span class="font-bold text-lg text-indigo-700 dark:text-indigo-300">to</span>
+                    <select id="unit-to" class="p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <option value="">(None)</option>
+                        <option value="cm">Centimeters</option>
+                        <option value="m">Meters</option>
+                        <option value="in">Inches</option>
+                        <option value="ft">Feet</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="history-container" class="mt-8 p-6 bg-gray-100 dark:bg-gray-700 rounded-2xl shadow-inner border border-gray-200 dark:border-gray-600">
+                <h2 class="text-xl sm:text-2xl font-bold mb-4 text-indigo-700 dark:text-indigo-300 flex items-center gap-2">
+                    Calculation History 📜
+                    <button id="clear-history" class="text-sm text-gray-500 hover:text-red-500 transition-colors duration-300">
+                        (Clear All)
+                    </button>
+                </h2>
+                <div id="history-list" class="prose dark:prose-invert max-w-none space-y-2">
+                    <p class="text-gray-500 dark:text-gray-400 italic">No calculations yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM element references
+            const themeToggle = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('sun-icon');
+            const moonIcon = document.getElementById('moon-icon');
+            const mathInput = document.getElementById('math-input');
+            const keypad = document.getElementById('keypad');
+            const calculateBtn = document.getElementById('calculate');
+            const clearInputBtn = document.getElementById('clear-input');
+            const backspaceBtn = document.getElementById('backspace');
+            const solutionText = document.getElementById('solution-text');
+            const errorMessage = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            const historyList = document.getElementById('history-list');
+            const clearHistoryBtn = document.getElementById('clear-history');
+            const calculatorMood = document.getElementById('calculator-mood');
+            const unitFromSelect = document.getElementById('unit-from');
+            const unitToSelect = document.getElementById('unit-to');
+
+            let currentExpression = '';
+            let history = JSON.parse(localStorage.getItem('calculatorHistory')) || [];
+            let startTime = 0;
+
+            // --- Conversion Factors (all based on 1 centimeter) ---
+            const conversionFactors = {
+                'cm': 1,
+                'm': 0.01,
+                'in': 0.393701,
+                'ft': 0.0328084
+            };
+
+            // --- Theme Toggle Functionality ---
+            const applyTheme = (isDark) => {
+                if (isDark) {
+                    document.documentElement.classList.add('dark');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                    localStorage.setItem('theme', 'dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                    localStorage.setItem('theme', 'light');
+                }
+            };
+
+            const initialIsDarkMode = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            applyTheme(initialIsDarkMode);
+            themeToggle.addEventListener('click', () => {
+                const isCurrentlyDark = document.documentElement.classList.contains('dark');
+                applyTheme(!isCurrentlyDark);
+            });
+
+            // --- Unique "Personality" Feature ---
+            const getPersonalityResponse = (result, mood) => {
+                switch(mood) {
+                    case 'sarcastic':
+                        return `Well, obviously it's ${result}. Were you expecting something else?`;
+                    case 'confused':
+                        return `I'm not sure... but my best guess is ${result}?`;
+                    case 'normal':
+                    default:
+                        return `The answer is ${result}.`;
+                }
+            };
+
+            // --- Unit Conversion Logic ---
+            const convertUnits = (value, fromUnit, toUnit) => {
+                if (!fromUnit || !toUnit || fromUnit === toUnit) {
+                    return value;
+                }
+                // Convert value to a base unit (cm) first, then to the target unit
+                const valueInBaseUnit = value / conversionFactors[fromUnit];
+                return valueInBaseUnit * conversionFactors[toUnit];
+            };
+            
+            // Function to load a history expression into the input field
+            const loadExpressionFromHistory = (expression) => {
+                mathInput.value = expression;
+                mathInput.focus();
+                errorMessage.classList.add('hidden');
+                startTime = performance.now(); // Restart timer when loading from history
+            };
+
+            // Function to copy a history item to the clipboard
+            const copyCalculationToClipboard = (text) => {
+                navigator.clipboard.writeText(text).then(() => {
+                    console.log('Calculation copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy text: ', err);
+                });
+            };
+
+            // Function to update the history display
+            const updateHistoryDisplay = () => {
+                if (history.length === 0) {
+                    historyList.innerHTML = '<p class="text-gray-500 dark:text-gray-400 italic">No calculations yet.</p>';
+                    return;
+                }
+                historyList.innerHTML = '';
+                history.forEach(item => {
+                    const p = document.createElement('p');
+                    p.classList.add('flex', 'items-center', 'justify-between');
+                    
+                    let resultDisplay = `<strong>${item.result}</strong>`;
+                    if (item.convertedResult) {
+                        resultDisplay += ` <span class="text-sm text-gray-500 dark:text-gray-400">(~ ${item.convertedResult.toFixed(2)} ${item.toUnit})</span>`;
+                    }
+                    
+                    p.innerHTML = `
+                        <div>
+                            <span class="font-mono text-indigo-500 dark:text-indigo-300 cursor-pointer" data-expression="${item.expression}">${item.expression}</span> = ${resultDisplay}
+                            <span class="text-sm italic text-gray-500 dark:text-gray-400 ml-2">(${getPersonalityResponse(item.result, item.mood)})</span>
+                            <span class="text-xs text-gray-400 dark:text-gray-500 ml-2">(Time: ${item.timeTaken.toFixed(2)}s)</span>
+                        </div>
+                        <button class="copy-btn p-1 ml-2 rounded-full bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500" data-expression="${item.expression}" data-result="${item.result}" title="Copy calculation">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v4a1 1 0 001 1h4a1 1 0 001-1V7m-5 4h4M9 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-4" />
+                            </svg>
+                        </button>
+                    `;
+                    historyList.appendChild(p);
+
+                    p.querySelector('span[data-expression]').addEventListener('click', () => {
+                        loadExpressionFromHistory(item.expression);
+                    });
+
+                    p.querySelector('.copy-btn').addEventListener('click', (event) => {
+                        const copyText = `${item.expression} = ${item.result}`;
+                        copyCalculationToClipboard(copyText);
+                    });
+                });
+            };
+
+            updateHistoryDisplay();
+
+            // Function to perform the calculation locally and safely
+            const solveLocally = () => {
+                const endTime = performance.now();
+                const timeTaken = (endTime - startTime) / 1000; // Time in seconds
+
+                errorMessage.classList.add('hidden');
+                let expressionToEvaluate = mathInput.value.trim();
+                const currentMood = calculatorMood.value;
+                const fromUnit = unitFromSelect.value;
+                const toUnit = unitToSelect.value;
+
+                if (!expressionToEvaluate) {
+                    errorText.textContent = 'Please enter a mathematical expression.';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+                
+                const validExpressionRegex = /^[0-9+\-*/().\s]+$/;
+                if (!validExpressionRegex.test(expressionToEvaluate)) {
+                    errorText.textContent = 'Invalid characters in expression. Please use numbers and basic operators.';
+                    errorMessage.classList.remove('hidden');
+                    return;
+                }
+
+                try {
+                    const result = new Function('return ' + expressionToEvaluate)();
+                    let convertedResult = null;
+
+                    // Check if unit conversion is requested
+                    if (fromUnit && toUnit) {
+                        convertedResult = convertUnits(result, fromUnit, toUnit);
+                    }
+                    
+                    // Display the personality-based response
+                    let displayResultText = getPersonalityResponse(result, currentMood);
+                    if (convertedResult !== null) {
+                        displayResultText += ` That's also approximately ${convertedResult.toFixed(2)} ${toUnit}.`;
+                    }
+                    solutionText.textContent = displayResultText;
+                    
+                    // Add to history, including the mood and conversion data
+                    history.push({ expression: expressionToEvaluate, result: result, mood: currentMood, convertedResult, fromUnit, toUnit, timeTaken });
+                    localStorage.setItem('calculatorHistory', JSON.stringify(history));
+                    updateHistoryDisplay();
+
+                    // Reset timer for the next calculation
+                    startTime = performance.now();
+
+                } catch (e) {
+                    errorText.textContent = 'Invalid mathematical expression.';
+                    errorMessage.classList.remove('hidden');
+                    solutionText.textContent = 'Error';
+                }
+            };
+            
+            // Event listeners for the keypad and input field
+            keypad.addEventListener('click', (event) => {
+                if (startTime === 0) { // Start timer on first interaction
+                    startTime = performance.now();
+                }
+                const key = event.target.dataset.key;
+                if (key) {
+                    mathInput.value += key;
+                }
+            });
+
+            clearInputBtn.addEventListener('click', () => {
+                mathInput.value = '';
+                solutionText.textContent = '0';
+                errorMessage.classList.add('hidden');
+                startTime = 0; // Reset timer
+            });
+
+            backspaceBtn.addEventListener('click', () => {
+                mathInput.value = mathInput.value.slice(0, -1);
+            });
+            
+            calculateBtn.addEventListener('click', solveLocally);
+
+            clearHistoryBtn.addEventListener('click', () => {
+                history = [];
+                localStorage.removeItem('calculatorHistory');
+                updateHistoryDisplay();
+            });
+
+            mathInput.addEventListener('keydown', (event) => {
+                if (startTime === 0) { // Start timer on first interaction
+                    startTime = performance.now();
+                }
+                const validKeys = /[0-9+\-*/().\s]|Backspace|Enter|Delete|ArrowLeft|ArrowRight|Tab/;
+                if (!validKeys.test(event.key)) {
+                    event.preventDefault();
+                }
+
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    solveLocally();
+                }
+            });
+
+            mathInput.addEventListener('paste', (event) => {
+                const pasteData = event.clipboardData.getData('text');
+                const validExpressionRegex = /^[0-9+\-*/().\s]*$/;
+                if (!validExpressionRegex.test(pasteData)) {
+                    event.preventDefault();
+                }
+                if (startTime === 0) {
+                    startTime = performance.now();
+                }
+            });
+
+            solutionText.textContent = '0';
+        });
+    </script>
+
+</body>
+</html>
