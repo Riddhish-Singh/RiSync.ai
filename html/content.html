@@ -143,11 +143,6 @@
       overflow: hidden; /* Ensures child elements respect border-radius */
       box-shadow: var(--box-shadow-medium);
     }
-      justify-content: flex-start;
-      align-items: center;
-      border-right: 1px solid var(--medium-gray);
-      flex-shrink: 0; /* Prevent sidebar from shrinking */
-    }
 .sidebar {
   background-color: var(--white);
   padding: 25px;
@@ -155,6 +150,11 @@
   display: flex;
   flex-direction: column;
   gap: 15px;
+  justify-content: flex-start;
+  align-items: flex-start; /* Changed from 'center' to 'flex-start' */
+  border-right: 1px solid var(--medium-gray);
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
+}
     .button {
       background-color: var(--accent-orange);
       color: var(--white);
