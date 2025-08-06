@@ -143,18 +143,18 @@
       overflow: hidden; /* Ensures child elements respect border-radius */
       box-shadow: var(--box-shadow-medium);
     }
-    .sidebar {
-      background-color: var(--white);
-      padding: 25px;
-      width: 280px; /* Fixed width for sidebar */
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
       justify-content: flex-start;
       align-items: center;
       border-right: 1px solid var(--medium-gray);
       flex-shrink: 0; /* Prevent sidebar from shrinking */
     }
+.sidebar {
+  background-color: var(--white);
+  padding: 25px;
+  width: 280px; /* Fixed width for sidebar */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
     .button {
       background-color: var(--accent-orange);
       color: var(--white);
@@ -515,6 +515,55 @@
         right: 10px;
       }
     }
+	/* --- New Animation Keyframes --- */
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  75% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    box-shadow: 0 0 0 rgba(245, 130, 32, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 10px 5px rgba(245, 130, 32, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(245, 130, 32, 0.4);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
   </style>
 </head>
 <body>
@@ -548,7 +597,7 @@
       <button class="button" onclick="navigateTo('https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=')" data-i18n="search">Search Engine</button>
       <button class="button" onclick="navigateTo('subjects.html')" data-i18n="subjects">Subjects</button>
 	  <button class="button" onclick="navigateTo('NCERT.html')" data-i18n="ncert">NCERT</button>
-	  <button class="button" onclick="navigateTo('Calculator.html')" data-i18n="ncert">Calculator</button>
+	  <button class="button" onclick="navigateTo('Calculator.html')" data-i18n="calculator">Calculator</button>
       <button class="button" onclick="navigateTo('Whiteboard.html')" data-i18n="white-board">White Board</button>
     </div>
     <div class="content-area">
