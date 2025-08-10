@@ -3,780 +3,906 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RiSync UI</title>
+  <title>RiSync Dashboard</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Variables for easier theme management */
+    /* --- THEME & CORE VARIABLES --- */
     :root {
       --primary-dark: #0c0c2d;
+      --primary-light: #1a1a4a;
       --accent-orange: #f58220;
-      --accent-blue: #004aad;
-      --light-gray: #f8f8f8;
-      --medium-gray: #eee;
+      --accent-orange-dark: #d96d1a;
+      --accent-blue: #0056d6;
+      --light-gray: #f0f2f5;
+      --medium-gray: #e4e6eb;
       --dark-text: #333;
+      --light-text: #6c757d;
       --white: #ffffff;
-      --box-shadow-light: 0px 4px 15px rgba(0, 0, 0, 0.1);
-      --box-shadow-medium: 0px 8px 25px rgba(0, 0, 0, 0.2);
+      --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.06);
+      --box-shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
+      --border-radius: 12px;
     }
 
-    html, body {
-      font-family: 'Poppins', Arial, sans-serif;
+    /* --- BASE & LAYOUT --- */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: var(--light-gray); /* Light gray background for depth */
+      background-color: var(--light-gray);
       height: 100vh;
-      overflow-x: hidden;
+      overflow: hidden; /* Prevent body scroll */
       color: var(--dark-text);
       line-height: 1.6;
     }
-
-    /* General Transitions */
-    button, select, .settings-icon, .profile-icon, .button, .settings-menu {
-      transition: all 0.3s ease-in-out;
+    
+    .main-wrapper {
+      display: flex;
+      height: 100vh;
     }
 
-    .top-bar {
-      background-color: var(--primary-dark);
-      color: var(--white);
+    /* --- HEADER / TOP BAR --- */
+    header.top-bar {
+      background-color: var(--white);
+      color: var(--primary-dark);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 10px 25px;
-      position: relative;
-      flex-wrap: wrap;
-      box-shadow: var(--box-shadow-light); /* Subtle shadow for top bar */
+      padding: 12px 25px;
+      position: fixed;
+      top: 0;
+      left: 280px; /* Aligned with sidebar width */
+      right: 0;
+      height: 70px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      z-index: 99;
+      transition: left 0.3s ease;
     }
-    .logo {
+
+    .header-left {
       display: flex;
       align-items: center;
-      gap: 10px; /* Space between logo and text */
+      gap: 15px;
     }
-    .logo img {
-      width: 60px;
-      height: auto;
-      filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3)); /* Subtle glow for logo */
+    
+    .menu-toggle {
+      display: none; /* Hidden by default, shown on mobile */
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--primary-dark);
     }
-    .logo h2 {
+    
+    .header-title h3 {
       margin: 0;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 600;
-    }
-    .logo p {
-      margin: 0;
-      font-size: 15px;
-      opacity: 0.8;
     }
 
     .settings-container {
       position: relative;
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      gap: 15px; /* Space between elements */
+      gap: 20px;
     }
+    
     .settings-icon {
-      font-size: 28px;
+      font-size: 24px;
       cursor: pointer;
-      color: var(--white);
-      margin-left: 0; /* Adjusted for gap */
-      position: relative; /* For the pop-up menu */
-      padding: 5px; /* Increase clickable area */
-      border-radius: 50%;
+      color: var(--primary-dark);
+      transition: all 0.2s ease;
     }
     .settings-icon:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      transform: rotate(15deg); /* Slight rotation on hover */
+      color: var(--accent-orange);
+      transform: rotate(20deg);
     }
 
     .settings-menu {
-      visibility: hidden; /* Use visibility for smooth transition with opacity/transform */
+      visibility: hidden;
       opacity: 0;
       position: absolute;
-      top: 50px;
+      top: 55px;
       right: 0;
       background: var(--white);
-      border: 1px solid var(--medium-gray);
-      padding: 15px;
+      border-radius: var(--border-radius);
+      padding: 10px;
       box-shadow: var(--box-shadow-medium);
       z-index: 100;
-      min-width: 150px;
-      box-sizing: border-box;
-      border-radius: 10px;
-      transform: translateY(-10px); /* Start slightly above */
+      min-width: 180px;
+      transform: translateY(-10px) scale(0.95);
+      transition: all 0.25s ease;
     }
     .settings-menu.active {
       visibility: visible;
       opacity: 1;
-      transform: translateY(0); /* Slide into place */
+      transform: translateY(0) scale(1);
     }
     .settings-menu button {
-      background-color: var(--accent-orange);
-      color: var(--white);
+      background-color: transparent;
+      color: var(--dark-text);
       border: none;
-      padding: 12px 20px;
+      padding: 12px 15px;
       cursor: pointer;
       border-radius: 8px;
       width: 100%;
-      margin-bottom: 8px;
+      text-align: left;
       font-size: 15px;
       font-weight: 500;
-      letter-spacing: 0.5px;
-      box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-    }
-    .settings-menu button:last-child {
-      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
     .settings-menu button:hover {
-      background-color: #d96d1a; /* Slightly darker orange */
-      transform: translateY(-2px); /* Lift button on hover */
-      box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+      background-color: var(--light-gray);
+      color: var(--accent-orange);
     }
-
-    .container {
-      display: flex;
-      height: calc(100vh - 80px); /* Adjust height based on top-bar height */
-      background-color: var(--white);
-      border-radius: 15px; /* Rounded corners for the main container */
-      margin: 20px;
-      overflow: hidden; /* Ensures child elements respect border-radius */
-      box-shadow: var(--box-shadow-medium);
-    }
-.sidebar {
-  background-color: var(--white);
-  padding: 25px;
-  width: 280px; /* Fixed width for sidebar */
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  justify-content: flex-start;
-  align-items: flex-start; /* Changed from 'center' to 'flex-start' */
-  border-right: 1px solid var(--medium-gray);
-  flex-shrink: 0; /* Prevent sidebar from shrinking */
-}
-    .button {
-      background-color: var(--accent-orange);
-      color: var(--white);
-      border: none;
-      padding: 15px 20px;
-      text-align: center;
-      border-radius: 12px;
-      font-size: 17px;
-      cursor: pointer;
-      position: relative;
-      box-shadow: var(--box-shadow-light);
-      width: 90%; /* Wider buttons */
-      font-weight: 500;
-      letter-spacing: 0.5px;
-      overflow: hidden; /* For potential ripple effect */
-      isolation: isolate; /* For z-index stacking context if needed for pseudo-elements */
-    }
-    .button::before { /* Pseudo-element for hover effect */
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-      transform: translateX(-100%);
-      transition: transform 0.4s ease-out;
-      z-index: 0;
-    }
-    .button:hover::before {
-      transform: translateX(0);
-    }
-    .button:hover {
-      box-shadow: var(--box-shadow-medium);
-      transform: translateY(-3px); /* Lift button on hover */
-      background-color: #e3761c; /* Slightly different orange */
-    }
-
-    .content-area {
-      flex-grow: 1;
-      padding: 30px;
-      background-color: var(--white);
-      overflow-y: auto;
-      animation: fadeIn 0.8s ease-out; /* Fade in on load */
-    }
-    .content-area h3 {
-      font-size: 28px;
-      color: var(--primary-dark);
-      margin-bottom: 15px;
-      border-bottom: 2px solid var(--accent-orange);
-      padding-bottom: 10px;
-      display: inline-block; /* To make border-bottom only as wide as text */
-    }
-    .content-area p {
-      font-size: 17px;
-      color: #555;
-    }
-
-    .profile-upload {
-      display: none;
-    }
+    
     .profile-icon {
-      width: 70px; /* Increased size */
-      height: 70px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       object-fit: cover;
       cursor: pointer;
-      border: 3px solid var(--accent-orange); /* Orange border for profile pic */
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--accent-orange);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
     .profile-icon:hover {
-      border-color: #d96d1a; /* Darker orange on hover */
-      transform: scale(1.05); /* Slightly enlarge on hover */
+      transform: scale(1.08);
+      box-shadow: 0 0 10px rgba(245, 130, 32, 0.5);
     }
 
-    #languageSelector {
-      padding: 8px 12px;
+    /* --- SIDEBAR / NAVIGATION --- */
+    nav.sidebar {
+      background-color: var(--primary-dark);
+      color: var(--white);
+      padding: 0 15px 25px 15px; /* Adjusted padding */
+      width: 280px;
+      height: 100vh; /* Ensure sidebar takes full height */
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      z-index: 100;
+      transition: transform 0.3s ease;
+    }
+    .logo-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 25px 15px 25px 15px; /* Added top padding */
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      margin-bottom: 20px;
+      flex-shrink: 0; /* Prevent logo from shrinking */
+    }
+    .logo-container img {
+      width: 70px;
+      margin-bottom: 10px;
+    }
+    .logo-container h2 {
+      margin: 0;
+      font-size: 26px;
+    }
+    .logo-container p {
+      font-size: 14px;
+      opacity: 0.7;
+      margin: 0;
+    }
+
+    .nav-menu {
+      flex-grow: 1; /* Allow this container to grow and fill space */
+      overflow-y: auto; /* Add scrollbar ONLY when content overflows */
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-right: 5px; /* Space for the scrollbar */
+    }
+
+    /* Custom Scrollbar for Sidebar */
+    .nav-menu::-webkit-scrollbar {
+        width: 8px;
+    }
+    .nav-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 10px;
+    }
+    .nav-menu::-webkit-scrollbar-thumb {
+        background-color: var(--accent-orange);
+        border-radius: 10px;
+        border: 2px solid var(--primary-dark);
+    }
+    .nav-menu::-webkit-scrollbar-thumb:hover {
+        background-color: var(--accent-orange-dark);
+    }
+
+
+    .nav-button {
+      background-color: transparent;
+      color: rgba(255, 255, 255, 0.8);
+      border: none;
+      padding: 15px 20px;
       border-radius: 8px;
       font-size: 16px;
-      appearance: none;
-      background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23000000%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13%205.7l-116.5%20116.5-116.5-116.5a17.6%2017.6%200%200%200-24.7%200%2017.6%2017.6%200%200%200%200%2024.7l129.5%20129.4a17.6%2017.6%200%200%200%2024.7%200l129.5-129.4a17.6%2017.6%200%200%200%200-24.7z%22/%3E%3C/svg%3E');
-      background-repeat: no-repeat;
-      background-position: right 10px center;
-      background-size: 12px;
-      padding-right: 30px;
-      border: 1px solid var(--medium-gray);
-      color: var(--dark-text);
-      background-color: var(--white);
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      text-align: left;
+      transition: all 0.2s ease;
+      flex-shrink: 0; /* Prevent buttons from shrinking */
     }
-    #languageSelector:focus {
-      outline: none;
-      border-color: var(--accent-blue);
-      box-shadow: 0px 0px 8px rgba(0, 74, 173, 0.3);
+    .nav-button:hover {
+      background-color: var(--primary-light);
+      color: var(--white);
+    }
+    .nav-button.active {
+      background-color: var(--accent-orange);
+      color: var(--white);
+      font-weight: 600;
+      box-shadow: 0 4px 10px rgba(245, 130, 32, 0.3);
+    }
+    .nav-button i {
+      width: 20px;
+      text-align: center;
     }
 
-    /* Music button styling */
-    #music-btn {
+    /* --- MAIN CONTENT AREA --- */
+    main.content-area {
+      flex-grow: 1;
+      padding: 30px;
+      overflow-y: auto;
+      margin-top: 70px; /* Push content below fixed header */
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 25px;
+    }
+    .card {
+        background-color: var(--white);
+        border-radius: var(--border-radius);
+        padding: 25px;
+        box-shadow: var(--box-shadow-light);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        animation: popIn 0.5s ease-out backwards;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--box-shadow-medium);
+    }
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    .card-header i {
+        font-size: 24px;
+        color: var(--accent-orange);
+    }
+    .card-header h4 {
+        margin: 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: var(--primary-dark);
+    }
+    .card p, .card ul {
+        color: var(--light-text);
+        font-size: 15px;
+    }
+    .card ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .card li {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--medium-gray);
+    }
+    .card li:last-child {
+        border-bottom: none;
+    }
+
+    /* Loading state */
+    .loading-spinner {
+        border: 4px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 4px solid var(--accent-orange);
+        width: 20px;
+        height: 20px;
+        -webkit-animation: spin 1s linear infinite; /* Safari */
+        animation: spin 1s linear infinite;
+        margin-left: 10px;
+    }
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* --- FLOATING & UTILITY BUTTONS --- */
+    .floating-buttons {
       position: fixed;
       bottom: 30px;
       right: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 999;
+    }
+    .floating-button {
       background-color: var(--accent-blue);
       color: var(--white);
       border: none;
       border-radius: 50%;
       width: 55px;
       height: 55px;
-      font-size: 26px;
+      font-size: 24px;
       cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 999;
+      transition: all 0.2s ease;
+    }
+    .floating-button:hover {
+      background-color: var(--accent-orange);
+      transform: scale(1.1);
+    }
+    .floating-button i {
+      transition: transform 0.2s ease;
     }
     #music-btn:hover {
-      background-color: var(--accent-orange);
-      transform: scale(1.1); /* More pronounced scale */
+        background-color: var(--accent-orange);
+        transform: scale(1.1);
     }
-    #music-btn:active {
-      transform: scale(0.95); /* Click feedback */
-    }
-
-    /* Keyframe Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes slideInFromTop {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
+    #music-btn .icon-pulse {
+        animation: pulse 1s infinite;
     }
 
-    /* --- Responsive Adjustments --- */
-
-    @media (max-width: 1024px) {
-      .container {
-        margin: 15px;
-      }
-      .sidebar {
-        width: 240px;
-        padding: 20px;
-      }
-      .button {
-        padding: 12px 15px;
-        font-size: 16px;
-      }
-      .content-area {
-        padding: 25px;
-      }
-      .top-bar {
-        padding: 10px 20px;
-      }
-      .logo img {
-        width: 55px;
-      }
-      .logo h2 {
-        font-size: 24px;
-      }
-      .logo p {
-        font-size: 14px;
-      }
-      .profile-icon {
-        width: 60px;
-        height: 60px;
-      }
-      #languageSelector {
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    
+    /* --- CUSTOM LANGUAGE DROPDOWN STYLES --- */
+    .language-dropdown-container {
+        position: relative;
+        cursor: pointer;
+        user-select: none;
         font-size: 15px;
-        padding: 7px 10px;
-        padding-right: 28px;
-      }
-      #music-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 24px;
-        bottom: 20px;
-        right: 20px;
-      }
+        font-weight: 500;
+        width: 160px; /* Adjusted width to fit longer text */
+        z-index: 10;
+        color: var(--dark-text);
     }
-
-    /* For screens smaller than 768px (tablets and larger phones) */
-    @media (max-width: 768px) {
-      .top-bar {
-        padding: 10px 15px;
-        flex-direction: column;
+    .selected-language {
+        display: flex;
         align-items: center;
-        gap: 10px;
-      }
-      .logo {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-      }
-      .logo img {
-        width: 50px;
-        margin-bottom: 5px;
-      }
-      .logo h2 {
-        font-size: 22px;
-      }
-      .logo p {
-        font-size: 13px;
-      }
-
-      .settings-container {
+        justify-content: space-between;
+        padding: 8px 12px;
+        background: var(--light-gray);
+        border-radius: 8px;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        transition: all 0.2s ease;
+    }
+    .selected-language:hover {
+        background-color: var(--medium-gray);
+        box-shadow: inset 0 1px 5px rgba(0,0,0,0.2);
+    }
+    .selected-language .dropdown-arrow {
+        transition: transform 0.2s ease;
+    }
+    .language-dropdown-container.active .selected-language .dropdown-arrow {
+        transform: rotate(180deg);
+    }
+    
+    .language-dropdown-list {
+        position: absolute;
+        top: 110%; /* Position below the selected language display */
+        left: 0;
         width: 100%;
-        justify-content: center; /* Center align controls */
-        gap: 10px;
-      }
-      .profile-icon {
-        width: 55px;
-        height: 55px;
-      }
-      #languageSelector {
-        font-size: 14px;
-        padding: 6px 8px;
-        padding-right: 25px;
-      }
-      .settings-icon {
-        font-size: 24px;
-      }
-      .settings-menu {
-        top: auto;
-        bottom: 0; /* Position at the bottom of top-bar */
-        right: 50%;
-        transform: translateX(50%) translateY(calc(100% + 15px)); /* Center and move out */
-        min-width: 120px;
-        box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
-        transition: transform 0.4s ease-out, opacity 0.4s ease-out, visibility 0s linear 0.4s;
-      }
-      .settings-menu.active {
-        transform: translateX(50%) translateY(0);
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: var(--box-shadow-medium);
+        padding: 5px;
+        max-height: 200px;
+        overflow-y: auto;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.25s ease;
+    }
+    .language-dropdown-list.active {
         opacity: 1;
         visibility: visible;
-        transition: transform 0.4s ease-out, opacity 0.4s ease-out;
-      }
-
-
-      .container {
-        flex-direction: column;
-        height: auto; /* Allow height to adjust */
-        min-height: calc(100vh - 180px); /* Ensure minimum height */
-        margin: 15px;
-        border-radius: 10px;
-      }
-
-      .sidebar {
-        width: 100%;
-        padding: 15px;
-        flex-direction: row; /* Buttons laid out horizontally now */
-        flex-wrap: wrap;
-        justify-content: center;
-        gap: 8px; /* Reduce gap between buttons */
-        border-right: none;
-        border-bottom: 1px solid var(--medium-gray);
-      }
-      .sidebar .button {
-        width: auto;
-        min-width: 110px;
+        transform: translateY(0);
+    }
+    .language-dropdown-list li {
+        list-style: none;
         padding: 10px 12px;
-        font-size: 14px;
-        flex-grow: 1;
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
-      }
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .language-dropdown-list li:hover {
+        background-color: var(--light-gray);
+        color: var(--accent-orange);
+    }
 
-      .content-area {
-        padding: 20px;
-      }
-      .content-area h3 {
-        font-size: 24px;
-      }
-      .content-area p {
-        font-size: 16px;
-      }
+    /* --- ANIMATIONS --- */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
 
-      #music-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 22px;
-        bottom: 15px;
-        right: 15px;
+    /* Staggered animation for cards */
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+
+    /* --- RESPONSIVE ADJUSTMENTS --- */
+    @media (max-width: 992px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        transform: translateX(-100%);
+        box-shadow: 5px 0px 20px rgba(0,0,0,0.1);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      header.top-bar {
+        left: 0;
+      }
+      .menu-toggle {
+        display: block;
+      }
+      .main-wrapper.sidebar-open .overlay {
+        display: block;
+      }
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 99;
+        display: none;
       }
     }
 
-    /* For screens smaller than 480px (mobile phones) */
-    @media (max-width: 480px) {
-      .top-bar {
-        padding: 8px;
-        gap: 5px;
-      }
-      .logo img {
-        width: 40px;
-      }
-      .logo h2 {
-        font-size: 19px;
-      }
-      .logo p {
-        font-size: 12px;
-      }
-
-      .settings-container {
-        gap: 8px;
-      }
-      .profile-icon {
-        width: 45px;
-        height: 45px;
-        border-width: 2px;
-      }
-      #languageSelector {
-        font-size: 13px;
-        padding: 5px 7px;
-        padding-right: 20px;
-      }
-      .settings-icon {
-        font-size: 22px;
-      }
-      .settings-menu {
-        min-width: 90px;
-        padding: 10px;
-      }
-      .settings-menu button {
-        padding: 10px 12px;
-        font-size: 13px;
-      }
-
-      .container {
-        margin: 10px;
-        min-height: calc(100vh - 150px);
-      }
-
-      .sidebar {
-        padding: 10px;
-        flex-direction: column; /* Stack buttons vertically again */
-        gap: 8px;
-      }
-      .sidebar .button {
-        width: 95%; /* Almost full width for buttons */
-        padding: 10px 8px;
-        font-size: 13px;
-        min-width: unset; /* Remove min-width for very small screens */
-      }
-
-      .content-area {
-        padding: 15px;
-      }
-      .content-area h3 {
+    @media (max-width: 768px) {
+      .header-title h3 {
         font-size: 20px;
       }
-      .content-area p {
-        font-size: 15px;
+      .settings-container {
+        gap: 15px;
       }
-
-      #music-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 18px;
-        bottom: 10px;
-        right: 10px;
+      .profile-icon {
+        width: 40px;
+        height: 40px;
+      }
+      /* Ensure language dropdown is styled for mobile */
+      .language-dropdown-container {
+        width: 120px;
+        font-size: 14px;
       }
     }
-	/* --- New Animation Keyframes --- */
-@keyframes slideInFromLeft {
-  from {
-    transform: translateX(-100px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
 
-@keyframes popIn {
-  0% {
-    transform: scale(0.5);
-    opacity: 0;
-  }
-  75% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes pulseGlow {
-  0% {
-    box-shadow: 0 0 0 rgba(245, 130, 32, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 10px 5px rgba(245, 130, 32, 0.6);
-  }
-  100% {
-    box-shadow: 0 0 0 rgba(245, 130, 32, 0.4);
-  }
-}
-
-@keyframes shake {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  20%, 60% {
-    transform: translateX(-5px);
-  }
-  40%, 80% {
-    transform: translateX(5px);
-  }
-}
+    @media (max-width: 480px) {
+      header.top-bar {
+        padding: 10px 15px;
+      }
+      .header-title {
+        display: none; /* Hide title on very small screens */
+      }
+      main.content-area {
+        padding: 20px;
+      }
+      .floating-buttons {
+        bottom: 20px;
+        right: 20px;
+        gap: 10px;
+      }
+      .floating-button {
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+      }
+    }
+	
+	/* Utility */
+	.profile-upload { display: none; }
   </style>
 </head>
 <body>
-  <div class="top-bar">
-    <div class="logo">
-      <img src="../assets/logo.png" alt="RiSync Logo">
-      <div>
-        <h2 id="title" data-i18n="title">RiSync</h2>
-        <p id="tagline" data-i18n="tagline">Let's Re Sync With RiSync</p>
+  <div class="main-wrapper">
+    <div class="overlay" onclick="toggleMenu()"></div>
+    
+    <nav class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="../assets/logo.png" alt="RiSync Logo">
+        <h2 data-i18n="title">RiSync</h2>
+        <p data-i18n="tagline">Let's Re Sync With RiSync</p>
       </div>
-    </div>
-    <div class="settings-container">
-      <select id="languageSelector"></select>
-      <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
-      <img src="../assets/user-icon.png" alt="Profile" class="profile-icon" id="profileIcon" />
-      <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
-      <div class="settings-menu" id="settingsMenu">
-        <button onclick="openProfilePage()">Profile</button>
-        <button id="logoutButton" onclick="logout()">Log Out</button>
+      <div class="nav-menu">
+        <button class="nav-button active" onclick="navigateTo('RiSync-CHAT.html')" data-i18n="chat"><i class="fas fa-comments"></i> RiSync Chat</button>
+        <button class="nav-button" onclick="navigateTo('https://calendar.google.com/calendar/u/0/r/eventedit?text=RiSync%20-%20&vcon=meet&dates=now&hl=en')" data-i18n="schedule"><i class="fas fa-video"></i> Schedule Meeting</button>
+        <button class="nav-button" onclick="navigateTo('https://calendar.google.com')" data-i18n="calendar"><i class="fas fa-calendar-alt"></i> Calendar</button>
+        <button class="nav-button" onclick="navigateTo('Data Base.html')" data-i18n="database"><i class="fas fa-database"></i> Database</button>
+        <button class="nav-button" onclick="navigateTo('subjects.html')" data-i18n="subjects"><i class="fas fa-book-open"></i> Subjects</button>
+        <button class="nav-button" onclick="navigateTo('NCERT.html')" data-i18n="ncert"><i class="fas fa-book"></i> NCERT</button>
+        <button class="nav-button" onclick="navigateTo('Whiteboard.html')" data-i18n="white-board"><i class="fas fa-chalkboard"></i> White Board</button>
+        <button class="nav-button" onclick="navigateTo('Calculator.html')" data-i18n="calculator"><i class="fas fa-calculator"></i> Calculator</button>
+        <button class="nav-button" onclick="navigateTo('https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing')" data-i18n="chatbot"><i class="fas fa-robot"></i> Chat Bot</button>
+        <button class="nav-button" onclick="navigateTo('https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=')" data-i18n="search"><i class="fas fa-search"></i> Search Engine</button>
+		<button class="nav-button" onclick="navigateTo('leaderboard.html')" data-i18n="leaderboard"><i class="fas fa-trophy"></i>Leaderboard</button>
       </div>
+    </nav>
+    
+    <div style="display: flex; flex-direction: column; width: 100%;">
+      <header class="top-bar">
+        <div class="header-left">
+          <div class="menu-toggle" onclick="toggleMenu()">
+            <i class="fas fa-bars"></i>
+          </div>
+          <div class="header-title">
+            <h3 id="welcome-message" data-i18n="welcome">   Welcome to RiSync</h3>
+          </div>
+        </div>
+        <div class="settings-container">
+          <!-- The new custom language dropdown -->
+          <div class="language-dropdown-container" id="language-dropdown-container">
+            <div class="selected-language" id="selected-language">
+              <span>English</span>
+              <i class="fas fa-chevron-down dropdown-arrow"></i>
+            </div>
+            <ul class="language-dropdown-list" id="language-dropdown-list">
+              <!-- Language options will be populated here by JavaScript -->
+            </ul>
+          </div>
+          <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
+          <img src="https://placehold.co/45x45/f58220/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
+          <i class="fas fa-cog settings-icon" onclick="toggleSettings()"></i>
+          <div class="settings-menu" id="settingsMenu">
+            <button onclick="openProfilePage()"><i class="fas fa-user-circle"></i>Profile</button>
+            <button id="logoutButton" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Log Out</button>
+          </div>
+        </div>
+      </header>
+  
+      <main class="content-area">
+        <div class="dashboard-grid">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-rocket"></i>
+                    <h4 data-i18n="quick-actions-h4">Quick Actions</h4>
+                </div>
+                <p data-i18n="quick-actions-p">Jump right back into your learning journey.</p>
+                </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-lightbulb"></i>
+                    <h4 data-i18n="did-you-know-h4">Did You Know?</h4>
+                </div>
+                <p data-i18n="did-you-know-p">You can use the White Board feature to collaborate on complex problems in real-time with your peers!</p>
+            </div>
+        </div>
+      </main>
     </div>
-  </div>
 
-  <div class="container">
-    <div class="sidebar">
-      <button class="button" onclick="navigateTo('RiSync-CHAT.html')" data-i18n="chat">RiSync Chat</button>
-      <button class="button" onclick="navigateTo('https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en')" data-i18n="schedule">Schedule Meeting</button>
-      <button class="button" onclick="navigateTo('https://calendar.google.com')" data-i18n="calendar">Calendar</button>
-      <button class="button" onclick="navigateTo('Data Base.html')" data-i18n="database">Database</button>
-      <button class="button" onclick="navigateTo('https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing')" data-i18n="chatbot">Chat Bot</button>
-      <button class="button" onclick="navigateTo('https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=')" data-i18n="search">Search Engine</button>
-      <button class="button" onclick="navigateTo('subjects.html')" data-i18n="subjects">Subjects</button>
-	  <button class="button" onclick="navigateTo('NCERT.html')" data-i18n="ncert">NCERT</button>
-	  <button class="button" onclick="navigateTo('Calculator.html')" data-i18n="calculator">Calculator</button>
-      <button class="button" onclick="navigateTo('Whiteboard.html')" data-i18n="white-board">White Board</button>
-    </div>
-    <div class="content-area">
-      <h3 data-i18n="welcome">Welcome to RiSync</h3>
-      <p data-i18n="instruction">Select an option from the left menu to get started.</p>
-    </div>
   </div>
 
   <audio id="bg-music" loop preload="auto">
     <source src="../assets/logo.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
-  <button id="music-btn" onclick="toggleMusic()" title="Toggle Music">🔇</button>
+
+  <div class="floating-buttons">
+    <button id="music-btn" class="floating-button" title="Toggle Music">
+      <i id="music-icon" class="fas fa-volume-up"></i>
+    </button>
+  </div>
 
 <script>
+// --- MENU & NAVIGATION --- //
+function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.querySelector('.main-wrapper').classList.toggle('sidebar-open');
+}
+
 function openProfilePage() {
-  window.open("profile.html", "_blank");
+  // TODO: Create a file named `profile.html` to make this button work.
+  // The original error was caused because this file did not exist.
+  window.location.href = "profile.html"; 
 }
 
-const translations = {
-  hi: {
-    title: "RiSync",
-    tagline: "RiSync के साथ फिर से सिंक करें",
-    chat: "RiSync चैट",
-    schedule: "बैठक शेड्यूल करें",
-    calendar: "कैलेंडर",
-    database: "डेटाबेस",
-    chatbot: "चैट बोट",
-    search: "खोज इंजन",
-    subjects: "विषय",
-    "white-board": "श्वेतपट",
-    ncert: "एनसीईआरटी",
-    welcome: "RiSync में आपका स्वागत है",
-    instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।"
-  },
-  fr: {
-    title: "RiSync",
-    tagline: "Resynchronisez avec RiSync",
-    chat: "Chat RiSync",
-    schedule: "Planifier une réunion",
-    calendar: "Calendrier",
-    database: "Base de données",
-    chatbot: "Chat Bot",
-    search: "Moteur de recherche",
-    subjects: "Sujets",
-    "white-board": "Tableau blanc",
-    ncert: "NCERT",
-    welcome: "Bienvenue à RiSync",
-    instruction: "Sélectionnez une option dans le menu de gauche pour commencer."
-  },
-  en: {
-    title: "RiSync",
-    tagline: "Let's Re Sync With RiSync",
-    chat: "RiSync Chat",
-    schedule: "Schedule Meeting",
-    calendar: "Calendar",
-    database: "Database",
-    chatbot: "Chat Bot",
-    search: "Search Engine",
-    subjects: "Subjects",
-    "white-board": "White Board",
-    ncert: "NCERT",
-    welcome: "Welcome to RiSync",
-    instruction: "Select an option from the left menu to get started."
-  },
-  pu: {
-    title: "RiSync",
-    tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ",
-    chat: "RiSync ਚੈਟ",
-    schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ",
-    calendar: "ਕੈਲੰਡਰ",
-    database: "ਡਾਟਾਬੇਸ",
-    chatbot: "ਚੈਟ ਬੋਟ",
-    search: "ਖੋਜ ਇੰਜਣ",
-    subjects: "ਵਿਸ਼ੇ",
-    "white-board": "ਵਾਈਟ ਬੋਰਡ",
-    ncert: "ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ",
-    welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ",
-    instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।"
-  }
-};
+function navigateTo(page) {
+  const openInNewTab = [
+    "https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en",
+    "https://calendar.google.com",
+    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=",
+    "https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing"
+  ];
 
-
-function applyLanguage(lang) {
-  const dict = translations[lang];
-  if (!dict) return;
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (dict[key]) el.textContent = dict[key];
-  });
-}
-
-const languageSelector = document.getElementById("languageSelector");
-const savedLang = localStorage.getItem("preferredLanguage");
-const availableLangs = { en: "English", hi: "Hindi", fr: "French", pu: "Punjabi" };
-
-for (const [code, name] of Object.entries(availableLangs)) {
-  const opt = document.createElement("option");
-  opt.value = code;
-  opt.textContent = name;
-  languageSelector.appendChild(opt);
-}
-if (savedLang) {
-  languageSelector.value = savedLang;
-  applyLanguage(savedLang);
-} else {
-  applyLanguage('en');
-}
-languageSelector.addEventListener("change", () => {
-  const selected = languageSelector.value;
-  localStorage.setItem("preferredLanguage", selected);
-  applyLanguage(selected);
-});
-
-window.addEventListener("load", function () {
-  const savedImage = localStorage.getItem("profileImage");
-  if (savedImage) {
-    document.getElementById("profileIcon").src = savedImage;
-  }
-});
-document.getElementById("profileIcon").addEventListener("click", function () {
-  document.getElementById("profileUpload").click();
-});
-document.getElementById("profileUpload").addEventListener("change", function (event) {
-  var file = event.target.files[0];
-  if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-    var reader = new FileReader();
-    reader.onload = function (e) {
-      const imageSrc = e.target.result;
-      document.getElementById("profileIcon").src = imageSrc;
-      localStorage.setItem("profileImage", imageSrc);
-    };
-    reader.readAsDataURL(file);
+  if (openInNewTab.includes(page) || page === '#') { // Also handle placeholder links
+    if (page !== '#') window.open(page, "_blank");
   } else {
-    alert("Please upload a .png or .jpg image file.");
+    window.location.href = page;
   }
-});
-
-function toggleSettings() {
-  var menu = document.getElementById("settingsMenu");
-  menu.classList.toggle('active');
 }
 
-// Close settings menu if clicked outside
+// --- SETTINGS & PROFILE --- //
+function toggleSettings() {
+  document.getElementById("settingsMenu").classList.toggle('active');
+}
 document.addEventListener("click", function (event) {
-  var settingsMenu = document.getElementById("settingsMenu");
-  var settingsIcon = document.querySelector(".settings-icon");
-  var isClickInsideSettings = settingsMenu.contains(event.target) || settingsIcon.contains(event.target);
-
-  if (!isClickInsideSettings && settingsMenu.classList.contains('active')) {
+  const settingsMenu = document.getElementById("settingsMenu");
+  const settingsIcon = document.querySelector(".settings-icon");
+  if (!settingsMenu.contains(event.target) && !settingsIcon.contains(event.target)) {
     settingsMenu.classList.remove('active');
   }
 });
-
 
 function logout() {
   localStorage.clear();
   window.location.href = "../index.html";
 }
 
-// ✅ Updated navigateTo with new-tab logic for only specific URLs
-function navigateTo(page) {
-  const openInNewTab = [
-    "https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en",
-    "https://calendar.google.com",
-    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=",
-    "https://aistudio.google.com/app/prompts?state=%7B%22ids%22:%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing" // Added AI Studio link to open in new tab
-  ];
+document.addEventListener("DOMContentLoaded", () => {
+    // Wrap localStorage retrieval in a try-catch block for safety
+    try {
+        const savedImage = localStorage.getItem("profileImage");
+        if (savedImage) {
+            document.getElementById("profileIcon").src = savedImage;
+        }
+    } catch (e) {
+        console.error("Failed to retrieve profile image from localStorage:", e);
+    }
 
-  if (openInNewTab.includes(page)) {
-    window.open(page, "_blank");
-  } else {
-    window.location.href = page;
+    document.getElementById("profileIcon").addEventListener("click", () => {
+        document.getElementById("profileUpload").click();
+    });
+
+    document.getElementById("profileUpload").addEventListener("change", (event) => {
+        const file = event.target.files[0];
+        if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const imageSrc = e.target.result;
+                document.getElementById("profileIcon").src = imageSrc;
+                // Wrap the setItem call in a try-catch block to handle QuotaExceededError
+                try {
+                    localStorage.setItem("profileImage", imageSrc);
+                } catch (e) {
+                    console.error("Failed to save profile image to localStorage:", e);
+                    // Display a custom modal to inform the user about the error
+                    const modal = document.createElement('div');
+                    modal.innerHTML = `
+                        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px;">
+                                <p>Warning: The profile image could not be saved. It may be too large. The image will only be visible during this session.</p>
+                                <button onclick="this.parentNode.parentNode.remove()" style="background-color: var(--accent-orange); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">OK</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                }
+            };
+            reader.readAsDataURL(file);
+        } else {
+            // Using a custom modal instead of alert()
+            const modal = document.createElement('div');
+            modal.innerHTML = `
+                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
+                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px;">
+                        <p>Please upload a .png or .jpg image file.</p>
+                        <button onclick="this.parentNode.parentNode.remove()" style="background-color: var(--accent-orange); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">OK</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    });
+});
+
+
+// --- TRANSLATION & LANGUAGE SELECTOR --- //
+const translations = {
+  hi: { 
+    title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", search: "खोज इंजन", subjects: "विषय", "white-board": "श्वेतपट", ncert: "एनसीईआरटी", calculator: "कैलकुलेटर", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।",
+    "quick-actions-h4": "त्वरित कार्य", "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
+    "did-you-know-h4": "क्या आप जानते थे?", "did-you-know-p": "आप अपने साथियों के साथ वास्तविक समय में जटिल समस्याओं पर सहयोग करने के लिए व्हाइट बोर्ड सुविधा का उपयोग कर सकते हैं!",
+    "leaderboard": "लीडरबोर्ड"
+  },
+  fr: { 
+    title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", search: "Moteur de recherche", subjects: "Sujets", "white-board": "Tableau blanc", ncert: "NCERT", calculator: "Calculatrice", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer.",
+    "quick-actions-h4": "Actions rapides", "quick-actions-p": "Reprenez rapidement votre parcours d'apprentissage.",
+    "did-you-know-h4": "Le saviez-vous ?", "did-you-know-p": "Vous pouvez utiliser la fonction de tableau blanc pour collaborer sur des problèmes complexes en temps réel avec vos pairs !",
+    "leaderboard": "Classement"
+  },
+  en: { 
+    title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", search: "Search Engine", subjects: "Subjects", "white-board": "White Board", ncert: "NCERT", calculator: "Calculator", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started.",
+    "quick-actions-h4": "Quick Actions", "quick-actions-p": "Jump right back into your learning journey.",
+    "did-you-know-h4": "Did You Know?", "did-you-know-p": "You can use the White Board feature to collaborate on complex problems in real-time with your peers!",
+    "leaderboard": "Leaderboard"
+  },
+  pu: { 
+    title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", search: "ਖੋਜ ਇੰਜਣ", subjects: "ਵਿਸ਼ੇ", "white-board": "ਵਾਈਟ ਬੋਰਡ", ncert: "ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ", calculator: "ਕੈਲਕੁਲੇਟਰ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।",
+    "quick-actions-h4": "ਤੇਜ਼ ਕਾਰਵਾਈਆਂ", "quick-actions-p": "ਆਪਣੀ ਸਿੱਖਣ ਦੀ ਯਾਤਰਾ ਵਿੱਚ ਵਾਪਸ ਜਾਓ।",
+    "did-you-know-h4": "ਕੀ ਤੁਸੀਂ ਜਾਣਦੇ ਸੀ?", "did-you-know-p": "ਤੁਸੀਂ ਆਪਣੇ ਸਾਥੀਆਂ ਨਾਲ ਅਸਲ ਸਮੇਂ ਵਿੱਚ ਗੁੰਝਲਦਾਰ ਸਮੱਸਿਆਵਾਂ 'ਤੇ ਸਹਿਯੋਗ ਕਰਨ ਲਈ ਵ੍ਹਾਈਟ ਬੋਰਡ ਵਿਸ਼ੇਸ਼ਤਾ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ!",
+    "leaderboard": "ਲੀਡਰਬੋਰਡ"
+  },
+  es: { 
+    title: "RiSync", tagline: "Sincronízate de nuevo con RiSync", chat: "Chat de RiSync", schedule: "Programar reunión", calendar: "Calendario", database: "Base de datos", chatbot: "Chat Bot", search: "Motor de búsqueda", subjects: "Asignaturas", "white-board": "Pizarra", ncert: "NCERT", calculator: "Calculadora", welcome: "Bienvenido a RiSync", instruction: "Selecciona una opción del menú de la izquierda para empezar.",
+    "quick-actions-h4": "Acciones rápidas", "quick-actions-p": "Vuelve a tu viaje de aprendizaje rápidamente.",
+    "did-you-know-h4": "¿Sabías que?", "did-you-know-p": "¡Puedes usar la función de pizarra para colaborar en problemas complejos en tiempo real con tus compañeros!",
+    "leaderboard": "Tabla de clasificación"
+  },
+  de: { 
+    title: "RiSync", tagline: "Mit RiSync neu synchronisieren", chat: "RiSync Chat", schedule: "Meeting planen", calendar: "Kalender", database: "Datenbank", chatbot: "Chat Bot", search: "Suchmaschine", subjects: "Fächer", "white-board": "Whiteboard", ncert: "NCERT", calculator: "Rechner", welcome: "Willkommen bei RiSync", instruction: "Wählen Sie eine Option aus dem linken Menü, um zu beginnen.",
+    "quick-actions-h4": "Schnelle Aktionen", "quick-actions-p": "Steigen Sie schnell wieder in Ihre Lernreise ein.",
+    "did-you-know-h4": "Wussten Sie schon?", "did-you-know-p": "Sie können die Whiteboard-Funktion nutzen, um in Echtzeit mit Ihren Mitschülern an komplexen Problemen zusammenzuarbeiten!",
+    "leaderboard": "Bestenliste"
+  },
+  it: { 
+    title: "RiSync", tagline: "Risincronizzati con RiSync", chat: "Chat RiSync", schedule: "Pianifica riunione", calendar: "Calendario", database: "Database", chatbot: "Chat Bot", search: "Motore de ricerca", subjects: "Materie", "white-board": "Lavagna", ncert: "NCERT", calculator: "Calcolatrice", welcome: "Benvenuto in RiSync", instruction: "Seleziona un'opzione dal menu a sinistra per iniziare.",
+    "quick-actions-h4": "Azioni rapide", "quick-actions-p": "Torna subito al tuo percorso di apprendimento.",
+    "did-you-know-h4": "Lo sapevi?", "did-you-know-p": "Puoi utilizzare la funzione Lavagna per collaborare su problemi complessi in tempo reale con i tuoi colleghi!",
+    "leaderboard": "Classifica"
+  },
+  ja: {
+    title: "RiSync", tagline: "RiSyncで再同期しましょう", chat: "RiSyncチャット", schedule: "会議をスケジュール", calendar: "カレンダー", database: "データベース", chatbot: "チャットボット", search: "検索エンジン", subjects: "教科", "white-board": "ホワイトボード", ncert: "NCERT", calculator: "電卓", welcome: "RiSyncへようこそ", instruction: "左側のメニューからオプションを選択して開始します。",
+    "quick-actions-h4": "クイックアクション", "quick-actions-p": "学習の旅にすぐに戻りましょう。",
+    "did-you-know-h4": "ご存知でしたか？", "did-you-know-p": "ホワイトボード機能を使って、仲間とリアルタイムで複雑な問題について共同作業することができます！",
+    "leaderboard": "リーダーボード"
+  },
+  zh: { 
+    title: "RiSync", tagline: "使用RiSync重新同步", chat: "RiSync聊天", schedule: "安排会议", calendar: "日历", database: "数据库", chatbot: "聊天机器人", search: "搜索引擎", subjects: "科目", "white-board": "白板", ncert: "NCERT", calculator: "计算器", welcome: "欢迎使用RiSync", instruction: "从左侧菜单中选择一个选项以开始。",
+    "quick-actions-h4": "快速操作", "quick-actions-p": "立即回到你的学习之旅。",
+    "did-you-know-h4": "你知道吗？", "did-you-know-p": "你可以使用白板功能与你的同伴实时协作解决复杂问题！",
+    "leaderboard": "排行榜"
+  },
+  ar: {
+    title: "RiSync", tagline: "دعنا نعيد المزامنة مع RiSync", chat: "دردشة RiSync", schedule: "جدولة اجتماع", calendar: "التقويم", database: "قاعدة البيانات", chatbot: "روبوت الدردشة", search: "محرك البحث", subjects: "المواضيع", "white-board": "السبورة البيضاء", ncert: "NCERT", calculator: "آلة حاسبة", welcome: "مرحبا بك في RiSync", instruction: "حدد خيارًا من القائمة اليسرى للبدء.",
+    "quick-actions-h4": "إجراءات سريعة", "quick-actions-p": "عد مباشرة إلى رحلتك التعليمية.",
+    "did-you-know-h4": "هل كنت تعلم؟", "did-you-know-p": "يمكنك استخدام ميزة السبورة البيضاء للتعاون في المشكلات المعقدة في الوقت الفعلي مع زملائك!",
+    "leaderboard": "لوحة المتصدرين"
+  },
+  bn: {
+    title: "RiSync", tagline: "RiSync এর সাথে আবার সিঙ্ক করা যাক", chat: "RiSync চ্যাট", schedule: "মিটিং সময়সূচী করুন", calendar: "ক্যালেন্ডার", database: "ডাটাবেস", chatbot: "চ্যাট বট", search: "সার্চ ইঞ্জিন", subjects: "বিষয়", "white-board": "হোয়াইট বোর্ড", ncert: "এনসিইআরটি", calculator: "ক্যালকুলেটর", welcome: "RiSync এ স্বাগতম", instruction: "শুরু করতে বাম মেনু থেকে একটি বিকল্প নির্বাচন করুন।",
+    "quick-actions-h4": "দ্রুত পদক্ষেপ", "quick-actions-p": "আপনার শেখার যাত্রায় সরাসরি ফিরে যান।",
+    "did-you-know-h4": "আপনি কি জানেন?", "did-you-know-p": "আপনি আপনার সহকর্মীদের সাথে রিয়েল-টাইমে জটিল সমস্যাগুলিতে সহযোগিতা করতে হোয়াইট বোর্ড বৈশিষ্ট্যটি ব্যবহার করতে পারেন!",
+    "leaderboard": "লিডারবোর্ড"
+  },
+  pt: {
+    title: "RiSync", tagline: "Vamos sincronizar novamente com o RiSync", chat: "Chat RiSync", schedule: "Agendar Reunião", calendar: "Calendário", database: "Banco de Dados", chatbot: "Chat Bot", search: "Mecanismo de Busca", subjects: "Assuntos", "white-board": "Quadro Branco", ncert: "NCERT", calculator: "Calculadora", welcome: "Bem-vindo ao RiSync", instruction: "Selecione uma opção no menu à esquerda para começar.",
+    "quick-actions-h4": "Ações Rápidas", "quick-actions-p": "Volte direto para sua jornada de aprendizado.",
+    "did-you-know-h4": "Você Sabia?", "did-you-know-p": "Você pode usar o recurso Quadro Branco para colaborar em problemas complexos em tempo real com seus colegas!",
+    "leaderboard": "Placar de Líderes"
+  },
+  ru: {
+    title: "RiSync", tagline: "Давайте снова синхронизируемся с RiSync", chat: "Чат RiSync", schedule: "Запланировать встречу", calendar: "Календарь", database: "База данных", chatbot: "Чат-бот", search: "Поисковая система", subjects: "Предметы", "white-board": "Белая доска", ncert: "NCERT", calculator: "Калькулятор", welcome: "Добро пожаловать в RiSync", instruction: "Выберите опцию в левом меню, чтобы начать.",
+    "quick-actions-h4": "Быстрые действия", "quick-actions-p": "Возвращайтесь прямо к своему учебному процессу.",
+    "did-you-know-h4": "Вы знали?", "did-you-know-p": "Вы можете использовать функцию «Белая доска» для совместной работы над сложными проблемами в реальном времени со своими коллегами!",
+    "leaderboard": "Таблица лидеров"
+  },
+  ur: {
+    title: "RiSync", tagline: "آئیے RiSync کے ساتھ دوبارہ مطابقت پذیری کریں", chat: "RiSync چیٹ", schedule: "میٹنگ کا شیڈول بنائیں", calendar: "کیلنڈر", database: "ڈیٹا بیس", chatbot: "چیٹ بوٹ", search: "سرچ انجن", subjects: "مضامین", "white-board": "وائٹ بورڈ", ncert: "این سی ای آر ٹی", calculator: "کیلکولیٹر", welcome: "RiSync میں خوش آمدید", instruction: "شروع کرنے کے لیے بائیں مینو سے ایک آپشن منتخب کریں۔",
+    "quick-actions-h4": "فوری اقدامات", "quick-actions-p": "اپنے سیکھنے کے سفر میں واپس جائیں۔",
+    "did-you-know-h4": "کیا آپ جانتے تھے؟", "did-you-know-p": "آپ اپنے ساتھیوں کے ساتھ حقیقی وقت میں پیچیدہ مسائل پر تعاون کرنے کے لیے وائٹ بورڈ کی خصوصیت استعمال کر سکتے ہیں!",
+    "leaderboard": "لیڈر بورڈ"
+  },
+  id: {
+    title: "RiSync", tagline: "Mari Sinkronisasi Ulang dengan RiSync", chat: "Obrolan RiSync", schedule: "Jadwalkan Rapat", calendar: "Kalender", database: "Database", chatbot: "Chat Bot", search: "Mesin Pencari", subjects: "Mata Pelajaran", "white-board": "Papan Tulis", ncert: "NCERT", calculator: "Kalkulator", welcome: "Selamat Datang di RiSync", instruction: "Pilih opsi dari menu kiri untuk memulai.",
+    "quick-actions-h4": "Tindakan Cepat", "quick-actions-p": "Langsung kembali ke perjalanan belajar Anda.",
+    "did-you-know-h4": "Tahukah Anda?", "did-you-know-p": "Anda dapat menggunakan fitur Papan Tulis untuk berkolaborasi dalam masalah kompleks secara real-time dengan rekan-rekan Anda!",
+    "leaderboard": "Papan Peringkat"
   }
+};
+
+function applyLanguage(lang) {
+  const dict = translations[lang] || translations['en'];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
 }
 
-// 🎵 Background Music Controls
+document.addEventListener('DOMContentLoaded', () => {
+    const dropdownContainer = document.getElementById("language-dropdown-container");
+    const dropdownList = document.getElementById("language-dropdown-list");
+    const selectedLanguageSpan = dropdownContainer.querySelector("span");
+
+    // This object holds both the English and native names for each language
+    const availableLangs = {
+      en: { name: "English", native: "English" },
+      hi: { name: "Hindi", native: "हिन्दी" },
+      fr: { name: "French", native: "Français" },
+      pu: { name: "Punjabi", native: "ਪੰਜਾਬੀ" },
+      es: { name: "Spanish", native: "Español" },
+      de: { name: "German", native: "Deutsch" },
+      it: { name: "Italian", native: "Italiano" },
+      ja: { name: "Japanese", native: "日本語" },
+      zh: { name: "Chinese", native: "中文" },
+      ar: { name: "Arabic", native: "العربية" },
+      bn: { name: "Bengali", native: "বাংলা" },
+      pt: { name: "Portuguese", native: "Português" },
+      ru: { name: "Russian", native: "Русский" },
+      ur: { name: "Urdu", native: "اردو" },
+      id: { name: "Indonesian", native: "Bahasa Indonesia" }
+    };
+    
+    const savedLang = localStorage.getItem("preferredLanguage") || 'en';
+    
+    for (const [code, langData] of Object.entries(availableLangs)) {
+        const li = document.createElement("li");
+        
+        // Display both English and native name in the dropdown list
+        if (langData.name !== langData.native) {
+            li.textContent = `${langData.name} (${langData.native})`;
+        } else {
+            li.textContent = langData.name;
+        }
+
+        li.setAttribute('data-lang-code', code);
+        dropdownList.appendChild(li);
+
+        if (code === savedLang) {
+            selectedLanguageSpan.textContent = langData.native;
+        }
+    }
+    
+    applyLanguage(savedLang);
+
+    dropdownContainer.addEventListener("click", (event) => {
+        event.stopPropagation();
+        dropdownContainer.classList.toggle('active');
+        dropdownList.classList.toggle('active');
+    });
+
+    dropdownList.addEventListener("click", (event) => {
+        if (event.target.tagName === 'LI') {
+            const selected = event.target.getAttribute('data-lang-code');
+            const selectedLangData = availableLangs[selected];
+            
+            localStorage.setItem("preferredLanguage", selected);
+            selectedLanguageSpan.textContent = selectedLangData.native;
+            applyLanguage(selected);
+            
+            dropdownContainer.classList.remove('active');
+            dropdownList.classList.remove('active');
+        }
+    });
+
+    document.addEventListener("click", () => {
+        dropdownContainer.classList.remove('active');
+        dropdownList.classList.remove('active');
+    });
+});
+
+
+// --- FLOATING BUTTONS (MUSIC & MIC) --- //
 const audio = document.getElementById('bg-music');
-const button = document.getElementById('music-btn');
+const musicButton = document.getElementById('music-btn');
+const musicIcon = document.getElementById('music-icon');
 let hasInteracted = false;
 
 function toggleMusic() {
@@ -784,29 +910,54 @@ function toggleMusic() {
     audio.volume = 0.5;
     audio.play().then(() => {
       hasInteracted = true;
-      updateIcon();
-    }).catch(err => {
-      console.warn("Autoplay blocked:", err);
-    });
+      updateMusicIcon();
+    }).catch(err => console.warn("Autoplay blocked:", err));
   } else {
-    if (audio.paused) {
-      audio.play();
-    } else {
-      audio.pause();
-    }
+    audio.paused ? audio.play() : audio.pause();
+    updateMusicIcon();
   }
-  updateIcon();
 }
 
-function updateIcon() {
-  if (!button) return;
-  button.textContent = audio.paused ? '🔇' : '🔊';
+function updateMusicIcon() {
+  if (!musicIcon) return;
+  if (audio.paused) {
+    musicIcon.classList.remove('fa-volume-up');
+    musicIcon.classList.add('fa-volume-mute');
+  } else {
+    musicIcon.classList.remove('fa-volume-mute');
+    musicIcon.classList.add('fa-volume-up');
+  }
 }
-audio.onplay = updateIcon;
-audio.onpause = updateIcon;
 
-// Initial icon update on load
-document.addEventListener('DOMContentLoaded', updateIcon);
+audio.onplay = updateMusicIcon;
+audio.onpause = updateMusicIcon;
+
+document.addEventListener('DOMContentLoaded', () => {
+  updateMusicIcon();
+  if (musicButton) {
+    musicButton.addEventListener('click', toggleMusic);
+  }
+});
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.getElementById('welcome-message').textContent = `Welcome to RiSync, ${username}`;
+            }
+        } catch (e) {
+            console.error('Error retrieving username:', e);
+        }
+    });
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+    const username = localStorage.getItem('username');
+    if (username) {
+        document.getElementById('welcome-message').textContent = `Welcome to RiSync, ${username}`;
+    }
+});
+
 </script>
 </body>
 </html>

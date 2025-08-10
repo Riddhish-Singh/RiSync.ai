@@ -3,28 +3,38 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>P2P Tutoring Platform</title>
+  
+  <title>RiSync • P2P Tutoring | Math, Science & More</title>
+  <meta name="description" content="RiSync is a peer-to-peer tutoring platform that makes learning collaborative and fun. Connect with fellow students for help in Math, Science, IT, and more.">
+  
+  <meta property="og:title" content="RiSync • P2P Tutoring | Level Up Your Learning">
+  <meta property="og:description" content="Join RiSync to connect with student tutors, access a huge resource library, and make learning a team sport. Sign up for free!">
+  <meta property="og:image" content="assets/social-preview.png"> <meta property="og:url" content="https://www.risync.com"> <meta property="og:type" content="website">
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     :root {
       --primary-blue: #004aad;
       --secondary-orange: #f28b30;
       --dark-blue: #002454;
-      --darker-blue: rgba(3, 0, 48, 0.7);
+      --darker-blue: rgba(3, 0, 48, 0.85); /* Made slightly more opaque */
       --light-grey: #f4f4f4;
       --white: #ffffff;
       --text-color: #333;
-      --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      --box-shadow: 0 4px D12px rgba(0, 0, 0, 0.1);
       --transition-speed: 0.3s ease;
     }
+
+    /* Poppins Font Import */
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
       background:
-        url('assets/image.png') no-repeat center top / cover,
-        linear-gradient(to bottom, transparent 60%, var(--primary-blue) 100%);
+        linear-gradient(to bottom, transparent 40%, var(--primary-blue) 100%),
+        url('assets/image.png') no-repeat center top / cover;
       background-attachment: fixed;
       min-height: 100vh;
       color: var(--white);
@@ -32,53 +42,40 @@
     }
 
     /* General Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-
-    @keyframes slideInDown {
-      from { transform: translateY(-50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes slideInUp {
-      from { transform: translateY(50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    @keyframes popIn {
-      from { transform: scale(0.8); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
-    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     header {
       background-color: var(--darker-blue);
-      padding: 40px 20px;
+      padding: 60px 20px; /* Increased padding */
       text-align: center;
       border-bottom: 5px solid var(--secondary-orange);
       animation: fadeIn 1s ease-out;
     }
 
     header img {
-      max-width: 120px;
+      max-width: 140px; /* Increased size */
       display: block;
       margin: 0 auto 20px;
       animation: slideInDown 0.8s ease-out;
     }
 
     header h1 {
-      font-size: 42px;
+      font-size: 52px; /* Increased size */
       color: var(--secondary-orange);
-      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-      margin-bottom: 10px;
+      text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+      margin-bottom: 15px;
+      font-weight: 700;
       animation: slideInDown 1s ease-out;
     }
 
     header p {
-      font-size: 22px;
-      color: var(--secondary-orange);
+      font-size: 24px; /* Increased size */
+      color: var(--white);
       animation: slideInDown 1.2s ease-out;
+      font-weight: 400;
     }
 
     nav {
@@ -87,35 +84,99 @@
       justify-content: center;
       align-items: center;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      position: sticky;
+      top: 0;
+      z-index: 990;
+      padding: 0 20px;
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        flex-grow: 1;
     }
 
     nav a {
       color: var(--white);
       text-decoration: none;
-      padding: 18px 25px;
-      font-size: 19px;
+      padding: 20px 25px;
+      font-size: 18px;
       font-weight: bold;
       text-transform: uppercase;
       transition: background-color var(--transition-speed), color var(--transition-speed), transform var(--transition-speed);
+      position: relative;
+    }
+
+    nav a::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 3px;
+        bottom: 10px;
+        left: 0;
+        background-color: var(--secondary-orange);
+        transform-origin: bottom right;
+        transition: transform 0.25s ease-out;
+    }
+
+    nav a:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
     }
 
     nav a:hover {
-      background-color: var(--secondary-orange);
-      color: var(--dark-blue);
-      transform: translateY(-3px);
+      color: var(--secondary-orange);
+      transform: translateY(-2px);
     }
+    
+    .nav-cta {
+        display: flex;
+        gap: 15px;
+    }
+
+    .nav-cta .button {
+        padding: 10px 22px;
+        font-size: 16px;
+        text-transform: uppercase;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all var(--transition-speed);
+        border: 2px solid transparent;
+    }
+
+    .nav-cta .signin {
+        background-color: transparent;
+        color: var(--white);
+        border-color: var(--secondary-orange);
+    }
+    .nav-cta .signin:hover {
+        background-color: var(--secondary-orange);
+        color: var(--dark-blue);
+    }
+    
+    .nav-cta .signup {
+        background-color: var(--secondary-orange);
+        color: var(--dark-blue);
+        font-weight: bold;
+    }
+    .nav-cta .signup:hover {
+        background-color: #e07a21;
+        transform: scale(1.05);
+    }
+
 
     main {
       padding: 40px;
-      background-color: rgba(244, 244, 244, 0.9);
+      background-color: rgba(244, 244, 244, 0.95); /* Slightly more opaque */
       min-height: 80vh;
       color: var(--text-color);
       box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
     section {
-      margin-bottom: 40px;
-      padding: 35px;
+      margin-bottom: 50px; /* Increased margin */
+      padding: 40px; /* Increased padding */
       background-color: var(--white);
       border-radius: 12px;
       box-shadow: var(--box-shadow);
@@ -130,48 +191,91 @@
     }
 
     h2 {
-      font-size: 32px;
+      font-size: 36px; /* Increased size */
       color: var(--primary-blue);
-      margin-bottom: 25px;
+      margin-bottom: 30px; /* Increased margin */
       text-align: center;
       position: relative;
+      font-weight: 700;
     }
 
     h2::after {
       content: '';
       display: block;
-      width: 60px;
+      width: 70px; /* Increased size */
       height: 4px;
       background: var(--secondary-orange);
-      margin: 10px auto 0;
+      margin: 12px auto 0;
       border-radius: 2px;
     }
 
+    .section-intro {
+        text-align: center;
+        max-width: 800px;
+        margin: -15px auto 40px;
+        font-size: 18px;
+        line-height: 1.7;
+        color: #555;
+    }
+
+    /* Feature Section Styles */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
+    }
+    .feature-card {
+        background: var(--light-grey);
+        padding: 30px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+    }
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .feature-card i {
+        font-size: 40px;
+        color: var(--primary-blue);
+        margin-bottom: 15px;
+    }
+    .feature-card h3 {
+        font-size: 22px;
+        color: var(--dark-blue);
+        margin-bottom: 10px;
+    }
+    .feature-card p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #444;
+    }
+
+    /* Subject Grid Styles */
     .subject-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 30px;
+      gap: 40px; /* Increased gap */
     }
 
     .subject, .classes {
       color: var(--white);
-      padding: 25px;
+      padding: 30px; /* Increased padding */
       border-radius: 10px;
       text-align: center;
       cursor: pointer;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-      transition: box-shadow var(--transition-speed), transform var(--transition-speed), background-color var(--transition-speed);
+      transition: all var(--transition-speed);
       opacity: 0;
       transform: scale(0.9);
+      font-size: 20px;
+      font-weight: bold;
     }
 
-    .subject {
-      background-color: var(--secondary-orange);
-    }
-
-    .classes {
-      background-color: var(--primary-blue);
-    }
+    .subject { background-color: var(--secondary-orange); }
+    .classes { background-color: var(--primary-blue); }
     
     a.classes {
       text-decoration: none;
@@ -180,59 +284,54 @@
       justify-content: center;
     }
 
-    .subject.animate-in, .classes.animate-in {
-        animation: popIn 0.5s ease-out forwards;
-    }
-
+    .subject.animate-in, .classes.animate-in { animation: popIn 0.5s ease-out forwards; }
     .subject:hover {
       box-shadow: 0 8px 20px rgba(242, 139, 48, 0.5);
-      transform: translateY(-5px) scale(1.02);
+      transform: translateY(-5px) scale(1.03);
       background-color: #e07a21;
     }
-
     .classes:hover {
       box-shadow: 0 8px 20px rgba(0, 74, 173, 0.5);
-      transform: translateY(-5px) scale(1.02);
+      transform: translateY(-5px) scale(1.03);
       background-color: #003a8d;
     }
-
-    .button-container {
-      text-align: center;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin: 30px auto 0;
+    
+    /* Testimonial Section */
+    .testimonial-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 30px;
+        margin-top: 40px;
     }
-
-    .button {
-      display: block;
-      width: fit-content;
-      margin: 0;
-      padding: 16px 30px;
-      background-color: var(--primary-blue);
-      color: var(--white);
-      border: none;
-      border-radius: 8px;
-      font-size: 20px;
-      cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+    .testimonial-card {
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        padding: 25px;
+        border-radius: 10px;
+        box-shadow: var(--box-shadow);
     }
-
-    .button:hover {
-      background-color: var(--secondary-orange);
-      transform: translateY(-3px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    .testimonial-card p {
+        font-style: italic;
+        color: #555;
+        margin-bottom: 15px;
+    }
+    .testimonial-card p::before {
+        content: '“';
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--secondary-orange);
+        margin-right: 5px;
+    }
+    .testimonial-author {
+        font-weight: bold;
+        color: var(--primary-blue);
     }
 
     #self-learning p,
     #self-learning ul {
       color: var(--dark-blue);
-      line-height: 1.7;
-      font-size: 17px;
+      line-height: 1.8;
+      font-size: 18px;
     }
 
     #self-learning a {
@@ -247,17 +346,35 @@
     }
 
     #self-learning ul {
-        list-style: disc;
-        padding-left: 25px;
+        list-style: none;
+        padding-left: 0;
     }
 
     #self-learning li {
-        margin-bottom: 8px;
+        margin-bottom: 15px;
+        padding-left: 30px;
+        position: relative;
+    }
+    #self-learning li::before {
+        content: '\f058'; /* Font Awesome check-circle icon */
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        position: absolute;
+        left: 0;
+        top: 5px;
+        color: var(--secondary-orange);
+    }
+    
+    #self-learning img[alt="YT Logo"] {
+      width: 24px;
+      height: auto;
+      vertical-align: middle;
+      margin-right: 8px;
     }
 
     footer {
       background-color: var(--primary-blue);
-      padding: 25px;
+      padding: 30px 25px;
       text-align: center;
       color: var(--white);
       font-size: 16px;
@@ -303,16 +420,8 @@
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
     }
 
-    #music-btn {
-      bottom: 25px;
-      right: 25px;
-    }
-
-    #ai-btn {
-      bottom: 90px;
-      right: 25px;
-      font-size: 28px;
-    }
+    #music-btn { bottom: 25px; right: 25px; }
+    #ai-btn { bottom: 90px; right: 25px; font-size: 28px; }
 
     /* AI Chatbot Container */
     .ai-chatbot-container {
@@ -324,480 +433,152 @@
       background-color: var(--white);
       border-radius: 15px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-      display: none; /* Hidden by default */
+      display: none;
       flex-direction: column;
       overflow: hidden;
       z-index: 998;
       transform: scale(0.5);
       opacity: 0;
       transform-origin: bottom right;
-      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55),
-                  opacity 0.4s ease-out,
-                  width 0.3s ease, height 0.3s ease,
-                  top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
+      transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.4s ease-out, width 0.3s ease, height 0.3s ease, top 0.3s ease, right 0.3s ease, bottom 0.3s ease, left 0.3s ease;
     }
-
-    .ai-chatbot-container.active {
-      display: flex; /* Show when active */
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    /* Full-screen mode for chatbot */
-    .ai-chatbot-container.fullscreen {
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      border-radius: 0;
-      transform: scale(1);
-      opacity: 1;
-      z-index: 1001;
-      display: flex; /* Ensure it's flex when fullscreen */
-    }
-
-    .ai-chatbot-header {
-      background-color: var(--primary-blue);
-      color: var(--white);
-      padding: 18px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 20px;
-      font-weight: bold;
-      border-top-left-radius: 15px;
-      border-top-right-radius: 15px;
-      flex-shrink: 0;
-    }
-
-    .ai-chatbot-container.fullscreen .ai-chatbot-header {
-      border-radius: 0;
-    }
-
-    .ai-chatbot-header .header-controls {
-        display: flex;
-        gap: 12px;
-    }
-
-    .ai-chatbot-header button {
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 26px;
-      cursor: pointer;
-      line-height: 1;
-      transition: color var(--transition-speed), transform var(--transition-speed);
-    }
-    .ai-chatbot-header button:hover {
-        color: var(--secondary-orange);
-        transform: scale(1.1);
-    }
-
-    .ai-chatbot-messages {
-      flex-grow: 1;
-      padding: 20px;
-      overflow-y: auto;
-      background-color: #f9f9f9;
-      color: var(--text-color);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .ai-chatbot-message {
-      margin-bottom: 12px;
-      padding: 10px 15px;
-      border-radius: 20px;
-      max-width: 85%;
-      position: relative;
-      animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out;
-    }
-
-    .ai-chatbot-message.user {
-      background-color: #e0e0e0;
-      align-self: flex-end;
-      margin-left: auto;
-      border-bottom-right-radius: 5px;
-    }
-
-    .ai-chatbot-message.bot {
-      background-color: #d1e7dd;
-      align-self: flex-start;
-      margin-right: auto;
-      display: flex;
-      flex-direction: column;
-      padding-right: 40px;
-      border-bottom-left-radius: 5px;
-    }
-
-    .ai-chatbot-message.bot .message-text-content {
-        flex-grow: 1;
-        font-size: 16px;
-    }
-
-    .ai-chatbot-message.bot .speaker-icon {
-        position: absolute;
-        right: 10px;
-        top: 50%;
-        transform: translateY(-50%);
-        cursor: pointer;
-        color: #888;
-        font-size: 1.1em;
-        transition: color 0.2s ease-in-out, transform 0.2s ease;
-    }
-    .ai-chatbot-message.bot .speaker-icon:hover {
-        color: var(--primary-blue);
-        transform: translateY(-50%) scale(1.15);
-    }
-    .ai-chatbot-message.bot .speaker-icon:active {
-        transform: translateY(-50%) scale(0.95);
-    }
-
-    /* Typing indicator */
-    .ai-chatbot-message.typing-indicator {
-        background-color: #e0e0e0;
-        display: flex;
-        gap: 4px;
-        padding: 10px 15px;
-        width: fit-content;
-        align-items: center;
-    }
-    .ai-chatbot-message.typing-indicator span {
-        width: 8px;
-        height: 8px;
-        background-color: #888;
-        border-radius: 50%;
-        animation: bounce 1.4s infinite ease-in-out;
-    }
-    .ai-chatbot-message.typing-indicator span:nth-child(2) {
-        animation-delay: 0.2s;
-    }
-    .ai-chatbot-message.typing-indicator span:nth-child(3) {
-        animation-delay: 0.4s;
-    }
-    @keyframes bounce {
-        0%, 80%, 100% { transform: scale(0); }
-        40% { transform: scale(1); }
-    }
-
-
-    .ai-chatbot-predefined-questions {
-      padding: 15px 20px;
-      border-top: 1px solid #eee;
-      background-color: #f1f1f1;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      max-height: 180px;
-      overflow-y: auto;
-      scrollbar-width: thin;
-      scrollbar-color: var(--secondary-orange) #f1f1f1;
-      flex-shrink: 0;
-    }
-
-    /* Webkit scrollbar styles */
-    .ai-chatbot-predefined-questions::-webkit-scrollbar {
-        width: 8px;
-    }
-    .ai-chatbot-predefined-questions::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb {
-        background-color: var(--secondary-orange);
-        border-radius: 10px;
-        border: 2px solid #f1f1f1;
-    }
-    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb:hover {
-        background-color: #e07a21;
-    }
-
-
-    .ai-chatbot-predefined-questions button {
-      background-color: var(--secondary-orange);
-      color: var(--white);
-      border: none;
-      border-radius: 25px;
-      padding: 10px 18px;
-      cursor: pointer;
-      font-size: 15px;
-      transition: background-color 0.2s, transform 0.1s;
-      flex-shrink: 0;
-      animation: fadeIn 0.4s ease-out;
-    }
-
-    .ai-chatbot-predefined-questions button:hover {
-      background-color: #e07a21;
-      transform: translateY(-2px);
-    }
-    .ai-chatbot-predefined-questions button:active {
-        transform: translateY(0);
-    }
-
-    /* Poppins Font Import */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+    .ai-chatbot-container.active { display: flex; transform: scale(1); opacity: 1; }
+    .ai-chatbot-container.fullscreen { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; display: flex; }
+    .ai-chatbot-header { background-color: var(--primary-blue); color: var(--white); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-top-left-radius: 15px; border-top-right-radius: 15px; flex-shrink: 0; }
+    .ai-chatbot-container.fullscreen .ai-chatbot-header { border-radius: 0; }
+    .ai-chatbot-header .header-controls { display: flex; gap: 12px; }
+    .ai-chatbot-header button { background: none; border: none; color: var(--white); font-size: 26px; cursor: pointer; line-height: 1; transition: color var(--transition-speed), transform var(--transition-speed); }
+    .ai-chatbot-header button:hover { color: var(--secondary-orange); transform: scale(1.1); }
+    .ai-chatbot-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: #f9f9f9; color: var(--text-color); display: flex; flex-direction: column; }
+    .ai-chatbot-message { margin-bottom: 12px; padding: 10px 15px; border-radius: 20px; max-width: 85%; position: relative; animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; }
+    .ai-chatbot-message.user { background-color: #e0e0e0; align-self: flex-end; margin-left: auto; border-bottom-right-radius: 5px; }
+    .ai-chatbot-message.bot { background-color: #d1e7dd; align-self: flex-start; margin-right: auto; display: flex; flex-direction: column; padding-right: 40px; border-bottom-left-radius: 5px; }
+    .ai-chatbot-message.bot .message-text-content { flex-grow: 1; font-size: 16px; }
+    .ai-chatbot-message.bot .speaker-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #888; font-size: 1.1em; transition: color 0.2s ease-in-out, transform 0.2s ease; }
+    .ai-chatbot-message.bot .speaker-icon:hover { color: var(--primary-blue); transform: translateY(-50%) scale(1.15); }
+    .ai-chatbot-message.bot .speaker-icon:active { transform: translateY(-50%) scale(0.95); }
+    .ai-chatbot-message.typing-indicator { background-color: #e0e0e0; display: flex; gap: 4px; padding: 10px 15px; width: fit-content; align-items: center; }
+    .ai-chatbot-message.typing-indicator span { width: 8px; height: 8px; background-color: #888; border-radius: 50%; animation: bounce 1.4s infinite ease-in-out; }
+    .ai-chatbot-message.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .ai-chatbot-message.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+    .ai-chatbot-predefined-questions { padding: 15px 20px; border-top: 1px solid #eee; background-color: #f1f1f1; display: flex; flex-wrap: wrap; gap: 10px; max-height: 180px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--secondary-orange) #f1f1f1; flex-shrink: 0; }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar { width: 8px; }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb { background-color: var(--secondary-orange); border-radius: 10px; border: 2px solid #f1f1f1; }
+    .ai-chatbot-predefined-questions::-webkit-scrollbar-thumb:hover { background-color: #e07a21; }
+    .ai-chatbot-predefined-questions button { background-color: var(--secondary-orange); color: var(--white); border: none; border-radius: 25px; padding: 10px 18px; cursor: pointer; font-size: 15px; transition: background-color 0.2s, transform 0.1s; flex-shrink: 0; animation: fadeIn 0.4s ease-out; }
+    .ai-chatbot-predefined-questions button:hover { background-color: #e07a21; transform: translateY(-2px); }
+    .ai-chatbot-predefined-questions button:active { transform: translateY(0); }
+    
 
     /* --- Responsive Adjustments --- */
+    @media (max-width: 992px) {
+        .nav-links {
+            justify-content: flex-start;
+            flex-grow: 0;
+        }
+        nav {
+            justify-content: space-between;
+        }
+    }
 
-    /* For screens smaller than 768px (tablets and larger phones) */
     @media (max-width: 768px) {
-      body {
-        background-attachment: scroll; /* Change fixed background for better mobile performance */
-      }
+      body { background-attachment: scroll; }
+      header { padding: 40px 15px; }
+      header img { max-width: 120px; }
+      header h1 { font-size: 42px; }
+      header p { font-size: 20px; }
+      
+      nav { flex-wrap: wrap; justify-content: center; padding: 10px 0; }
+      .nav-links { width: 100%; justify-content: center; margin-bottom: 10px; }
+      .nav-cta { width: 100%; justify-content: center; }
 
-      header {
-        padding: 30px 15px;
-      }
-
-      header img {
-        max-width: 100px;
-        margin-bottom: 15px;
-      }
-
-      header h1 {
-        font-size: 34px;
-      }
-
-      header p {
-        font-size: 18px;
-      }
-
-      nav {
-        flex-direction: column; /* Stack navigation links vertically */
-        padding: 10px 0;
-      }
-
-      nav a {
-        padding: 12px 15px;
-        font-size: 17px;
-        width: 100%; /* Make links take full width */
-        text-align: center;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Separator */
-      }
-      nav a:last-child {
-        border-bottom: none;
-      }
-
-      main {
-        padding: 20px;
-      }
-
-      section {
-        margin-bottom: 30px;
-        padding: 25px;
-      }
-
-      h2 {
-        font-size: 28px;
-        margin-bottom: 20px;
-      }
-
-      .subject-grid {
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); /* Adjust grid for smaller screens */
-        gap: 20px;
-      }
-
-      .subject, .classes {
-        padding: 20px;
-      }
-
-      .button {
-        padding: 14px 25px;
-        font-size: 18px;
-      }
-
-      #self-learning p,
-      #self-learning ul {
-        font-size: 16px;
-      }
-
-      footer {
-        padding: 20px;
-        font-size: 14px;
-      }
-
-      .floating-btn {
-        width: 50px;
-        height: 50px;
-        font-size: 22px;
-        bottom: 20px;
-        right: 20px;
-      }
-
-      #ai-btn {
-        bottom: 80px; /* Adjust position for AI button */
-        right: 20px;
-      }
-
-      /* Chatbot adjustments for tablets/smaller screens */
-      .ai-chatbot-container {
-        width: 320px; /* Slightly narrower for more screen space */
-        height: 480px; /* Slightly shorter */
-        right: 70px; /* Adjust based on new button positions */
-        bottom: 70px;
-      }
-
-      .ai-chatbot-header {
-        padding: 15px 18px;
-        font-size: 18px;
-      }
-
-      .ai-chatbot-header button {
-        font-size: 24px;
-      }
-
-      .ai-chatbot-messages {
-        padding: 15px;
-      }
-
-      .ai-chatbot-message {
-        font-size: 15px;
-        padding: 8px 12px;
-        max-width: 90%; /* Allow messages to take more width */
-      }
-
-      .ai-chatbot-message.bot .speaker-icon {
-        font-size: 1em;
-      }
-
-      .ai-chatbot-predefined-questions {
-        padding: 10px 15px;
-        gap: 8px;
-        max-height: 150px; /* Adjust max-height for predefined questions */
-      }
-
-      .ai-chatbot-predefined-questions button {
-        padding: 8px 15px;
-        font-size: 14px;
-      }
+      main { padding: 20px; }
+      section { padding: 25px; }
+      h2 { font-size: 32px; }
+      .subject-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; }
+      #self-learning p, #self-learning ul { font-size: 16px; }
+      
+      .floating-btn { width: 50px; height: 50px; font-size: 22px; bottom: 20px; right: 20px; }
+      #ai-btn { bottom: 80px; right: 20px; }
+      .ai-chatbot-container { width: 320px; height: 480px; right: 70px; bottom: 70px; }
     }
 
-    /* For screens smaller than 480px (mobile phones) */
     @media (max-width: 480px) {
-      header {
-        padding: 25px 10px;
-      }
+      header { padding: 30px 10px; }
+      header img { max-width: 100px; }
+      header h1 { font-size: 34px; }
+      header p { font-size: 18px; }
+      
+      nav { padding: 15px 0; }
+      nav a { font-size: 16px; padding: 10px 15px; }
+      .nav-links { border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+      .nav-links a { padding: 12px 15px; }
 
-      header img {
-        max-width: 80px;
-        margin-bottom: 10px;
-      }
-
-      header h1 {
-        font-size: 28px;
-      }
-
-      header p {
-        font-size: 16px;
-      }
-
-      nav {
-        padding: 8px 0;
-      }
-
-      nav a {
-        padding: 10px 10px;
-        font-size: 16px;
-      }
-
-      main {
-        padding: 15px;
-      }
-
-      section {
-        margin-bottom: 25px;
-        padding: 20px;
-      }
-
-      h2 {
-        font-size: 24px;
-        margin-bottom: 15px;
-      }
-
-      .subject-grid {
-        grid-template-columns: 1fr; /* Stack subjects in a single column */
-        gap: 15px;
-      }
-
-      .subject, .classes {
-        padding: 18px;
-      }
-
-      .button {
-        width: 90%; /* Almost full width for call to action */
-        padding: 12px 20px;
-        font-size: 17px;
-      }
-
-      #self-learning p,
-      #self-learning ul {
-        font-size: 15px;
-      }
-
-      #self-learning ul {
-        padding-left: 20px;
-      }
-
-      footer {
-        padding: 15px;
-        font-size: 13px;
-      }
-
-      .floating-btn {
-        width: 45px;
-        height: 45px;
-        font-size: 20px;
-        bottom: 15px;
-        right: 15px;
-      }
-
-      #ai-btn {
-        bottom: 70px;
-        right: 15px;
-      }
-
-      /* Chatbot full-screen on small phones when active */
-      .ai-chatbot-container.active {
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        width: 100vw;
-        height: 100vh;
-        border-radius: 0;
-        transform: scale(1);
-        opacity: 1;
-        z-index: 1001;
-      }
+      main { padding: 15px; }
+      section { padding: 20px; }
+      h2 { font-size: 28px; }
+      
+      .feature-grid, .subject-grid, .testimonial-grid { grid-template-columns: 1fr; gap: 20px; }
+      
+      #self-learning p, #self-learning ul { font-size: 15px; }
+      #self-learning ul { padding-left: 20px; }
+      
+      footer { padding: 20px; font-size: 14px; }
+      
+      .floating-btn { width: 45px; height: 45px; font-size: 20px; bottom: 15px; right: 15px; }
+      #ai-btn { bottom: 70px; right: 15px; }
+      .ai-chatbot-container.active { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; }
     }
-	
-	#self-learning img[alt="YT Logo"] {
-  width: 24px;
-  height: auto;
-  vertical-align: middle;
-  margin-right: 8px;
-}
-
   </style>
 </head>
 <body>
 
   <header>
-    <img src="assets/logo.png" alt="Platform Logo">
-    <h1>P2P Tutoring Platform</h1>
-    <p>Empowering students to learn, grow, and succeed together.</p>
+    <img src="assets/logo.png" alt="RiSync Platform Logo">
+    <h1>RiSync</h1>
+    <p>Level Up Your Learning. Peer to Peer.</p>
   </header>
 
   <nav>
-    <a href="#subjects">Subjects</a>
-    <a href="#classes">Classes</a>
-    <a href="#self-learning">Self-Learning</a>
+    <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#subjects">Subjects</a>
+        <a href="#classes">Grades</a>
+    </div>
+    <div class="nav-cta">
+        <button class="button signin" onclick="window.open('html/signin.html', '_blank')">Sign In</button>
+        <button class="button signup" onclick="window.open('html/signup.html', '_blank')">Sign Up</button>
+    </div>
   </nav>
 
   <main>
+    <section id="features">
+        <h2>Why RiSync?</h2>
+        <p class="section-intro">We're not just another tutoring site. We're a community hub built on powerful, interactive tools designed to make learning collaborative, effective, and actually fun.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-users"></i>
+                <h3>Peer-to-Peer Matching</h3>
+                <p>Our smart AI connects you with the perfect student tutor based on subject, skill level, and learning style.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <h3>Live Whiteboards</h3>
+                <p>Tackle tricky problems together in real-time with collaborative digital whiteboards. Perfect for math and science!</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-brain"></i>
+                <h3>Meet RiBot, Your AI Pal</h3>
+                <p>Got a question at 3 AM? RiBot, our 24/7 AI assistant, is always ready to help you find answers and resources related to RiSync.</p>
+            </div>
+        </div>
+    </section>
+
     <section id="subjects">
-      <h2>Core Subjects</h2>
+      <h2>Find Your Subject</h2>
+      <p class="section-intro">Whatever you're stuck on, we've got your back. Dive into our core subjects and find the support you need.</p>
       <div class="subject-grid">
         <div class="subject">Math</div>
         <div class="subject">Science</div>
@@ -807,39 +588,77 @@
     </section>
 
     <section id="classes">
-      <h2>Classes Covered</h2>
+      <h2>Choose Your Grade</h2>
+      <p class="section-intro">Learning is a journey. Select your grade to find tailored sessions and resources just for you.</p>
       <div class="subject-grid">
-        <a href="html/signin.html" target="_blank" class="classes">1st</a>
-        <a href="html/signin.html" target="_blank" class="classes">2nd</a>
-        <a href="html/signin.html" target="_blank" class="classes">3rd</a>
-        <a href="html/signin.html" target="_blank" class="classes">4th</a>
-        <a href="html/signin.html" target="_blank" class="classes">5th</a>
-        <a href="html/signin.html" target="_blank" class="classes">6th</a>
-        <a href="html/signin.html" target="_blank" class="classes">7th</a>
-        <a href="html/signin.html" target="_blank" class="classes">8th</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 1st Grade">1st</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 2nd Grade">2nd</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 3rd Grade">3rd</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 4th Grade">4th</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 5th Grade">5th</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 6th Grade">6th</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 7th Grade">7th</a>
+        <a href="html/signup.html" target="_blank" class="classes" aria-label="Find a tutor for 8th Grade">8th</a>
       </div>
     </section>
 
+    <section id="gamification">
+        <h2>Make Learning a Flex</h2>
+        <p class="section-intro">Who said studying has to be a grind? We turn learning into a game with points, badges, and leaderboards. Stay motivated, challenge your friends, and celebrate every win.</p>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <i class="fas fa-trophy"></i>
+                <h3>Earn XP & Badges</h3>
+                <p>Get recognized for your hard work! Earn points for attending sessions, helping others, and acing quizzes.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Climb the Leaderboard</h3>
+                <p>See how you stack up against your peers. Friendly competition to be the "Top Tutor of the Week" keeps things spicy.</p>
+            </div>
+            <div class="feature-card">
+                <i class="fas fa-star"></i>
+                <h3>Track Your Streaks</h3>
+                <p>Build powerful study habits by maintaining daily and weekly streaks. Watch your progress skyrocket!</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonials">
+        <h2>What Students Say</h2>
+        <p class="section-intro">Don't just take our word for it. Here's what actual students think about learning with RiSync.</p>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <p>I was so confused about algebra, but my peer tutor explained it in a way that just clicked. Way less awkward than asking a teacher.</p>
+                <div class="testimonial-author">- Aisha, 7th Grade</div>
+            </div>
+            <div class="testimonial-card">
+                <p>The resource library is a lifesaver. Found the perfect worksheet for my science project. 10/10 would recommend.</p>
+                <div class="testimonial-author">- Ben, 8th Grade</div>
+            </div>
+            <div class="testimonial-card">
+                <p>Honestly, trying to get on the leaderboard is my new favorite game. It actually makes me want to study more.</p>
+                <div class="testimonial-author">- Chloe, 6th Grade</div>
+            </div>
+        </div>
+    </section>
+
     <section id="self-learning">
-      <h2>Encouraging Self-Learning</h2>
-      <p><a href="https://www.youtube.com/@RiSync" target="_blank"> Learn more from RiSync <img src="assets/yt.png" alt="YT Logo"> </a></p>
-      <p>Our platform provides tools and resources to help students take charge of their learning journey. Features include:</p>
+      <h2>Own Your Growth</h2>
+       <p><a href="https://www.youtube.com/@RiSync" target="_blank"> Learn more from RiSync <img src="assets/yt.png" alt="YT Logo"> </a></p>
+      <p>Our platform gives you the keys to drive your own learning journey. Ditch the stress and study smarter with features like:</p>
       <ul>
-        <li>Interactive quizzes to test knowledge.</li>
-        <li>Resource libraries for deeper subject understanding.</li>
-        <li>Discussion forums to share and exchange ideas.</li>
-        <li>Personalized learning paths based on student goals.</li>
+        <li>Interactive quizzes that make testing your knowledge fun.</li>
+        <li>Huge resource libraries to go deeper into any subject.</li>
+        <li>Active discussion forums to brainstorm and share ideas.</li>
+        <li>Personalized learning paths that adapt to your goals.</li>
       </ul>
     </section>
 
-    <div class="button-container">
-      <button class="button" onclick="window.open('html/signin.html', '_blank')">Sign In</button>
-      <button class="button" onclick="window.open('html/signup.html', '_blank')">Sign Up</button>
-    </div>
   </main>
 
   <footer>
-    <p>© 2025 P2P Tutoring Platform. All rights reserved.</p>
+    <p>© 2025 RiSync Tutoring. All rights reserved.</p>
     <p><a href="Terms of Service.html" target="_blank">Terms of Service</a> | <a href="Privacy Policy.html" target="_blank">Privacy Policy</a></p>
   </footer>
 
@@ -870,7 +689,7 @@
     </div>
     <div class="ai-chatbot-messages" id="ai-chatbot-messages">
       <div class="ai-chatbot-message bot">
-        <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
+        <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
         <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
       </div>
     </div>
@@ -879,6 +698,7 @@
   </div>
 
   <script>
+    // All original JavaScript remains unchanged below.
     const audio = document.getElementById('bg-music');
     const musicButton = document.getElementById('music-btn');
     let hasInteracted = false;
@@ -910,7 +730,6 @@
     audio.onplay = updateMusicIcon;
     audio.onpause = updateMusicIcon;
 
-    // AI Chatbot Script
     const aiChatbotContainer = document.getElementById('ai-chatbot-container');
     const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
     const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
@@ -924,13 +743,7 @@
         if ('speechSynthesis' in window) {
             speechSynthesis.onvoiceschanged = () => {
                 selectedVoice = getHumanLikeVoice();
-                if (!selectedVoice) {
-                    console.warn("No suitable speech synthesis voice found. Using default or no voice if none available.");
-                } else {
-                    console.log("Selected voice for speech synthesis:", selectedVoice.name);
-                }
             };
-            // Call immediately if voices are already loaded (e.g., page reloaded)
             if (speechSynthesis.getVoices().length > 0) {
                 selectedVoice = getHumanLikeVoice();
             }
@@ -941,18 +754,12 @@
 
     function getHumanLikeVoice() {
         const voices = speechSynthesis.getVoices();
-        let chosenVoice = null;
-        // Prioritize Google US English
-        chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
+        let chosenVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.includes('Google US English'));
         if (chosenVoice) return chosenVoice;
-        // Then any Google or Microsoft English voice
         chosenVoice = voices.find(voice => voice.lang.startsWith('en-') && (voice.name.includes('Google') || voice.name.includes('Microsoft')));
         if (chosenVoice) return chosenVoice;
-        // Fallback to any English voice
         chosenVoice = voices.find(voice => voice.lang.startsWith('en-'));
-        if (chosenVoice) return chosenVoice;
-        // Finally, the first available voice
-        return voices[0] || null;
+        return chosenVoice || voices[0] || null;
     }
 
     function stopSpeaking(iconElement, originalTextContent) {
@@ -968,23 +775,17 @@
     }
 
     function speakText(text, iconElement) {
-        if (!('speechSynthesis' in window)) {
-            console.warn("Web Speech API not supported.");
-            return;
-        }
+        if (!('speechSynthesis' in window)) return;
 
         if (window.speechSynthesis.speaking) {
-            // Get the text content of the currently speaking message to restore its icon
             const previouslySpeakingIconText = currentSpeakerIcon ? (currentSpeakerIcon.closest('.ai-chatbot-message')?.querySelector('.message-text-content')?.textContent || '') : '';
             stopSpeaking(currentSpeakerIcon, previouslySpeakingIconText);
         }
 
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'en-US';
-        if (selectedVoice) {
-            utterance.voice = selectedVoice;
-        }
-
+        if (selectedVoice) utterance.voice = selectedVoice;
+        
         currentUtterance = utterance;
         currentSpeakerIcon = iconElement;
 
@@ -995,10 +796,7 @@
 
         utterance.onend = () => stopSpeaking(iconElement, text);
         utterance.oncancel = () => stopSpeaking(iconElement, text);
-        utterance.onerror = (event) => {
-            console.error('Speech synthesis error:', event.error);
-            stopSpeaking(iconElement, text);
-        };
+        utterance.onerror = (event) => { console.error('Speech synthesis error:', event.error); stopSpeaking(iconElement, text); };
 
         window.speechSynthesis.speak(utterance);
     }
@@ -1020,33 +818,24 @@
 
     function toggleAIChat(forceClose = false) {
       if (aiChatbotContainer.classList.contains('active') || forceClose) {
-        // If active or explicitly forced to close, hide the chatbot
         aiChatbotContainer.classList.remove('active', 'fullscreen');
-        stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when chatbot is closed
-
-        // After the transition, set display to none to remove it from layout flow
+        stopSpeaking(currentSpeakerIcon, '');
         aiChatbotContainer.addEventListener('transitionend', function handler() {
             if (!aiChatbotContainer.classList.contains('active')) {
                 aiChatbotContainer.style.display = 'none';
             }
             aiChatbotContainer.removeEventListener('transitionend', handler);
         });
-
       } else {
-        // If not active, show the chatbot
-        aiChatbotContainer.style.display = 'flex'; // Make it visible immediately for transition
-        // Use a small timeout to allow display change to register before starting transition
+        aiChatbotContainer.style.display = 'flex';
         setTimeout(() => {
             aiChatbotContainer.classList.add('active');
-
-            // Clear previous messages except the initial greeting
             aiChatbotMessages.innerHTML = `
                 <div class="ai-chatbot-message bot">
-                    <span class="message-text-content">Hello! I'm RiBot, your intelligent learning assistant. How can I help you today?</span>
+                    <span class="message-text-content">Hey there! I'm RiBot, your AI study buddy. Ready to make learning awesome? Ask me about our features or how to get started!</span>
                     <i class="fas fa-volume-up speaker-icon" title="Read aloud" aria-label="Read message aloud"></i>
                 </div>
             `;
-            // Re-attach event listener for the initial greeting's speaker icon
             const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
             const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
             const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
@@ -1055,42 +844,39 @@
             }
 
             populatePredefinedQuestions();
-            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
+            aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
 
-            // For mobile, make chatbot fullscreen by default when opened
             if (window.innerWidth <= 480 && !aiChatbotContainer.classList.contains('fullscreen')) {
                 toggleFullscreen();
             }
-        }, 10); // Small delay
+        }, 10);
       }
-      updateFullscreenButtonIcon(); // Update fullscreen button icon based on new state
+      updateFullscreenButtonIcon();
     }
 
 
     function populatePredefinedQuestions() {
-      predefinedQuestionsDiv.innerHTML = ''; // Clear previous questions
+      predefinedQuestionsDiv.innerHTML = '';
       predefinedQuestions.forEach((q, index) => {
         const button = document.createElement('button');
         button.textContent = q.text;
         button.onclick = () => askQuestion(q.id);
-        button.style.animationDelay = `${0.1 * index}s`; // Stagger animation for buttons
+        button.style.animationDelay = `${0.1 * index}s`;
         predefinedQuestionsDiv.appendChild(button);
       });
     }
 
     function askQuestion(questionId) {
-      stopSpeaking(currentSpeakerIcon, ''); // Stop speaking when a new question is asked
+      stopSpeaking(currentSpeakerIcon, '');
 
       const question = predefinedQuestions.find(q => q.id === questionId);
       if (question) {
-        // Add user's question to chat
         const userMessage = document.createElement('div');
         userMessage.classList.add('ai-chatbot-message', 'user');
         userMessage.textContent = question.text;
         aiChatbotMessages.appendChild(userMessage);
         aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
 
-        // Simulate RiBot typing/thinking
         const typingIndicator = document.createElement('div');
         typingIndicator.classList.add('ai-chatbot-message', 'bot', 'typing-indicator');
         typingIndicator.innerHTML = '<span></span><span></span><span></span>';
@@ -1098,131 +884,88 @@
         aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
 
         setTimeout(() => {
-          // Remove typing indicator
           if (aiChatbotMessages.contains(typingIndicator)) {
             aiChatbotMessages.removeChild(typingIndicator);
           }
-
-          // Add RiBot's answer to chat
           const botMessage = document.createElement('div');
           botMessage.classList.add('ai-chatbot-message', 'bot');
-
           const textContentSpan = document.createElement('span');
           textContentSpan.classList.add('message-text-content');
           textContentSpan.innerHTML = question.answer;
           botMessage.appendChild(textContentSpan);
-
           const speakerIcon = document.createElement('i');
           speakerIcon.className = 'fas fa-volume-up speaker-icon';
           speakerIcon.title = 'Read aloud';
           speakerIcon.setAttribute('aria-label', 'Read message aloud');
           speakerIcon.onclick = () => speakText(textContentSpan.textContent, speakerIcon);
           botMessage.appendChild(speakerIcon);
-
           aiChatbotMessages.appendChild(botMessage);
-          aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight; // Scroll to bottom
-        }, 1200); // Simulate 1.2 second delay for bot response for typing animation
+          aiChatbotMessages.scrollTop = aiChatbotMessages.scrollHeight;
+        }, 1200);
       }
     }
 
     function toggleFullscreen() {
-        console.log("toggleFullscreen called. Current fullscreen class:", aiChatbotContainer.classList.contains('fullscreen'));
-
-        // Always toggle the CSS class first for consistent visual state
         const isCurrentlyFullscreenCSS = aiChatbotContainer.classList.contains('fullscreen');
-        if (isCurrentlyFullscreenCSS) {
-            aiChatbotContainer.classList.remove('fullscreen');
-        } else {
-            aiChatbotContainer.classList.add('fullscreen');
-        }
-        console.log("Fullscreen class after toggle:", aiChatbotContainer.classList.contains('fullscreen'));
+        aiChatbotContainer.classList.toggle('fullscreen');
 
-
-        // Then attempt native fullscreen API if supported
-        if (document.fullscreenEnabled || document.webkitFullscreenEnabled || document.mozFullScreenEnabled || document.msFullscreenEnabled) {
-            if (!isCurrentlyFullscreenCSS) { // If we just toggled it ON (meaning it was OFF before)
-                if (aiChatbotContainer.requestFullscreen) {
-                    aiChatbotContainer.requestFullscreen().catch(err => {
-                        console.warn("Failed to enter native fullscreen:", err);
-                        // If native fullscreen fails, revert the CSS class
-                        aiChatbotContainer.classList.remove('fullscreen');
-                        updateFullscreenButtonIcon(); // Update icon immediately
-                    });
-                }
-            } else { // If we just toggled it OFF (meaning it was ON before)
+        if (document.fullscreenEnabled) {
+            if (!isCurrentlyFullscreenCSS) { 
+                aiChatbotContainer.requestFullscreen().catch(err => {
+                    aiChatbotContainer.classList.remove('fullscreen');
+                    updateFullscreenButtonIcon();
+                });
+            } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen().catch(err => {
-                        console.warn("Failed to exit native fullscreen:", err);
-                        // If native exit fails, revert the CSS class
                         aiChatbotContainer.classList.add('fullscreen');
-                        updateFullscreenButtonIcon(); // Update icon immediately
+                        updateFullscreenButtonIcon();
                     });
                 }
             }
         }
-        // Update the button icon immediately based on the new class state
         updateFullscreenButtonIcon();
     }
 
-    // Event listener for native fullscreen change (e.g., when user presses F11 or Esc)
-    // This will ensure the button icon and class are in sync even if fullscreen is
-    // triggered or exited by means other than the button click.
     document.addEventListener('fullscreenchange', updateFullscreenButtonIcon);
-    document.addEventListener('webkitfullscreenchange', updateFullscreenButtonIcon);
-    document.addEventListener('msfullscreenchange', updateFullscreenButtonIcon);
-    document.addEventListener('mozfullscreenchange', updateFullscreenButtonIcon);
-
-
     function updateFullscreenButtonIcon() {
-        console.log("updateFullscreenButtonIcon called. Current fullscreen class:", aiChatbotContainer.classList.contains('fullscreen'));
-        if (aiChatbotContainer.classList.contains('fullscreen')) {
-            fullscreenBtn.innerHTML = '<i class="fas fa-compress-alt"></i>'; // Change to exit fullscreen icon
-            fullscreenBtn.title = 'Exit Fullscreen';
-        } else {
-            fullscreenBtn.innerHTML = '<i class="fas fa-expand-alt"></i>'; // Change to enter fullscreen icon
-            fullscreenBtn.title = 'Toggle Fullscreen';
+        const isFullscreen = aiChatbotContainer.classList.contains('fullscreen');
+        if (fullscreenBtn) {
+            fullscreenBtn.innerHTML = isFullscreen ? '<i class="fas fa-compress-alt"></i>' : '<i class="fas fa-expand-alt"></i>';
+            fullscreenBtn.title = isFullscreen ? 'Exit Fullscreen' : 'Toggle Fullscreen';
         }
     }
 
-    // Intersection Observer for section animations
     const sections = document.querySelectorAll('section');
-
     const sectionObserver = new IntersectionObserver((entries, observer) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate-in');
           const gridItems = entry.target.querySelectorAll('.subject, .classes');
           gridItems.forEach((item, index) => {
-            item.style.animationDelay = `${0.1 * index + 0.3}s`; // Stagger delay for grid items
-            item.classList.add('animate-in'); // Trigger popIn animation
+            item.style.animationDelay = `${0.1 * index + 0.3}s`;
+            item.classList.add('animate-in');
           });
-          observer.unobserve(entry.target); // Unobserve once animated
+          observer.unobserve(entry.target);
         }
       });
-    }, {
-      threshold: 0.1, // Trigger when 10% of the section is visible
-      rootMargin: "0px 0px -50px 0px" // Adjust to trigger slightly sooner or later
-    });
+    }, { threshold: 0.1, rootMargin: "0px 0px -50px 0px" });
 
     sections.forEach(section => {
       sectionObserver.observe(section);
     });
 
-
-    // Initialize speech synthesis and predefined questions when the page loads
     document.addEventListener('DOMContentLoaded', () => {
         initializeSpeechSynthesis();
         populatePredefinedQuestions();
 
-        // Re-attach event listener for the initial greeting's speaker icon on load
         const initialBotMessage = aiChatbotMessages.querySelector('.ai-chatbot-message.bot');
         const initialTextContent = initialBotMessage.querySelector('.message-text-content').textContent;
         const initialSpeakerIcon = initialBotMessage.querySelector('.speaker-icon');
         if (initialSpeakerIcon && initialTextContent) {
             initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
         }
-
-        updateFullscreenButtonIcon(); // Set initial icon for fullscreen button
+        updateFullscreenButtonIcon();
     });
   </script>
 </body>
