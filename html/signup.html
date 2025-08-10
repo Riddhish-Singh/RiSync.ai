@@ -209,6 +209,15 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
       alert("Please fill in all fields.");
     }
   }
+  // Read ?class= from the URL and preselect it
+document.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  const selectedClass = params.get('class');
+  if (selectedClass) {
+    document.getElementById('class').value = selectedClass;
+  }
+});
+
 </script>
 </body>
 </html>
