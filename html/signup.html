@@ -213,8 +213,13 @@ document.getElementById('signup-form').addEventListener('submit', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const selectedClass = params.get('class');
+
   if (selectedClass) {
-    document.getElementById('class').value = selectedClass;
+    const classDropdown = document.getElementById('class');
+    const optionToSelect = classDropdown.querySelector(`option[value="${selectedClass}"]`);
+    if (optionToSelect) {
+      optionToSelect.selected = true; // Proper way for <select>
+    }
   }
 });
 
