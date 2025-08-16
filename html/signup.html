@@ -44,10 +44,10 @@
       color: #add8e6;
       margin-bottom: 5px;
     }
-    input, select {
+    input, select, button {
       width: 100%;
       padding: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 12px;
       border: none;
       border-radius: 8px;
       font-size: 16px;
@@ -72,23 +72,28 @@
       color: #add8e6;
     }
     .signup-button, .go-back-button {
-      width: 100%;
       padding: 14px;
       border-radius: 8px;
       font-size: 16px;
       font-weight: bold;
       cursor: pointer;
       border: none;
-      transition: transform 0.3s, background-color 0.3s;
+      transition: transform 0.3s, background-color 0.3s, opacity 0.2s;
     }
     .signup-button {
       background-color: #FF5722;
       color: white;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      margin-top: 4px;
     }
     .signup-button:hover {
       background-color: #002244;
       transform: scale(1.05);
+    }
+    .signup-button[disabled] {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
     .go-back-button {
       background-color: #004AAD;
@@ -100,7 +105,7 @@
     }
     .signin-link {
       text-align: center;
-      margin-top: 15px;
+      margin-top: 10px;
     }
     .signin-link a {
       color: #FF914D;
@@ -110,6 +115,15 @@
     .signin-link a:hover {
       text-decoration: underline;
     }
+    .helper {
+      font-size: 12px;
+      text-align: left;
+      margin-top: -8px;
+      margin-bottom: 10px;
+      min-height: 16px;
+    }
+    .helper.ok { color: #9be7a6; }   /* light green */
+    .helper.err { color: #ffb3b3; }  /* soft red */
   </style>
 </head>
 <body>
@@ -118,9 +132,11 @@
       <img src="../assets/logo.png" alt="RiSync Logo">
     </div>
     <h1>RiSync Sign-Up</h1>
-    <form id="signupForm">
+
+    <!-- NOTE: id is signupForm (camelCase). We'll attach a submit listener to this. -->
+    <form id="signupForm" novalidate>
       <label for="fullname">Full Name</label>
-      <input type="text" id="fullname" placeholder="Enter your full name" required>
+      <input type="text" id="fullname" placeholder="Enter your full name" autocomplete="name" required>
 
       <label for="branch">NAME OF YOUR BRANCH</label>
       <select id="branch" required>
@@ -139,90 +155,221 @@
       <label for="class">Class</label>
       <select id="class" required>
         <option value="" disabled selected>Select your class</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
+        <option value="1">1</option><option value="2">2</option>
+        <option value="3">3</option><option value="4">4</option>
+        <option value="5">5</option><option value="6">6</option>
+        <option value="7">7</option><option value="8">8</option>
       </select>
 
       <label for="email">Email Address</label>
-      <input type="email" id="email" placeholder="Enter your email" required>
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+        autocomplete="email"
+        required
+        pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+        title="Enter a valid email like name@domain.com"
+        aria-describedby="emailStatus"
+      />
+      <div id="emailStatus" class="helper"></div>
 
       <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Create a password" required>
-      <input type="checkbox" id="showPassword" onclick="togglePassword()"> Show Password
+      <input type="password" id="password" placeholder="Create a password" required minlength="6">
+      <label style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+        <input type="checkbox" id="showPassword"> Show Password
+      </label>
 
-      <button type="button" class="signup-button" onclick="saveUser()">Sign Up</button>
+      <!-- Make this a submit button so the form's submit handler runs -->
+      <button type="submit" class="signup-button" id="signupBtn">Sign Up</button>
     </form>
 
     <div class="signin-link">
-      <p>Already have an account? <a href="signin.html" target="_blank">Sign In</a>.</p>
+      <p>Already have an account? <a href="signin.html" target="_blank" rel="noopener">Sign In</a>.</p>
     </div>
+
     <button type="button" class="go-back-button" onclick="window.location.href='../index.html'">GO BACK TO THE MAIN PAGE</button>
   </div>
 
 <script>
-document.getElementById('signup-form').addEventListener('submit', function(e) {
-    e.preventDefault(); // Stop form from submitting immediately
+/* -------------------------
+   Utilities
+--------------------------*/
 
-    const name = document.getElementById('name').value.trim();
-    localStorage.setItem('username', name);
+// Simple debounce for live validation
+function debounce(fn, delay = 500) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), delay);
+  };
+}
 
-    // Redirect to content page after signup
-    window.location.href = 'content.html';
+// Abortable fetch with timeout (prevents hanging)
+async function fetchWithTimeout(resource, options = {}) {
+  const { timeout = 6000 } = options;
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeout);
+  try {
+    const response = await fetch(resource, { ...options, signal: controller.signal });
+    return response;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+/* -------------------------
+   Email validation
+   1) Regex format
+   2) MX lookup via Google DNS (free)
+--------------------------*/
+function isEmailFormatValid(email) {
+  // Basic but solid: no spaces, single @, at least one dot in domain
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+// Returns boolean; true if domain has MX records
+async function hasMXRecord(domain) {
+  try {
+    const res = await fetchWithTimeout(`https://dns.google/resolve?name=${encodeURIComponent(domain)}&type=MX`, { timeout: 6000 });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return Array.isArray(data.Answer) && data.Answer.length > 0;
+  } catch (err) {
+    // Network/CORS/timeout => treat as invalid to be safe, or you can choose to "skip"
+    console.warn("MX check failed:", err?.message || err);
+    return false;
+  }
+}
+
+async function isEmailDomainValid(email) {
+  if (!isEmailFormatValid(email)) return false;
+  const domain = email.split("@")[1].toLowerCase();
+  // Quick guard: forbid obviously bad TLD lengths (like .c)
+  const lastDot = domain.lastIndexOf(".");
+  if (lastDot === -1 || domain.length - lastDot - 1 < 2) return false;
+  // MX lookup
+  return await hasMXRecord(domain);
+}
+
+/* -------------------------
+   Live feedback for kids
+--------------------------*/
+const emailInput = document.getElementById("email");
+const emailStatus = document.getElementById("emailStatus");
+const signupBtn = document.getElementById("signupBtn");
+
+const showEmailStatus = (msg, ok) => {
+  emailStatus.textContent = msg;
+  emailStatus.className = "helper " + (ok ? "ok" : "err");
+  emailInput.style.border = ok ? "2px solid lightgreen" : "2px solid #ff8080";
+};
+
+const clearEmailStatus = () => {
+  emailStatus.textContent = "";
+  emailStatus.className = "helper";
+  emailInput.style.border = "";
+};
+
+// Validate while typing (debounced MX check)
+emailInput.addEventListener("input", debounce(async () => {
+  const email = emailInput.value.trim().toLowerCase();
+  if (email === "") {
+    clearEmailStatus();
+    signupBtn.disabled = false;
+    return;
+  }
+
+  // First, quick format feedback (instant)
+  if (!isEmailFormatValid(email)) {
+    showEmailStatus("That doesn’t look like an email. Try name@school.edu.in", false);
+    signupBtn.disabled = true;
+    return;
+  }
+
+  // Then async MX check
+  signupBtn.disabled = true;
+  showEmailStatus("Checking if the email domain can receive mail…", false);
+  const ok = await isEmailDomainValid(email);
+  if (ok) {
+    showEmailStatus("Nice! This domain can receive emails.", true);
+    signupBtn.disabled = false;
+  } else {
+    showEmailStatus("This email’s domain can’t receive mail. Try your school or a real provider.", false);
+    signupBtn.disabled = true;
+  }
+}, 600));
+
+/* -------------------------
+   Form logic
+--------------------------*/
+document.getElementById("showPassword").addEventListener("change", function () {
+  const passwordField = document.getElementById("password");
+  passwordField.type = this.checked ? "text" : "password";
 });
 
-  function togglePassword() {
-    const passwordField = document.getElementById("password");
-    passwordField.type = passwordField.type === "password" ? "text" : "password";
-  }
-
-  function saveUser() {
-    const fullname = document.getElementById("fullname").value;
-    const branch = document.getElementById("branch").value;
-    const userClass = document.getElementById("class").value;
-    const email = document.getElementById("email").value.toLowerCase();
-    const password = document.getElementById("password").value;
-
-    if (fullname && branch && userClass && email && password) {
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-
-      const userExists = users.some(user => user.email === email);
-      if (userExists) {
-        alert("Account already exists from this email");
-        return;
-      }
-
-      users.push({ fullname, branch, class: userClass, email, password });
-      localStorage.setItem("users", JSON.stringify(users));
-      localStorage.setItem("currentUserEmail", email);
-	  localStorage.setItem("username", fullname);
-
-
-      alert("Account created successfully!");
-      window.open("content.html", "_blank");
-    } else {
-      alert("Please fill in all fields.");
-    }
-  }
-  // Read ?class= from the URL and preselect it
+// Read ?class= from URL and preselect it
 document.addEventListener('DOMContentLoaded', () => {
   const params = new URLSearchParams(window.location.search);
   const selectedClass = params.get('class');
-
   if (selectedClass) {
     const classDropdown = document.getElementById('class');
     const optionToSelect = classDropdown.querySelector(`option[value="${selectedClass}"]`);
-    if (optionToSelect) {
-      optionToSelect.selected = true; // Proper way for <select>
-    }
+    if (optionToSelect) optionToSelect.selected = true;
   }
 });
 
+// IMPORTANT: your original code attached listener to #signup-form (wrong id) and used #name (no such id).
+// Fixed: we listen on #signupForm and read #fullname, etc.
+document.getElementById('signupForm').addEventListener('submit', async function (e) {
+  e.preventDefault(); // we control submission
+
+  const fullname = document.getElementById("fullname").value.trim();
+  const branch = document.getElementById("branch").value;
+  const userClass = document.getElementById("class").value;
+  const email = document.getElementById("email").value.trim().toLowerCase();
+  const password = document.getElementById("password").value;
+
+  // Front checks
+  if (!fullname || !branch || !userClass || !email || !password) {
+    alert("Please fill in all fields.");
+    return;
+  }
+  if (password.length < 6) {
+    alert("Password should be at least 6 characters.");
+    return;
+  }
+
+  // Final gate: MX check before saving (free API)
+  signupBtn.disabled = true;
+  showEmailStatus("Verifying email domain…", false);
+  const mxOk = await isEmailDomainValid(email);
+  if (!mxOk) {
+    showEmailStatus("This email domain isn’t valid. Use your school email or a real provider.", false);
+    signupBtn.disabled = false;
+    return;
+  }
+  showEmailStatus("Email domain verified ✅", true);
+
+  // Local storage persistence
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  const userExists = users.some(user => user.email === email);
+  if (userExists) {
+    alert("Account already exists with this email.");
+    signupBtn.disabled = false;
+    return;
+  }
+
+  users.push({ fullname, branch, class: userClass, email, password });
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("currentUserEmail", email);
+  localStorage.setItem("username", fullname);
+
+  alert("Account created successfully!");
+  // navigate (you can keep window.open if you prefer new tab)
+  window.location.href = "content.html";
+});
 </script>
 </body>
 </html>
