@@ -9,61 +9,99 @@
   
   <meta property="og:title" content="RiSync • P2P Tutoring | Level Up Your Learning">
   <meta property="og:description" content="Join RiSync to connect with student tutors, access a huge resource library, and make learning a team sport. Sign up for free!">
-  <meta property="og:image" content="assets/social-preview.png"> <meta property="og:url" content="https://www.risync.com"> <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/social-preview.png">
+  <meta property="og:url" content="https://www.risync.com">
+  <meta property="og:type" content="website">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     :root {
-      --primary-blue: #004aad;
-      --secondary-orange: #f28b30;
-      --dark-blue: #002454;
-      --darker-blue: rgba(3, 0, 48, 0.85); /* Made slightly more opaque */
-      --light-grey: #f4f4f4;
+      --primary-blue: #4A90E2;
+      --secondary-orange: #FF7043;
+      --dark-blue: #1D3557;
+      --light-grey: #F7F9FB;
       --white: #ffffff;
       --text-color: #333;
-      --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --transition-speed: 0.3s ease;
+      --box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      --transition-speed: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    /* Poppins Font Import */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
     body {
       font-family: 'Poppins', sans-serif;
       margin: 0;
       padding: 0;
-      background:
-        linear-gradient(to bottom, transparent 40%, var(--primary-blue) 100%),
-        url('assets/image.png') no-repeat center top / cover;
-      background-attachment: fixed;
+      background-color: var(--light-grey);
       min-height: 100vh;
-      color: var(--white);
+      color: var(--text-color);
       overflow-x: hidden;
     }
 
-    /* General Animations */
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     @keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-    header {
-      background-color: var(--darker-blue);
-      padding: 60px 20px; /* Increased padding */
-      text-align: center;
+    header.slider-container {
+      position: relative;
+      height: 60vh;
+      min-height: 400px;
+      color: var(--white);
+      overflow: hidden;
       border-bottom: 5px solid var(--secondary-orange);
-      animation: fadeIn 1s ease-out;
     }
 
-    header img {
-      max-width: 140px; /* Increased size */
+    .slides {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.5s ease-in-out;
+      transform: scale(1.05);
+    }
+
+    .slide.active {
+      opacity: 1;
+      transform: scale(1);
+      transition: opacity 1.5s ease-in-out, transform 8s linear;
+    }
+
+    .header-content {
+      position: relative;
+      z-index: 2;
+      background-color: rgba(29, 53, 87, 0.8);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .header-content img {
+      max-width: 130px;
       display: block;
       margin: 0 auto 20px;
       animation: slideInDown 0.8s ease-out;
     }
 
-    header h1 {
-      font-size: 52px; /* Increased size */
+    .header-content h1 {
+      font-size: 48px;
       color: var(--secondary-orange);
       text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
       margin-bottom: 15px;
@@ -71,11 +109,39 @@
       animation: slideInDown 1s ease-out;
     }
 
-    header p {
-      font-size: 24px; /* Increased size */
+    .header-content p {
+      font-size: 20px;
       color: var(--white);
       animation: slideInDown 1.2s ease-out;
       font-weight: 400;
+    }
+
+    .slider-nav {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      transform: translateY(-50%);
+      display: flex;
+      justify-content: space-between;
+      z-index: 3;
+      padding: 0 20px;
+    }
+
+    .slider-nav button {
+      background-color: rgba(0, 0, 0, 0.4);
+      border: none;
+      color: var(--white);
+      font-size: 24px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .slider-nav button:hover {
+      background-color: rgba(0, 0, 0, 0.7);
     }
 
     nav {
@@ -100,10 +166,10 @@
       color: var(--white);
       text-decoration: none;
       padding: 20px 25px;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: bold;
       text-transform: uppercase;
-      transition: background-color var(--transition-speed), color var(--transition-speed), transform var(--transition-speed);
+      transition: color 0.3s ease, transform 0.3s ease;
       position: relative;
     }
 
@@ -141,8 +207,9 @@
         text-transform: uppercase;
         border-radius: 8px;
         cursor: pointer;
-        transition: all var(--transition-speed);
+        transition: all 0.3s ease;
         border: 2px solid transparent;
+        font-weight: bold;
     }
 
     .nav-cta .signin {
@@ -153,30 +220,31 @@
     .nav-cta .signin:hover {
         background-color: var(--secondary-orange);
         color: var(--dark-blue);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
     
     .nav-cta .signup {
-        background-color: var(--secondary-orange);
+        background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%);
         color: var(--dark-blue);
-        font-weight: bold;
     }
     .nav-cta .signup:hover {
-        background-color: #e07a21;
-        transform: scale(1.05);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
 
     main {
       padding: 40px;
-      background-color: rgba(244, 244, 244, 0.95); /* Slightly more opaque */
+      background-color: var(--light-grey);
       min-height: 80vh;
       color: var(--text-color);
       box-shadow: inset 0 5px 15px rgba(0, 0, 0, 0.05);
     }
 
     section {
-      margin-bottom: 50px; /* Increased margin */
-      padding: 40px; /* Increased padding */
+      margin-bottom: 60px;
+      padding: 50px;
       background-color: var(--white);
       border-radius: 12px;
       box-shadow: var(--box-shadow);
@@ -191,9 +259,9 @@
     }
 
     h2 {
-      font-size: 36px; /* Increased size */
+      font-size: 36px;
       color: var(--primary-blue);
-      margin-bottom: 30px; /* Increased margin */
+      margin-bottom: 30px;
       text-align: center;
       position: relative;
       font-weight: 700;
@@ -202,7 +270,7 @@
     h2::after {
       content: '';
       display: block;
-      width: 70px; /* Increased size */
+      width: 70px;
       height: 4px;
       background: var(--secondary-orange);
       margin: 12px auto 0;
@@ -218,7 +286,6 @@
         color: #555;
     }
 
-    /* Feature Section Styles */
     .feature-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -226,16 +293,19 @@
         margin-top: 40px;
     }
     .feature-card {
-        background: var(--light-grey);
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         padding: 30px;
-        border-radius: 10px;
+        border-radius: 12px;
         text-align: center;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     .feature-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        transform: translateY(-10px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
     }
     .feature-card i {
         font-size: 40px;
@@ -253,50 +323,42 @@
         color: #444;
     }
 
-    /* Subject Grid Styles */
     .subject-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 40px; /* Increased gap */
+      gap: 40px;
     }
 
     .subject, .classes {
       color: var(--white);
-      padding: 30px; /* Increased padding */
+      padding: 30px;
       border-radius: 10px;
       text-align: center;
       cursor: pointer;
       box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-      transition: all var(--transition-speed);
+      transition: all 0.3s ease;
       opacity: 0;
       transform: scale(0.9);
       font-size: 20px;
       font-weight: bold;
+      text-decoration: none;
     }
 
-    .subject { background-color: var(--secondary-orange); }
-    .classes { background-color: var(--primary-blue); }
+    .subject { background-image: linear-gradient(45deg, var(--secondary-orange) 0%, #FFA726 100%); }
+    .classes { background-image: linear-gradient(45deg, var(--primary-blue) 0%, #63a4ff 100%); }
     
     a.classes {
-      text-decoration: none;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
     .subject.animate-in, .classes.animate-in { animation: popIn 0.5s ease-out forwards; }
-    .subject:hover {
-      box-shadow: 0 8px 20px rgba(242, 139, 48, 0.5);
+    .subject:hover, .classes:hover {
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25);
       transform: translateY(-5px) scale(1.03);
-      background-color: #e07a21;
-    }
-    .classes:hover {
-      box-shadow: 0 8px 20px rgba(0, 74, 173, 0.5);
-      transform: translateY(-5px) scale(1.03);
-      background-color: #003a8d;
     }
     
-    /* Testimonial Section */
     .testimonial-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -338,7 +400,7 @@
         color: var(--secondary-orange);
         font-weight: bold;
         text-decoration: none;
-        transition: color var(--transition-speed);
+        transition: color 0.3s ease;
     }
     #self-learning a:hover {
         color: var(--primary-blue);
@@ -356,7 +418,7 @@
         position: relative;
     }
     #self-learning li::before {
-        content: '\f058'; /* Font Awesome check-circle icon */
+        content: '\f058';
         font-family: 'Font Awesome 6 Free';
         font-weight: 900;
         position: absolute;
@@ -385,7 +447,7 @@
       color: var(--secondary-orange);
       text-decoration: none;
       font-weight: bold;
-      transition: text-decoration var(--transition-speed), color var(--transition-speed);
+      transition: text-decoration 0.3s ease, color 0.3s ease;
     }
 
     footer a:hover {
@@ -393,37 +455,68 @@
       color: var(--white);
     }
 
-    /* Floating Buttons */
-    .floating-btn {
-      position: fixed;
-      bottom: 25px;
-      right: 25px;
-      background-color: var(--primary-blue);
-      color: var(--white);
-      border: none;
-      border-radius: 50%;
-      width: 55px;
-      height: 55px;
-      font-size: 24px;
-      cursor: pointer;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color var(--transition-speed), transform var(--transition-speed), box-shadow var(--transition-speed);
+    .fab-container {
+        position: fixed;
+        bottom: 25px;
+        right: 25px;
+        z-index: 1000;
+    }
+    .fab {
+        width: 55px;
+        height: 55px;
+        background-color: var(--primary-blue);
+        color: white;
+        border-radius: 50%;
+        border: none;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .fab:hover {
+        background-color: var(--secondary-orange);
+        transform: rotate(90deg);
+    }
+    .fab-options {
+        position: absolute;
+        bottom: 65px;
+        right: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+    }
+    .fab-container.active .fab-options {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    .fab-option {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background-color: var(--primary-blue);
+        color: white;
+        border: none;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        font-size: 22px;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.3s ease, background-color 0.3s ease;
+    }
+    .fab-option:hover {
+        background-color: var(--secondary-orange);
+        transform: scale(1.1);
     }
 
-    .floating-btn:hover {
-      background-color: var(--secondary-orange);
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
-    }
-
-    #music-btn { bottom: 25px; right: 25px; }
-    #ai-btn { bottom: 90px; right: 25px; font-size: 28px; }
-
-    /* AI Chatbot Container */
     .ai-chatbot-container {
       position: fixed;
       bottom: 20px;
@@ -447,7 +540,7 @@
     .ai-chatbot-header { background-color: var(--primary-blue); color: var(--white); padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: bold; border-top-left-radius: 15px; border-top-right-radius: 15px; flex-shrink: 0; }
     .ai-chatbot-container.fullscreen .ai-chatbot-header { border-radius: 0; }
     .ai-chatbot-header .header-controls { display: flex; gap: 12px; }
-    .ai-chatbot-header button { background: none; border: none; color: var(--white); font-size: 26px; cursor: pointer; line-height: 1; transition: color var(--transition-speed), transform var(--transition-speed); }
+    .ai-chatbot-header button { background: none; border: none; color: var(--white); font-size: 26px; cursor: pointer; line-height: 1; transition: color 0.3s ease, transform 0.3s ease; }
     .ai-chatbot-header button:hover { color: var(--secondary-orange); transform: scale(1.1); }
     .ai-chatbot-messages { flex-grow: 1; padding: 20px; overflow-y: auto; background-color: #f9f9f9; color: var(--text-color); display: flex; flex-direction: column; }
     .ai-chatbot-message { margin-bottom: 12px; padding: 10px 15px; border-radius: 20px; max-width: 85%; position: relative; animation: fadeIn 0.3s ease-out, slideInUp 0.3s ease-out; }
@@ -472,7 +565,6 @@
     .ai-chatbot-predefined-questions button:active { transform: translateY(0); }
     
 
-    /* --- Responsive Adjustments --- */
     @media (max-width: 992px) {
         .nav-links {
             justify-content: flex-start;
@@ -485,10 +577,10 @@
 
     @media (max-width: 768px) {
       body { background-attachment: scroll; }
-      header { padding: 40px 15px; }
-      header img { max-width: 120px; }
-      header h1 { font-size: 42px; }
-      header p { font-size: 20px; }
+      header.slider-container { height: 50vh; }
+      .header-content img { max-width: 120px; }
+      .header-content h1 { font-size: 42px; }
+      .header-content p { font-size: 20px; }
       
       nav { flex-wrap: wrap; justify-content: center; padding: 10px 0; }
       .nav-links { width: 100%; justify-content: center; margin-bottom: 10px; }
@@ -500,16 +592,14 @@
       .subject-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 25px; }
       #self-learning p, #self-learning ul { font-size: 16px; }
       
-      .floating-btn { width: 50px; height: 50px; font-size: 22px; bottom: 20px; right: 20px; }
-      #ai-btn { bottom: 80px; right: 20px; }
       .ai-chatbot-container { width: 320px; height: 480px; right: 70px; bottom: 70px; }
     }
 
     @media (max-width: 480px) {
-      header { padding: 30px 10px; }
-      header img { max-width: 100px; }
-      header h1 { font-size: 34px; }
-      header p { font-size: 18px; }
+      header.slider-container { height: 45vh; }
+      .header-content img { max-width: 100px; }
+      .header-content h1 { font-size: 34px; }
+      .header-content p { font-size: 18px; }
       
       nav { padding: 15px 0; }
       nav a { font-size: 16px; padding: 10px 15px; }
@@ -527,18 +617,28 @@
       
       footer { padding: 20px; font-size: 14px; }
       
-      .floating-btn { width: 45px; height: 45px; font-size: 20px; bottom: 15px; right: 15px; }
-      #ai-btn { bottom: 70px; right: 15px; }
       .ai-chatbot-container.active { top: 0; left: 0; right: 0; bottom: 0; width: 100vw; height: 100vh; border-radius: 0; transform: scale(1); opacity: 1; z-index: 1001; }
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <img src="assets/logo.png" alt="RiSync Platform Logo">
-    <h1>RiSync</h1>
-    <p>Level Up Your Learning. Peer to Peer.</p>
+  <header class="slider-container">
+    <div class="slides">
+        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/1D3557/FFFFFF?text=Collaborative+Learning');"></div>
+        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/4A90E2/FFFFFF?text=Interactive+Sessions');"></div>
+        <div class="slide" style="background-image: url('https://placehold.co/1920x1080/FF7043/FFFFFF?text=Achieve+Your+Goals');"></div>
+		<div class="slide" style="background-image: url('https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/image.png');"></div>
+    </div>
+    <div class="header-content">
+        <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" alt="RiSync Platform Logo" onerror="this.onerror=null;this.src='https://placehold.co/130x130/FFFFFF/1D3557?text=RiSync';">
+        <h1>RiSync</h1>
+        <p>Level Up Your Learning. Peer to Peer.</p>
+    </div>
+    <div class="slider-nav">
+        <button class="prev"><i class="fas fa-chevron-left"></i></button>
+        <button class="next"><i class="fas fa-chevron-right"></i></button>
+    </div>
   </header>
 
   <nav>
@@ -548,9 +648,8 @@
         <a href="#classes">Grades</a>
     </div>
     <div class="nav-cta">
-<button class="button signin" onclick="window.location.href='html/signin.html'">Sign In</button>
-<button class="button signup" onclick="window.location.href='html/signup.html'">Create New Account</button>
-
+        <button class="button signin" onclick="window.location.href='html/signin.html'">Sign In</button>
+        <button class="button signup" onclick="window.location.href='html/signup.html'">Create New Account</button>
     </div>
   </nav>
 
@@ -558,33 +657,33 @@
     <section id="features">
         <h2>Why RiSync?</h2>
         <p class="section-intro">We're not just another tutoring site. We're a community hub built on powerful, interactive tools designed to make learning collaborative, effective, and actually fun.</p>
-       <marquee> <div class="feature-grid">
+        <div class="feature-grid">
             <div class="feature-card">
                 <i class="fas fa-users"></i>
                 <h3>Peer-to-Peer Matching</h3>
-                <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
+                <p>Our smart AI connects you with the perfect student tutor based on subject, skill level, and learning style.</p>
             </div>
             <div class="feature-card">
                 <i class="fas fa-chalkboard-teacher"></i>
                 <h3>Live Whiteboards</h3>
-                <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
+                <p>Tackle tricky problems together in real-time with collaborative digital whiteboards. Perfect for math and science!</p>
             </div>
             <div class="feature-card">
                 <i class="fas fa-brain"></i>
                 <h3>Meet RiBot, Your AI Pal</h3>
-                <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
+                <p>Got a question at 3 AM? RiBot, our 24/7 AI assistant, is always ready to help you find answers and resources.</p>
             </div>
-        </div></marquee>
+        </div>
     </section>
 
     <section id="subjects">
       <h2>Find Your Subject</h2>
       <p class="section-intro">Whatever you're stuck on, we've got your back. Dive into our core subjects and find the support you need.</p>
       <div class="subject-grid">
-		<a href="https://riddhish-singh.github.io/RiSync.web/#classes"  class="subject" aria-label="Math"><u>Math</u></a>
-		<a href="https://riddhish-singh.github.io/RiSync.web/#classes"  class="subject" aria-label="Science">Science</a>
-		<a href="https://riddhish-singh.github.io/RiSync.web/#classes"  class="subject" aria-label="IT">IT</a>
-		<a href="https://riddhish-singh.github.io/RiSync.web/#classes"  class="subject" aria-label="Social Sciences">Social Sciences</a>
+		<a href="#classes" class="subject" aria-label="Math">Math</a>
+		<a href="#classes" class="subject" aria-label="Science">Science</a>
+		<a href="#classes" class="subject" aria-label="IT">IT</a>
+		<a href="#classes" class="subject" aria-label="Social Sciences">Social Sciences</a>
       </div>
     </section>
 
@@ -592,15 +691,14 @@
       <h2>Choose Your Grade</h2>
       <p class="section-intro">Learning is a journey. Select your grade to find tailored sessions and resources just for you.</p>
       <div class="subject-grid">
-<a href="html/signup.html?class=1" class="classes">1st</a>
-<a href="html/signup.html?class=2" class="classes">2nd</a>
-<a href="html/signup.html?class=3" class="classes">3rd</a>
-<a href="html/signup.html?class=4" class="classes">4th</a>
-<a href="html/signup.html?class=5" class="classes">5th</a>
-<a href="html/signup.html?class=6" class="classes">6th</a>
-<a href="html/signup.html?class=7" class="classes">7th</a>
-<a href="html/signup.html?class=8" class="classes">8th</a>
-
+        <a href="html/signup.html?class=1" class="classes">1st</a>
+        <a href="html/signup.html?class=2" class="classes">2nd</a>
+        <a href="html/signup.html?class=3" class="classes">3rd</a>
+        <a href="html/signup.html?class=4" class="classes">4th</a>
+        <a href="html/signup.html?class=5" class="classes">5th</a>
+        <a href="html/signup.html?class=6" class="classes">6th</a>
+        <a href="html/signup.html?class=7" class="classes">7th</a>
+        <a href="html/signup.html?class=8" class="classes">8th</a>
       </div>
     </section>
 
@@ -647,7 +745,7 @@
 
     <section id="self-learning">
       <h2>Own Your Growth</h2>
-       <p><a href="https://www.youtube.com/@RiSync" target="_blank"> Learn more from RiSync <img src="assets/yt.png" alt="YT Logo"> </a></p>
+       <p><a href="https://www.youtube.com/@RiSync" target="_blank"> Learn more from RiSync <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/yt.png" alt="YT Logo" onerror="this.onerror=null;this.src='https://placehold.co/24x24/FF0000/FFFFFF?text=YT';"> </a></p>
       <p>Our platform gives you the keys to drive your own learning journey. Ditch the stress and study smarter with features like:</p>
       <ul>
         <li>Interactive quizzes that make testing your knowledge fun.</li>
@@ -669,13 +767,19 @@
     Your browser does not support the audio element.
   </audio>
 
-  <button id="music-btn" class="floating-btn" onclick="toggleMusic()" title="Toggle Music">
-    <i class="fas fa-volume-mute"></i>
-  </button>
-
-  <button id="ai-btn" class="floating-btn" onclick="toggleAIChat()" title="Ask AI">
-    <i class="fas fa-brain"></i>
-  </button>
+  <div class="fab-container" id="fab-container">
+    <div class="fab-options">
+        <button id="music-btn" class="fab-option" onclick="toggleMusic()" title="Toggle Music">
+            <i class="fas fa-volume-mute"></i>
+        </button>
+        <button id="ai-btn" class="fab-option" onclick="toggleAIChat()" title="Ask AI">
+            <i class="fas fa-brain"></i>
+        </button>
+    </div>
+    <button class="fab" id="fab">
+        <i class="fas fa-plus"></i>
+    </button>
+  </div>
 
   <div class="ai-chatbot-container" id="ai-chatbot-container">
     <div class="ai-chatbot-header">
@@ -700,7 +804,6 @@
   </div>
 
   <script>
-    // All original JavaScript remains unchanged below.
     const audio = document.getElementById('bg-music');
     const musicButton = document.getElementById('music-btn');
     let hasInteracted = false;
@@ -731,6 +834,12 @@
 
     audio.onplay = updateMusicIcon;
     audio.onpause = updateMusicIcon;
+
+    const fabContainer = document.getElementById('fab-container');
+    const fab = document.getElementById('fab');
+    fab.addEventListener('click', () => {
+        fabContainer.classList.toggle('active');
+    });
 
     const aiChatbotContainer = document.getElementById('ai-chatbot-container');
     const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
@@ -968,6 +1077,52 @@
             initialSpeakerIcon.onclick = () => speakText(initialTextContent, initialSpeakerIcon);
         }
         updateFullscreenButtonIcon();
+
+        // Slider functionality
+        const slides = document.querySelectorAll('.slide');
+        const prevBtn = document.querySelector('.slider-nav .prev');
+        const nextBtn = document.querySelector('.slider-nav .next');
+        let currentSlide = 0;
+        let slideInterval;
+
+        function showSlide(n) {
+            slides.forEach((slide, index) => {
+                slide.classList.remove('active');
+            });
+            slides[n].classList.add('active');
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+            showSlide(currentSlide);
+        }
+
+        function startSlider() {
+            showSlide(currentSlide);
+            slideInterval = setInterval(nextSlide, 5000); // Change image every 5 seconds
+        }
+
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(nextSlide, 5000);
+        }
+
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+            resetInterval();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+            resetInterval();
+        });
+
+        startSlider();
     });
   </script>
 </body>
