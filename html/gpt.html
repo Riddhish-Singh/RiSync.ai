@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RiSync GPT</title>
+  <title>RiSync GPT — Study Mode (Level-Aware)</title>
   <style>
     :root {
       --bg-color: white;
@@ -11,6 +11,9 @@
       --user-bubble: #e1e1e1;
       --ai-bubble: #d3e0ff;
       --header-bg: #14297c;
+      --chip-bg: #eef2ff;
+      --chip-border: #c7d2fe;
+      --accent: #004aad;
     }
     body.dark-mode {
       --bg-color: #121212;
@@ -18,9 +21,13 @@
       --user-bubble: #2e2e2e;
       --ai-bubble: #3b57f7;
       --header-bg: #1a237e;
+      --chip-bg: #1f2937;
+      --chip-border: #374151;
+      --accent: #4f7cff;
     }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
       background: var(--bg-color);
       color: var(--text-color);
       margin: 0;
@@ -31,222 +38,503 @@
       justify-content: center;
       align-items: center;
     }
-    .chat-container {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
+    .chat-container { width: 100vw; height: 100vh; display: flex; flex-direction: column; }
     .chat-header {
       background: var(--header-bg);
       color: white;
-      padding: 15px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
-    .chat-header img {
-      height: 40px;
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: .2px; }
+    .brand img { height: 36px; }
+    .tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .chat-settings, .toggle {
+      font-size: 14px; cursor: pointer; background: transparent;
+      border: 1px solid rgba(255,255,255,.35); color: white; padding: 6px 10px; border-radius: 999px;
     }
-    .chat-settings {
-      font-size: 16px;
-      cursor: pointer;
-      background: transparent;
-      border: none;
-      color: white;
-      margin-left: 10px;
+    .toggle.active { background: rgba(255,255,255,.14); }
+    .sources { display: flex; gap: 6px; flex-wrap: wrap; margin-left: 8px; }
+    .chip {
+      background: var(--chip-bg); border: 1px solid var(--chip-border);
+      padding: 4px 8px; border-radius: 999px; font-size: 12px; cursor: pointer; user-select: none;
     }
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .message {
-      display: flex;
-      align-items: flex-end;
-      animation: fadeIn 0.3s ease;
-    }
-    .message.user {
-      justify-content: flex-end;
-    }
-    .message.bot {
-      justify-content: flex-start;
-    }
-    .message-content {
-      max-width: 70%;
-      padding: 10px 15px;
-      border-radius: 20px;
-      background: var(--ai-bubble);
-    }
-    .message.user .message-content {
-      background: var(--user-bubble);
-    }
-    .chat-input {
-      display: flex;
-      padding: 10px;
-      border-top: 1px solid #ccc;
-    }
-    .chat-input input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: none;
-      outline: none;
-    }
-    .chat-input button {
-      padding: 10px 20px;
-      margin-left: 10px;
-      border: none;
-      border-radius: 20px;
-      background-color: #005bff;
-      color: white;
-      cursor: pointer;
-    }
-    .typing-indicator {
-      font-style: italic;
-      font-size: 14px;
-      margin: 5px;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @media (max-width: 600px) {
-      .message-content {
-        max-width: 90%;
-        font-size: 14px;
-      }
-    }
-    body.dark-mode .message-content a {
-      color: #ffffff;
-    }
-    body.light-mode .message-content a {
-      color: #000000;
-    }
+    .chip.active { outline: 2px solid var(--accent); }
+    .chip.badge { background: transparent; border-color: rgba(255,255,255,.45); color: #fff; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .message { display: flex; align-items: flex-end; animation: fadeIn 0.25s ease; }
+    .message.user { justify-content: flex-end; }
+    .message.bot  { justify-content: flex-start; }
+    .message-content { max-width: min(780px, 80%); padding: 12px 16px; border-radius: 16px; background: var(--ai-bubble); line-height: 1.45; }
+    .message.user .message-content { background: var(--user-bubble); }
+    .message .meta { font-size: 12px; opacity: .75; margin-top: 6px; }
+    .answer { white-space: pre-wrap; }
+    .citations { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+    .citation-link { padding: 3px 6px; border-radius: 8px; background: var(--chip-bg); border: 1px solid var(--chip-border); font-size: 11px; text-decoration: none; color: inherit; }
+    .chat-input { display: flex; gap: 10px; padding: 12px; border-top: 1px solid #ccc; align-items: center; flex-wrap: wrap; }
+    .chat-input input[type="text"] { flex: 1; padding: 12px 14px; border-radius: 12px; border: 1px solid #ccc; outline: none; font-size: 15px; min-width: 240px; }
+    .chat-input button.primary { padding: 12px 18px; border: none; border-radius: 12px; background-color: var(--accent); color: white; cursor: pointer; font-weight: 600; }
+    .chat-input .small { padding: 8px 12px; border-radius: 10px; border: 1px solid #ccc; background: transparent; cursor: pointer; }
+    .typing-indicator { font-style: italic; font-size: 14px; margin: 5px 44px; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @media (max-width: 600px) { .message-content { max-width: 92%; font-size: 14px; } .brand span { display: none; } }
+    a { color: inherit; }
+    body.dark-mode .message-content a { color: #ffffff; }
+    body.light-mode .message-content a { color: #000000; }
   </style>
 </head>
 <body>
   <div class="chat-container">
     <div class="chat-header">
-      <img src="../assets/logo.png" alt="RiSync Logo" />
-      <div>
-        <button class="chat-settings" onclick="toggleSettings()">🌙 Dark Mode</button>
-        <button class="chat-settings" onclick="clearChat()">🧹 Clear Chat</button>
+      <div class="brand">
+        <img src="../assets/logo.png" alt="RiSync Logo" />
+        <span>RiSync GPT — Study Mode</span>
+      </div>
+      <div class="tools">
+        <span id="gradeBadge" class="chip badge">Class: Detecting…</span>
+        <button id="darkToggle" class="chat-settings" onclick="toggleDark()">🌙 Dark</button>
+        <button class="chat-settings" onclick="clearChat()">🧹 Clear</button>
+        <button id="studyToggle" class="toggle active" onclick="toggleStudy()">🎓 Study Mode</button>
       </div>
     </div>
-    <div class="chat-messages" id="chat-messages"></div>
-    <div class="chat-input">
-      <input type="text" id="user-input" placeholder="Ask anything..." onkeypress="handleKeyPress(event)">
-      <button onclick="sendMessage()">Send</button>
+
+    <div class="chat-input" style="border-top:none; padding-top:8px;">
+      <div style="font-size:12px; opacity:.8; display:flex; align-items:center; gap:8px; flex-wrap: wrap;">
+        <strong>Sources:</strong>
+        <div class="sources">
+          <div class="chip active" data-src="wikipedia" onclick="toggleSource(this)">Wikipedia</div>
+          <div class="chip active" data-src="duckduckgo" onclick="toggleSource(this)">DuckDuckGo</div>
+          <div class="chip" data-src="openalex" onclick="toggleSource(this)">OpenAlex (Research)</div>
+          <div class="chip" data-src="stackexchange_math" onclick="toggleSource(this)">Math.SE</div>
+          <div class="chip" data-src="stackexchange_physics" onclick="toggleSource(this)">Physics.SE</div>
+          <div class="chip" data-src="stackexchange_chem" onclick="toggleSource(this)">Chem.SE</div>
+        </div>
+      </div>
     </div>
-    <button onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
-      ← Back to Content
-    </button>
+
+    <div class="chat-messages" id="chat-messages"></div>
+
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Ask a study question… e.g., 'Explain photosynthesis for Class 6'"
+             onkeypress="handleKeyPress(event)">
+      <button class="primary" onclick="sendMessage()">Send</button>
+      <button class="small" onclick="window.location.href='content.html'">← Back to Content</button>
+    </div>
   </div>
 
   <script>
-    function sendMessage() {
-      const input = document.getElementById("user-input");
-      const text = input.value.trim();
-      if (!text) return;
-      input.value = "";
-      displayMessage("You", text);
-      saveContext("Q: " + text);
-      showTyping();
-      setTimeout(() => getBotResponse(text), 1000);
+    // ========= Grade detection from signup.html =========
+    function detectGradeFromSignup() {
+      // Try multiple common patterns that signup.html might have saved
+      const candidates = [
+        'studentClass', 'class', 'grade', 'userClass', 'signup.class', 'signup.grade'
+      ];
+
+      // If signup stored a JSON blob
+      const blobKeys = ['signup', 'signupData', 'userProfile'];
+      for (const key of blobKeys) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (!raw) continue;
+          const obj = JSON.parse(raw);
+          const val = obj?.class || obj?.grade || obj?.studentClass || obj?.education?.class || obj?.education?.grade;
+          if (val) return normalizeGrade(val);
+        } catch (e) {}
+      }
+
+      // Direct keys
+      for (const k of candidates) {
+        const v = localStorage.getItem(k);
+        if (v) return normalizeGrade(v);
+      }
+
+      // URL param fallback: ?class=6 or ?grade=6
+      const url = new URL(window.location.href);
+      const qp = url.searchParams.get('class') || url.searchParams.get('grade');
+      if (qp) return normalizeGrade(qp);
+
+      return null;
     }
 
-    function displayMessage(sender, text, isHTML = false) {
-      const chat = document.getElementById("chat-messages");
-      const msg = document.createElement("div");
-      msg.classList.add("message", sender === "You" ? "user" : "bot");
+    function normalizeGrade(val) {
+      if (val == null) return null;
+      const s = (''+val).trim().toLowerCase();
+      const m = s.match(/(\d{1,2})/);
+      if (m) return parseInt(m[1], 10);
+      // words to numbers
+      const words = {
+        one:1,two:2,three:3,four:4,five:5,six:6,seven:7,eight:8,nine:9,ten:10,
+        eleven:11,twelve:12
+      };
+      return words[s] || null;
+    }
 
-      const profileImage = sender === "You"
-        ? "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-        : "../assets/logo-bot.png";
+    let USER_GRADE = null;
 
+    // ========= UI Helpers =========
+    function toggleDark() {
+      const isDark = document.body.classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      document.getElementById('darkToggle').textContent = isDark ? '☀️ Light' : '🌙 Dark';
+    }
+    function toggleStudy() {
+      const btn = document.getElementById('studyToggle');
+      btn.classList.toggle('active');
+      const on = btn.classList.contains('active');
+      localStorage.setItem('studyMode', on ? '1' : '0');
+      btn.textContent = on ? '🎓 Study Mode' : '💬 Chat Mode';
+    }
+    function toggleSource(el) { el.classList.toggle('active'); persistSources(); }
+    function persistSources() {
+      const active = [...document.querySelectorAll('.chip.active')].map(c => c.dataset.src);
+      localStorage.setItem('activeSources', JSON.stringify(active));
+    }
+    function restoreSources() {
+      const saved = JSON.parse(localStorage.getItem('activeSources') || '[]');
+      if (!saved.length) return;
+      document.querySelectorAll('.chip').forEach(c => {
+        const on = saved.includes(c.dataset.src);
+        c.classList.toggle('active', on);
+      });
+    }
+    function clearChat() {
+      localStorage.removeItem('chatHistory');
+      localStorage.removeItem('chatContext');
+      document.getElementById('chat-messages').innerHTML = '';
+    }
+    function handleKeyPress(e) { if (e.key === 'Enter') sendMessage(); }
+    function showTyping() {
+      const chat = document.getElementById('chat-messages');
+      const indicator = document.createElement('div');
+      indicator.classList.add('typing-indicator');
+      indicator.textContent = 'RiSync is synthesizing…';
+      chat.appendChild(indicator);
+      chat.scrollTop = chat.scrollHeight;
+      return indicator;
+    }
+    function displayMessage(sender, text, html=false, metaHTML='') {
+      const chat = document.getElementById('chat-messages');
+      const msg = document.createElement('div');
+      msg.classList.add('message', sender === 'You' ? 'user' : 'bot');
+      const profileImage = sender === 'You'
+        ? 'https://cdn-icons-png.flaticon.com/512/149/149071.png'
+        : '../assets/logo-bot.png';
       msg.innerHTML = `
-        <img src="${profileImage}" style="width:30px; height:30px; border-radius:50%; margin:0 10px;">
-        <div class="message-content"><strong>${sender}:</strong> ${isHTML ? text : escapeHTML(text)}</div>
+        <img src="${profileImage}" style="width:30px;height:30px;border-radius:50%;margin:0 10px;">
+        <div class="message-content">
+          <strong>${sender}:</strong>
+          <div class="answer">${html ? text : escapeHTML(text)}</div>
+          ${metaHTML ? `<div class="meta">${metaHTML}</div>` : ''}
+        </div>
       `;
       chat.appendChild(msg);
       chat.scrollTop = chat.scrollHeight;
       saveChat();
     }
+    function saveChat() { localStorage.setItem('chatHistory', document.getElementById('chat-messages').innerHTML); }
+    function escapeHTML(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
+    function stripHTML(html) { const tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || ''; }
+    function saveContext(line) { let ctx = localStorage.getItem('chatContext') || ''; ctx += '\\n' + line; localStorage.setItem('chatContext', ctx.trim()); }
 
-    function showTyping() {
-      const chat = document.getElementById("chat-messages");
-      const indicator = document.createElement("div");
-      indicator.classList.add("typing-indicator");
-      indicator.textContent = "RiSync Bot is thinking...";
-      chat.appendChild(indicator);
-      setTimeout(() => indicator.remove(), 900);
-    }
-
-    function handleKeyPress(e) {
-      if (e.key === "Enter") sendMessage();
-    }
-
-    function escapeHTML(text) {
-      const div = document.createElement("div");
-      div.textContent = text;
-      return div.innerHTML;
-    }
-
-    function toggleSettings() {
-      const isDark = document.body.classList.toggle("dark-mode");
-      localStorage.setItem("darkMode", isDark);
-      document.querySelector("button[onclick='toggleSettings()']").textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
-    }
-
-    function saveChat() {
-      localStorage.setItem("chatHistory", document.getElementById("chat-messages").innerHTML);
-    }
-
-    function clearChat() {
-      localStorage.removeItem("chatHistory");
-      localStorage.removeItem("chatContext");
-      document.getElementById("chat-messages").innerHTML = "";
-    }
-
-    function saveContext(line) {
-      let ctx = localStorage.getItem("chatContext") || "";
-      ctx += "\n" + line;
-      localStorage.setItem("chatContext", ctx.trim());
-    }
-
-    async function getBotResponse(userQuestion) {
-      try {
-        const localAnswers = {
-          "what is gravity": "Gravity is the force by which a planet or other body draws objects toward its center.",
-          "what is photosynthesis": "Photosynthesis is the process by which green plants use sunlight to make food from carbon dioxide and water."
-        };
-
-        const key = userQuestion.toLowerCase().trim();
-        const answer = localAnswers[key] || "Sorry, I don't have an answer for that right now.";
-
-        displayMessage("AI", answer);
-        saveContext("A: " + answer);
-      } catch (error) {
-        console.error("Local answer fetch failed:", error);
-        displayMessage("AI", "Oops! Couldn't get an answer this time.");
-      }
-    }
-
+    // ========= Boot =========
     window.onload = () => {
-      if (localStorage.getItem("darkMode") === "true") {
-        document.body.classList.add("dark-mode");
-        document.querySelector("button[onclick='toggleSettings()']").textContent = "☀️ Light Mode";
+      USER_GRADE = detectGradeFromSignup();
+      const badge = document.getElementById('gradeBadge');
+      badge.textContent = USER_GRADE ? `Class: ${USER_GRADE}` : 'Class: Not set';
+      if (!USER_GRADE) badge.title = 'Tip: Save your class in signup.html (e.g., localStorage.setItem("class","6")).';
+
+      if (localStorage.getItem('darkMode') === 'true') {
+        document.body.classList.add('dark-mode');
+        document.getElementById('darkToggle').textContent = '☀️ Light';
       } else {
-        document.querySelector("button[onclick='toggleSettings()']").textContent = "🌙 Dark Mode";
+        document.getElementById('darkToggle').textContent = '🌙 Dark';
+      }
+      if (localStorage.getItem('studyMode') === '0') {
+        document.getElementById('studyToggle').classList.remove('active');
+        document.getElementById('studyToggle').textContent = '💬 Chat Mode';
+      }
+      restoreSources();
+      const history = localStorage.getItem('chatHistory');
+      if (history) document.getElementById('chat-messages').innerHTML = history;
+    };
+
+    // ========= Core Chat =========
+    function sendMessage() {
+      const input = document.getElementById('user-input');
+      const text = input.value.trim();
+      if (!text) return;
+      input.value = '';
+      displayMessage('You', text);
+      saveContext('Q: ' + text);
+      const indicator = showTyping();
+      const studyOn = document.getElementById('studyToggle').classList.contains('active');
+      (studyOn ? answerViaSources(text) : localBot(text))
+        .then(({answer, citationsHTML}) => {
+          indicator.remove();
+          displayMessage('AI', answer, true, citationsHTML || '');
+          saveContext('A: ' + stripHTML(answer));
+        })
+        .catch(err => {
+          console.error(err);
+          indicator.remove();
+          displayMessage('AI', 'Oops! Couldn’t synthesize an answer right now.');
+        });
+    }
+
+    // ========= Local fallback =========
+    async function localBot(q) {
+      const basics = {
+        algebra6: 'Algebra (Class 6): Variables are symbols (like x) that can stand for numbers. Basic operations: evaluate expressions (e.g., 2x+3 when x=4), write simple equations, and use the order of operations (BODMAS).'
+      };
+      const key = (USER_GRADE && USER_GRADE <= 7) ? 'algebra6' : null;
+      const answer = key ? basics[key] : 'Try Study Mode (🎓) for multi-source synthesis tailored to your class.';
+      return { answer: escapeHTML(answer) };
+    }
+
+    // ========= Level-aware synthesizer =========
+    function isSchoolQuery(query, grade) {
+      if (/(grade|class|school|kids|child|cbse|ncert|icse)/i.test(query)) return true;
+      if (grade && grade <= 12) return true;
+      return false;
+    }
+
+    function levelKeywords(grade) {
+      if (!grade) return [];
+      if (grade <= 6) return ['for kids','class 6','grade 6','beginners','examples','step by step','ncert'];
+      if (grade <= 8) return ['middle school','class 7','class 8','cbse','worked examples'];
+      if (grade <= 10) return ['high school','class 9','class 10','cbse','icsc','ncert'];
+      return ['introductory','undergraduate'];
+    }
+
+    function buildLevelAwareQuery(userQuery, grade) {
+      const q = userQuery.trim();
+      if (!isSchoolQuery(userQuery, grade)) return q;
+      const extras = levelKeywords(grade).join(' ');
+      // bias to kid-friendly sites via keywords; DDG API doesn't support site: reliably via JSON,
+      // but we can stuff the keywords to steer snippets.
+      return `${q} ${extras}`;
+    }
+
+    function filterDocsByLevel(docs, query, grade) {
+      const schoolMode = isSchoolQuery(query, grade);
+      if (!schoolMode) return docs;
+
+      const ban = /manifold|differential (geometry|equations)|k-?theory|homotopy|lagrangian|quantum|particle physics|complex analysis|measure theory|stochastic|eigenvalue|functional analysis|category theory/i;
+      const keep = /ncert|cbse|byju|khan|ck-?12|mathsisfun|britannica|wikipedia|teachers|tutorial|example|exercise|worksheet|practice/i;
+
+      return docs.filter(d => {
+        const text = (d.title + ' ' + (d.snippet || '') + ' ' + (d.url || '')).toLowerCase();
+        if (ban.test(text)) return false;
+        // allow general sources if they look explanatory
+        if (keep.test(text)) return true;
+        // neutral documents are okay if not banned
+        return true;
+      });
+    }
+
+    function downweightAdvancedSentences(s, grade, query) {
+      if (!isSchoolQuery(query, grade)) return 0;
+      return /manifold|homotopy|k-?theory|hilbert|measure|sigma-algebra|eigen|lagrangian|tensor|quantum|renormalization/i.test(s) ? -3 : 0;
+    }
+
+    function tokenize(text) {
+      return text.replace(/\\s+/g, ' ').split(/(?<=[.!?])\\s+/).map(s => s.trim()).filter(Boolean);
+    }
+    function keywords(q) {
+      return q.toLowerCase().replace(/[^a-z0-9\\s]/g,' ').split(/\\s+/).filter(w => w.length > 2 && !stopwords.has(w));
+    }
+    const stopwords = new Set('the of and is are was were a an to for in on by with from as at that this those these into over about using use how what why when which whose where does do did done can could should would make made get got be being been you your we our they their it its via than then vs versus if else not without within under above between across around'.split(' '));
+
+    function synthesize(query, corpus, grade) {
+      const ks = keywords(query);
+      const sentences = tokenize(corpus);
+      if (!sentences.length) return '<p>No content found to summarize.</p>';
+
+      const scores = sentences.map(s => {
+        const ls = s.toLowerCase();
+        let score = 0;
+        for (const k of ks) {
+          const c = (ls.match(new RegExp('\\b'+escapeReg(k)+'\\b','g'))||[]).length;
+          score += c * 3;
+        }
+        if (/is (a|an|the) /i.test(s)) score += 1.5; 
+        if (/:|—|-/.test(s)) score += 0.5;          
+        if (s.length < 220) score += 0.75;           
+        score += downweightAdvancedSentences(s, USER_GRADE, query);
+        return score;
+      });
+
+      const ranked = sentences
+        .map((s,i)=>({s,score:scores[i],i}))
+        .sort((a,b)=> b.score - a.score || a.i - b.i)
+        .slice(0, 7)
+        .sort((a,b)=> a.i - b.i)
+        .map(x=>x.s);
+
+      const levelTag = USER_GRADE ? ` (Class ${USER_GRADE})` : '';
+      const intro = `<p><strong>TL;DR${levelTag}:</strong> ${escapeHTML(ranked[0] || sentences[0])}</p>`;
+
+      let body = '<p>' + escapeHTML(ranked.slice(1,4).join(' ')) + '</p>';
+      
+      // Add examples & hints for lower grades
+      if (USER_GRADE && USER_GRADE <= 7) {
+        body += '<p><em>Example:</em> If x = 3, then 2x + 5 = 11. Always try small numbers to understand!</p>';
+        body += '<p><em>Hint:</em> Draw, visualize, or relate to daily life (like apples, pencils, or coins).</p>';
       }
 
-      const history = localStorage.getItem("chatHistory");
-      if (history) document.getElementById("chat-messages").innerHTML = history;
-    };
+      // Add study tip footer for all
+      const footer = `<p style="font-size:13px;opacity:.85;"><em>Study Tip:</em> Break the concept into steps, practice 2-3 problems, then explain it in your own words.</p>`;
+
+      const extra = ranked[4] ? ('<p>' + escapeHTML(ranked.slice(4).join(' ')) + '</p>') : '';
+
+      return intro + body + extra + footer;
+    }
+
+    function escapeReg(s){ return s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&'); }
+    function safeHost(url) { try { return new URL(url).host; } catch { return ''; } }
+
+    // ========= Source Fetchers =========
+    async function fetchWikipedia(query, controllers) {
+      const q = encodeURIComponent(query);
+      const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${q}`;
+      const ctrl = new AbortController(); controllers.push(ctrl);
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) return [];
+      const d = await r.json();
+      if (!d.extract) return [];
+      return [{
+        title: d.title || 'Wikipedia',
+        snippet: d.extract,
+        url: d.content_urls?.desktop?.page || `https://en.wikipedia.org/wiki/${q}`,
+        source: 'Wikipedia'
+      }];
+    }
+
+    async function fetchDDG(query, controllers) {
+      const q = encodeURIComponent(query);
+      const url = `https://api.duckduckgo.com/?q=${q}&format=json&no_html=1&skip_disambig=1`;
+      const ctrl = new AbortController(); controllers.push(ctrl);
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) return [];
+      const d = await r.json();
+      const out = [];
+      if (d.AbstractText) {
+        out.push({ title: d.Heading || 'DuckDuckGo', snippet: d.AbstractText, url: d.AbstractURL || '', source: 'DuckDuckGo' });
+      }
+      if (Array.isArray(d.RelatedTopics)) {
+        for (const t of d.RelatedTopics.slice(0,5)) {
+          if (t.Text) out.push({ title: t.Text.split(' - ')[0], snippet: t.Text, url: t.FirstURL || '', source: 'DuckDuckGo' });
+        }
+      }
+      return out;
+    }
+
+    async function fetchOpenAlex(query, controllers) {
+      const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&per_page=5&mailto=opensource@openalex.org`;
+      const ctrl = new AbortController(); controllers.push(ctrl);
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) return [];
+      const d = await r.json();
+      if (!d.results) return [];
+      return d.results.map(w => ({
+        title: w.display_name || 'OpenAlex Work',
+        snippet: (w.abstract_inverted_index ? reconstructAbstract(w.abstract_inverted_index) : '') || (w.title || ''),
+        url: w.id || '',
+        source: 'OpenAlex'
+      }));
+    }
+    function reconstructAbstract(inv) {
+      try {
+        const arr = [];
+        Object.entries(inv).forEach(([word, positions]) => {
+          positions.forEach(([i]) => { arr[i] = word; });
+        });
+        return arr.join(' ');
+      } catch { return ''; }
+    }
+
+    async function fetchStackExchange(query, which, controllers) {
+      const site = which === 'math' ? 'math.stackexchange' :
+                   which === 'physics' ? 'physics.stackexchange' :
+                   'chemistry.stackexchange';
+      const url = `https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=relevance&q=${encodeURIComponent(query)}&site=${site}&filter=withbody&pagesize=3`;
+      const ctrl = new AbortController(); controllers.push(ctrl);
+      const r = await fetch(url, { signal: ctrl.signal });
+      if (!r.ok) return [];
+      const d = await r.json();
+      if (!Array.isArray(d.items)) return [];
+      return d.items.map(it => ({
+        title: it.title,
+        snippet: stripHTML(it.body || '').slice(0, 600),
+        url: it.link || '',
+        source: site.replace('.stackexchange','').toUpperCase()+'.SE'
+      }));
+    }
+
+    // ========= Study Synthesizer =========
+    async function answerViaSources(userQuery) {
+      const active = new Set([...document.querySelectorAll('.chip.active')].map(c => c.dataset.src));
+      const controllers = [];
+      const withTimeout = (p, ms=9000) => Promise.race([ p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms)) ]);
+
+      // Level-aware query rewrite
+      const query = buildLevelAwareQuery(userQuery, USER_GRADE);
+
+      // Auto-disable advanced sources for lower classes
+      const schoolMode = isSchoolQuery(userQuery, USER_GRADE);
+      if (schoolMode && USER_GRADE && USER_GRADE <= 8) {
+        active.delete('openalex');
+        active.delete('stackexchange_physics');
+        active.delete('stackexchange_chem');
+      }
+
+      const tasks = [];
+      if (active.has('wikipedia')) tasks.push(fetchWikipedia(query, controllers));
+      if (active.has('duckduckgo')) tasks.push(fetchDDG(query, controllers));
+      if (active.has('openalex')) tasks.push(fetchOpenAlex(query, controllers));
+      if (active.has('stackexchange_math')) tasks.push(fetchStackExchange(query, 'math', controllers));
+      if (active.has('stackexchange_physics')) tasks.push(fetchStackExchange(query, 'physics', controllers));
+      if (active.has('stackexchange_chem')) tasks.push(fetchStackExchange(query, 'chemistry', controllers));
+
+      let docs = [];
+      try {
+        const chunks = await Promise.allSettled(tasks.map(t => withTimeout(t)));
+        for (const r of chunks) if (r.status === 'fulfilled' && Array.isArray(r.value)) docs.push(...r.value);
+      } catch (e) { console.warn('aggregate error', e); }
+
+      // Level filter
+      docs = filterDocsByLevel(docs, userQuery, USER_GRADE);
+
+      // Dedupe & trim
+      const seen = new Set();
+      docs = docs.filter(d => {
+        const key = d.url ? (d.url + '|' + (d.snippet||'').slice(0,100)) : (d.title||'')+(d.snippet||'').slice(0,120);
+        if (seen.has(key)) return false; seen.add(key); return true;
+      }).slice(0, 18);
+
+      if (!docs.length) {
+        return { answer: `<p>No beginner-friendly sources responded${USER_GRADE? ' for Class '+USER_GRADE : ''}. Try rephrasing like "for Class ${USER_GRADE||'6'} with examples".</p>` };
+      }
+
+      const corpus = docs.map(d => (d.title ? d.title + '. ' : '') + (d.snippet || '')).join(' ');
+      const answerHTML = synthesize(userQuery, corpus, USER_GRADE);
+
+      const citeHTML = docs.slice(0, 8).map(d => {
+        const host = safeHost(d.url || '');
+        const label = (d.source || host || 'source').replace(/^www\./,'');
+        const title = (d.title || host || 'link').slice(0, 80);
+        const url = d.url || '#';
+        return `<a class="citation-link" href="${url}" target="_blank" rel="noopener">${label} ▸ ${escapeHTML(title)}</a>`;
+      }).join('');
+
+      return {
+        answer: answerHTML,
+        citationsHTML: citeHTML ? `<div class="citations">${citeHTML}</div>` : ''
+      };
+    }
   </script>
 </body>
 </html>
