@@ -1,293 +1,1068 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RiSync Chat</title>
-  <script src="https://cdn.jsdelivr.net/npm/@joeattardi/emoji-button@4.6.2/dist/index.min.js"></script>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      transition: background 0.3s, color 0.3s;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RiSync Chat</title>
+    <link href="[https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap)" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Light Theme */
+            --primary-color: #007bff;
+            --background-light: #ffffff;
+            --chat-bg-light: #e5ddd5;
+            --sent-message-bg-light: #dcf8c6;
+            --received-message-bg-light: #f1f1f1;
+            --text-color-light: #333333;
+            --file-bg-light: #f1f1f1;
+            --scrollbar-thumb-light: #888;
+            --reply-quote-bg: rgba(0, 0, 0, 0.05);
 
-    #chat-container {
-      width: 100vw;
-      height: 100vh;
-      background: white;
-      display: flex;
-      flex-direction: column;
-    }
+            /* Default Dark Theme */
+            --background-dark: #1a1a1a;
+            --chat-bg-dark: #2c2c2c;
+            --sent-message-bg-dark: #006000;
+            --received-message-bg-dark: #3a3a3a;
+            --text-color-dark: #f5f5f5;
+            --file-bg-dark: #555;
+            --scrollbar-thumb-dark: #444;
+            --reply-quote-bg-dark: rgba(255, 255, 255, 0.1);
+        }
 
-    #header {
-      background: #003366;
-      color: white;
-      padding: 15px;
-      text-align: center;
-      font-size: 20px;
-      font-weight: bold;
-      position: relative;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: var(--background-light);
+            color: var(--text-color-light);
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-    #messages {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-    }
+        /* --- THEME STYLES --- */
+        body.dark-mode {
+            background-color: var(--background-dark);
+            color: var(--text-color-dark);
+        }
 
-    .message {
-      max-width: 70%;
-      padding: 10px;
-      margin: 5px;
-      border-radius: 10px;
-      word-wrap: break-word;
-      display: flex;
-      align-items: center;
-    }
+        .dark-mode #chat-container { background: var(--chat-bg-dark); }
+        .dark-mode #header { background: #222; }
+        .dark-mode .message.sent { background: var(--sent-message-bg-dark); }
+        .dark-mode .message.received { background: var(--received-message-bg-dark); }
+        .dark-mode .profile-img { border: 2px solid #333; }
+        .dark-mode .message-timestamp { color: #bbb; }
+        .dark-mode #input-container {
+            background: var(--background-dark);
+            border-top-color: #333;
+        }
+        .dark-mode #message {
+            background-color: #444;
+            color: white;
+            border-color: #555;
+        }
+        .dark-mode .file-item {
+            background: var(--file-bg-dark);
+            color: white;
+        }
+        .dark-mode .file-item:hover { background-color: #666; }
+        .dark-mode .reply-quote {
+            background-color: var(--reply-quote-bg-dark);
+            border-left-color: var(--primary-color);
+        }
+        .dark-mode #typing-indicator { color: #888; }
+        .dark-mode #deletion-counter { color: #ccc; }
+        .dark-mode .modal-content {
+            background: #2c2c2c;
+            color: #f5f5f5;
+        }
+        .dark-mode .modal-content input[type="datetime-local"] {
+            background: #444;
+            color: white;
+        }
+        .dark-mode .modal-content button {
+            background: #555;
+            color: white;
+        }
 
-    .sent {
-      align-self: flex-end;
-      background: #DCF8C6;
-      color: black;
-      flex-direction: row-reverse;
-    }
+        /* Additional themes can be added here */
+        body.blue-theme {
+            --primary-color: #3366ff;
+            --sent-message-bg-light: #e6f0ff;
+            --received-message-bg-light: #e0e0e0;
+        }
 
-    .received {
-      align-self: flex-start;
-      background: #EAEAEA;
-      color: black;
-    }
+        body.green-theme {
+            --primary-color: #28a745;
+            --sent-message-bg-light: #e9ffe6;
+            --received-message-bg-light: #e0e0e0;
+        }
+        
+        body.pink-theme {
+            --primary-color: #ff69b4;
+            --sent-message-bg-light: #ffe6f0;
+            --received-message-bg-light: #e0e0e0;
+        }
+        /* --- END THEME STYLES --- */
 
-    .profile-img {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      margin: 0 10px;
-    }
+        #chat-container {
+            width: 100vw;
+            height: 100vh;
+            background: var(--background-light);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
 
-    #input-container {
-      display: flex;
-      align-items: center;
-      background: #ECE5DD;
-      padding: 10px;
-    }
+        #header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
 
-    #input-container input[type="text"] {
-      flex-grow: 1;
-      padding: 10px;
-      border-radius: 20px;
-      border: none;
-      font-size: 16px;
-    }
+        #header-info {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
 
-    .icon-button {
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 20px;
-      margin: 0 10px;
-    }
+        #header-info img {
+            height: 40px;
+            margin-right: 15px;
+        }
 
-    #classDisplay {
-      font-size: 14px;
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background-color: #004aad;
-      padding: 4px 10px;
-      border-radius: 10px;
-      color: white;
-    }
+        #header-title-container {
+            text-align: left;
+        }
 
-    #modeToggle {
-      position: absolute;
-      top: 10px;
-      right: 110px;
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: white;
-    }
+        #header-title {
+            font-size: 18px;
+            margin: 0;
+        }
 
-    #backButton {
-      margin: 10px;
-      align-self: flex-start;
-      background-color: #004aad;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
+        #status {
+            font-size: 12px;
+            opacity: 0.8;
+            margin: 0;
+        }
 
-    /* Dark mode styles */
-    body.dark {
-      background-color: #121212;
-      color: #eee;
-    }
+        #messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: var(--chat-bg-light);
+            border-bottom: 1px solid #ddd;
+        }
+        
+        #messages::-webkit-scrollbar { width: 8px; }
+        #messages::-webkit-scrollbar-thumb {
+            background-color: var(--scrollbar-thumb-light);
+            border-radius: 4px;
+        }
+        .dark-mode #messages::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-dark); }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 20px;
+            word-wrap: break-word;
+            display: flex;
+            align-items: flex-end;
+            position: relative;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
 
-    .dark #chat-container {
-      background-color: #1e1e1e;
-    }
+        .message-content { display: flex; flex-direction: column; }
+        .message-user {
+            font-size: 10px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
 
-    .dark #header {
-      background-color: #222;
-      color: white;
-    }
+        .message.sent {
+            align-self: flex-end;
+            background: var(--sent-message-bg-light);
+            border-bottom-right-radius: 5px;
+        }
+        .message.received {
+            align-self: flex-start;
+            background: var(--received-message-bg-light);
+            border-bottom-left-radius: 5px;
+        }
+        .message-text { font-size: 15px; margin: 0; }
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            background: var(--file-bg-light);
+            margin: 5px 0;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .file-item:hover { background-color: #e0e0e0; }
+        .file-icon { margin-right: 10px; font-size: 20px; }
+        .file-info { display: flex; flex-direction: column; }
+        .profile-img {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            margin: 0 10px;
+            flex-shrink: 0;
+            object-fit: cover;
+            border: 2px solid white;
+        }
+        .message.sent .profile-img { order: 2; }
+        .message.received .profile-img { order: 1; }
+        .message.sent .message-content { order: 1; text-align: right; }
+        .message.received .message-content { order: 2; text-align: left; }
 
-    .dark #input-container {
-      background: #333;
-    }
+        .message-timestamp {
+            font-size: 10px;
+            color: #888;
+            align-self: flex-end;
+            margin-top: 5px;
+            text-align: right;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
 
-    .dark input[type="text"] {
-      background: #444;
-      color: white;
-    }
+        .message:hover .message-timestamp { opacity: 1; }
 
-    .dark .sent {
-      background: #2e7d32;
-    }
+        /* New Reply and Delete Buttons */
+        .message-actions {
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .message:hover .message-actions { opacity: 1; }
 
-    .dark .received {
-      background: #444;
-    }
+        .action-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            margin-left: 5px;
+        }
 
-    .dark .file-item {
-      background: #555;
-      color: white;
-    }
-  </style>
+        /* New Reply Quote styling */
+        .reply-quote {
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            background-color: var(--reply-quote-bg);
+            border-left: 4px solid var(--primary-color);
+            font-style: italic;
+            opacity: 0.8;
+            font-size: 13px;
+        }
+        .reply-quote strong { display: block; margin-bottom: 4px; }
+
+        /* New Reply Input Preview */
+        #reply-preview {
+            display: none;
+            position: relative;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: var(--reply-quote-bg);
+            border-left: 4px solid var(--primary-color);
+            margin: 0 15px 10px;
+            font-size: 14px;
+        }
+        .dark-mode #reply-preview { background-color: var(--reply-quote-bg-dark); }
+        
+        #reply-preview-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        #input-container {
+            display: flex;
+            flex-direction: column; /* Changed to column to fit reply preview */
+            background: var(--background-light);
+            padding: 10px 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+        #message-input-wrapper {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+        }
+        #message {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: 1px solid #ccc;
+            font-size: 15px;
+            background-color: #f8f9fa;
+        }
+        
+        .icon-button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: var(--primary-color);
+            padding: 8px;
+            border-radius: 50%;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+        .icon-button:hover { background-color: rgba(0, 123, 255, 0.1); }
+        .icon-button:active { transform: scale(0.9); }
+        #modeToggle, #backButton, #themeToggle {
+            color: white;
+            font-size: 18px;
+        }
+        #backButton { font-size: 24px; margin-right: 15px; }
+        
+        #theme-picker {
+            position: absolute;
+            top: 10px;
+            right: 50px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .theme-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .theme-swatch:hover { border-color: var(--primary-color); }
+        .theme-swatch.active {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+        .swatch-blue { background-color: #007bff; }
+        .swatch-green { background-color: #28a745; }
+        .swatch-pink { background-color: #ff69b4; }
+        .swatch-reset { 
+            font-size: 12px; 
+            padding: 5px 10px; 
+            background: #f1f1f1; 
+            border-radius: 5px; 
+            margin: 5px; 
+            cursor: pointer;
+            text-align: center;
+        }
+
+        #emoji-picker {
+            position: absolute;
+            bottom: 60px;
+            left: 10px;
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            padding: 10px;
+            z-index: 20;
+            display: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            max-width: 300px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .dark-mode #emoji-picker {
+            background-color: #333;
+            border-color: #555;
+        }
+        
+        .emoji-group {
+            border-bottom: 1px solid #eee;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+        }
+        
+        .dark-mode .emoji-group { border-color: #555; }
+        
+        .emoji-button {
+            font-size: 24px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            transition: transform 0.1s;
+        }
+        .emoji-button:hover { transform: scale(1.2); }
+
+        /* Microphone Pulse Animation */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        #microphoneBtn.listening {
+            color: red;
+            animation: pulse 1.5s infinite;
+        }
+
+        #typing-indicator {
+            font-style: italic;
+            font-size: 14px;
+            color: #888;
+            padding: 5px 20px;
+            display: none;
+        }
+
+        #deletion-counter {
+            font-size: 12px;
+            color: #666;
+            margin-left: auto;
+            align-self: flex-start;
+            padding: 5px 10px;
+        }
+
+        /* Code block styling */
+        .message pre {
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: rgba(0, 0, 0, 0.05);
+            font-family: monospace;
+            font-size: 14px;
+            overflow-x: auto;
+        }
+
+        .dark-mode .message pre { background-color: rgba(255, 255, 255, 0.1); }
+        
+        /* Modal for Scheduling */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .modal-content h3 {
+            margin-top: 0;
+        }
+        
+        .modal-content input {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-content button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="header">
-      <img src="../assets/logo.png" alt="Logo" style="height: 30px; position: absolute; left: 10px; top: 5px;">
-      RiSync Chat
-      <div id="classDisplay"></div>
-      <button id="modeToggle">🌙</button>
+    <div id="chat-container">
+        <div id="header">
+            <button id="backButton" class="icon-button" onclick="window.location.href='content.html'">&#8592;</button>
+            <div id="header-info">
+                <img src="../assets/logo.png" alt="Logo">
+                <div id="header-title-container">
+                    <h2 id="header-title">RiSync Chat</h2>
+                    <p id="status">Online</p>
+                </div>
+            </div>
+            <button id="themeToggle" class="icon-button">🎨</button>
+            <button id="modeToggle" class="icon-button">🌙</button>
+
+            <div id="theme-picker">
+                <div class="theme-swatch swatch-blue" data-theme="blue"></div>
+                <div class="theme-swatch swatch-green" data-theme="green"></div>
+                <div class="theme-swatch swatch-pink" data-theme="pink"></div>
+                <div class="swatch-reset" onclick="applyTheme('default');">Reset</div>
+            </div>
+        </div>
+
+        <div id="messages"></div>
+        <div id="typing-indicator"></div>
+        
+        <div id="reply-preview">
+            <div id="reply-preview-content"></div>
+            <button id="reply-preview-close">✕</button>
+        </div>
+
+        <div id="input-container">
+            <div id="message-input-wrapper">
+                <button class="icon-button" id="emoji-button-toggle">😊</button>
+                <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
+                <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
+                <input type="text" id="message" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage()">
+                <button class="icon-button" id="scheduleBtn">⏰</button>
+            </div>
+            <div style="display: flex; justify-content: flex-end; width: 100%;">
+                <button class="icon-button" id="boldBtn"><b>B</b></button>
+                <button class="icon-button" id="italicBtn"><i>I</i></button>
+                <button class="icon-button" onclick="sendMessage()">➤</button>
+                <button class="icon-button" id="microphoneBtn">🎤</button>
+            </div>
+        </div>
+        <div id="deletion-counter"></div>
+        
+        <div id="emoji-picker" style="display: none;">
+            <div class="emoji-group">
+                <button class="emoji-button">📖</button>
+                <button class="emoji-button">📚</button>
+                <button class="emoji-button">📒</button>
+                <button class="emoji-button">📓</button>
+                <button class="emoji-button">📝</button>
+                <button class="emoji-button">✏️</button>
+                <button class="emoji-button">🖊️</button>
+                <button class="emoji-button">🖋️</button>
+                <button class="emoji-button">🖌️</button>
+                <button class="emoji-button">🖍️</button>
+            </div>
+            <div class="emoji-group">
+                <button class="emoji-button">📐</button>
+                <button class="emoji-button">📏</button>
+                <button class="emoji-button">📊</button>
+                <button class="emoji-button">📈</button>
+                <button class="emoji-button">📉</button>
+                <button class="emoji-button">➕</button>
+                <button class="emoji-button">➖</button>
+                <button class="emoji-button">✖️</button>
+                <button class="emoji-button">➗</button>
+            </div>
+            <div class="emoji-group">
+                <button class="emoji-button">🔬</button>
+                <button class="emoji-button">🔭</button>
+                <button class="emoji-button">🧪</button>
+                <button class="emoji-button">🧬</button>
+                <button class="emoji-button">🧫</button>
+                <button class="emoji-button">⚗️</button>
+            </div>
+            <div class="emoji-group">
+                <button class="emoji-button">💻</button>
+                <button class="emoji-button">🖥️</button>
+                <button class="emoji-button">⌨️</button>
+                <button class="emoji-button">🖱️</button>
+                <button class="emoji-button">📱</button>
+                <button class="emoji-button">🧮</button>
+            </div>
+            <div class="emoji-group">
+                <button class="emoji-button">🎒</button>
+                <button class="emoji-button">🏫</button>
+                <button class="emoji-button">👩‍🏫</button>
+                <button class="emoji-button">👨‍🏫</button>
+                <button class="emoji-button">✍️</button>
+            </div>
+            <div class="emoji-group">
+                <button class="emoji-button">🎓</button>
+                <button class="emoji-button">🏆</button>
+                <button class="emoji-button">🏅</button>
+                <button class="emoji-button">🎖️</button>
+                <button class="emoji-button">✅</button>
+            </div>
+            <div class="emoji-group" style="border-bottom: none;">
+                <button class="emoji-button">😃</button>
+                <button class="emoji-button">😄</button>
+                <button class="emoji-button">😁</button>
+                <button class="emoji-button">😆</button>
+                <button class="emoji-button">😅</button>
+                <button class="emoji-button">😂</button>
+                <button class="emoji-button">🙂</button>
+                <button class="emoji-button">🙃</button>
+                <button class="emoji-button">😉</button>
+            </div>
+        </div>
     </div>
 
-    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
-
-    <div id="messages"></div>
-
-    <div id="input-container">
-      <button class="icon-button" id="emoji-button">😊</button>
-      <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
-      <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
-      <input type="text" id="message" placeholder="Type a message" onkeydown="if(event.key==='Enter') sendMessage()">
-      <button class="icon-button" onclick="sendMessage()">➡️</button>
-      <button class="icon-button" id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
+    <div id="scheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3>Schedule Message</h3>
+            <input type="datetime-local" id="scheduleTimeInput">
+            <button id="scheduleSendBtn">Schedule</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const username = localStorage.getItem("username") || "Guest";
-    const userClass = localStorage.getItem("signupClass") || "N/A";
-    const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
+    <script>
+        const username = localStorage.getItem("username") || "Guest";
+        const userClass = localStorage.getItem("signupClass") || "N/A";
+        const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
+        const messageInput = document.getElementById("message");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const deletionCounter = document.getElementById("deletion-counter");
+        const messagesContainer = document.getElementById("messages");
 
-    document.getElementById("classDisplay").innerText = `Class ${userClass}`;
+        document.getElementById("header-title").innerText = "RiSync Chat";
+        document.getElementById("status").innerText = `Class ${userClass} | Online`;
+        
+        let repliedToMessage = null;
 
-    // Load messages
-    const messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
-    window.addEventListener("DOMContentLoaded", () => {
-      messages.forEach(msg => {
-        appendMessage(msg.user, msg.text, msg.user === username ? "sent" : "received");
-      });
-    });
-
-    function sendMessage() {
-      const input = document.getElementById("message");
-      const text = input.value.trim();
-      if (text) {
-        const msg = { user: username, text };
-        messages.push(msg);
-        localStorage.setItem("chatMessages", JSON.stringify(messages));
-        appendMessage(msg.user, msg.text, "sent");
-        input.value = "";
-      }
-    }
-
-    function appendMessage(user, message, type) {
-      const container = document.getElementById("messages");
-      const el = document.createElement("div");
-      el.classList.add("message", type);
-      const img = user === username ? profileImage : "../assets/logo.png";
-
-      if (type === "sent") {
-        el.innerHTML = `<div><strong>${user}:</strong> ${message}</div><img src="${img}" class="profile-img">`;
-      } else {
-        el.innerHTML = `<img src="${img}" class="profile-img"><div><strong>${user}:</strong> ${message}</div>`;
-      }
-
-      container.appendChild(el);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    // Emoji picker
-    const picker = new EmojiButton();
-    document.getElementById("emoji-button").addEventListener("click", () => {
-      picker.togglePicker(document.getElementById("emoji-button"));
-    });
-    picker.on("emoji", emoji => {
-      document.getElementById("message").value += emoji;
-    });
-
-    // File list
-    function handleFileSelection() {
-      const files = document.getElementById("fileInput").files;
-      Array.from(files).forEach(file => {
-        sendMessage(`📎 ${file.name}`);
-      });
-    }
-
-    // Voice input
-    function startVoiceSearch() {
-      const micBtn = document.getElementById("microphoneBtn");
-      const input = document.getElementById("message");
-
-      if ('webkitSpeechRecognition' in window) {
-        const recognition = new webkitSpeechRecognition();
-        recognition.lang = 'en-US';
-        recognition.start();
-
-        recognition.onresult = event => {
-          const transcript = event.results[0][0].transcript;
-          input.value = transcript;
+        // Load messages and scheduled messages from LocalStorage
+        let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
+        let scheduledMessages = JSON.parse(localStorage.getItem("scheduledMessages")) || [];
+        
+        // Deletion tracking logic
+        const DELETION_LIMIT = 10;
+        let deletionData = JSON.parse(localStorage.getItem("deletionData")) || {
+            count: 0,
+            lastReset: new Date().toISOString()
         };
 
-        recognition.onerror = err => {
-          alert("Speech error: " + err.error);
-        };
-      } else {
-        alert("Speech recognition not supported");
-      }
-    }
+        function resetDeletionCountIfNewMonth() {
+            const lastResetDate = new Date(deletionData.lastReset);
+            const currentDate = new Date();
+            if (currentDate.getMonth() !== lastResetDate.getMonth() || currentDate.getFullYear() !== lastResetDate.getFullYear()) {
+                deletionData.count = 0;
+                deletionData.lastReset = currentDate.toISOString();
+                localStorage.setItem("deletionData", JSON.stringify(deletionData));
+            }
+        }
+        resetDeletionCountIfNewMonth();
 
-    // Dark mode toggle
-    const toggleBtn = document.getElementById("modeToggle");
-    const savedTheme = localStorage.getItem("theme") || "light";
-    applyTheme(savedTheme);
+        function updateDeletionCounter() {
+            const remaining = DELETION_LIMIT - deletionData.count;
+            deletionCounter.innerText = `Deletions remaining this month: ${remaining}`;
+        }
 
-    toggleBtn.addEventListener("click", () => {
-      const newTheme = document.body.classList.contains("dark") ? "light" : "dark";
-      applyTheme(newTheme);
-    });
+        function checkScheduledMessages() {
+            const now = new Date().getTime();
+            scheduledMessages.forEach((msg, index) => {
+                if (new Date(msg.scheduledTime).getTime() <= now) {
+                    messages.push(msg);
+                    scheduledMessages.splice(index, 1);
+                    localStorage.setItem("chatMessages", JSON.stringify(messages));
+                    localStorage.setItem("scheduledMessages", JSON.stringify(scheduledMessages));
+                    appendMessage(msg);
+                }
+            });
+        }
+        setInterval(checkScheduledMessages, 1000); // Check every second
 
-    function applyTheme(theme) {
-      document.body.classList.toggle("dark", theme === "dark");
-      toggleBtn.innerText = theme === "dark" ? "☀️" : "🌙";
-      localStorage.setItem("theme", theme);
-    }
-  </script>
+        window.addEventListener("DOMContentLoaded", () => {
+            messages.forEach(appendMessage);
+            updateDeletionCounter();
+        });
+
+        // Typing indicator logic
+        let typingTimeout;
+        messageInput.addEventListener('input', () => {
+            typingIndicator.style.display = 'block';
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                typingIndicator.style.display = 'none';
+            }, 1000);
+        });
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text) {
+                const msg = { 
+                    user: username, 
+                    text: text, 
+                    timestamp: new Date().toISOString(),
+                    type: "text",
+                    reply: repliedToMessage
+                };
+                messages.push(msg);
+                localStorage.setItem("chatMessages", JSON.stringify(messages));
+                appendMessage(msg);
+                messageInput.value = "";
+                clearReply();
+            }
+        }
+        
+        function scheduleMessage() {
+            const scheduledTimeInput = document.getElementById("scheduleTimeInput");
+            const text = messageInput.value.trim();
+            const scheduledTime = scheduledTimeInput.value;
+            if (text && scheduledTime) {
+                const msg = {
+                    user: username,
+                    text: text,
+                    timestamp: new Date().toISOString(),
+                    scheduledTime: scheduledTime,
+                    type: "text"
+                };
+                scheduledMessages.push(msg);
+                localStorage.setItem("scheduledMessages", JSON.stringify(scheduledMessages));
+                messageInput.value = "";
+                clearReply();
+                document.getElementById("scheduleModal").style.display = "none";
+                alert('Message scheduled successfully!');
+            } else {
+                alert('Please enter a message and a valid time.');
+            }
+        }
+
+        function appendMessage(msg) {
+            const el = document.createElement("div");
+            const messageIndex = messages.indexOf(msg);
+            el.classList.add("message", msg.user === username ? "sent" : "received");
+            el.setAttribute('data-user', msg.user);
+            el.setAttribute('data-text', msg.text);
+            el.setAttribute('data-index', messageIndex);
+
+            const img = msg.user === username ? profileImage : "../assets/logo.png";
+            const formattedTimestamp = new Date(msg.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+
+            let messageContentHtml = '';
+
+            if (msg.reply) {
+                let replyText = msg.reply.text;
+                replyText = replyText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>');
+                replyText = replyText.replace(/`(.*?)`/g, '<code>$1</code>');
+                replyText = replyText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+                messageContentHtml += `
+                    <div class="reply-quote">
+                        <strong>${msg.reply.user === username ? 'You' : msg.reply.user}</strong>
+                        ${replyText}
+                    </div>
+                `;
+            }
+
+            if (msg.type === 'image') {
+                messageContentHtml += `<img src="${msg.data}" style="max-width: 100%; height: auto; border-radius: 10px;">`;
+            } else if (msg.type === 'file') {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.innerHTML = `<span class="file-icon">📎</span><div class="file-info"><strong>${msg.text}</strong><small>${msg.size}</small></div>`;
+                fileItem.onclick = () => {
+                    const link = document.createElement('a');
+                    link.href = msg.data;
+                    link.download = msg.text;
+                    link.click();
+                    link.remove();
+                };
+                messageContentHtml += fileItem.outerHTML;
+            } else {
+                let formattedText = msg.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>');
+                formattedText = formattedText.replace(/`(.*?)`/g, '<code>$1</code>');
+                formattedText = formattedText.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
+                formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+
+                messageContentHtml += `<p class="message-text">${formattedText}</p>`;
+            }
+
+            const contentHtml = `
+                <div class="message-content">
+                    <span class="message-user">${msg.user === username ? "You" : msg.user}</span>
+                    ${messageContentHtml}
+                    <span class="message-timestamp">${formattedTimestamp}</span>
+                </div>
+            `;
+            const profileHtml = `<img src="${img}" class="profile-img" alt="${msg.user}'s profile picture">`;
+
+            const actionButtonsHtml = `
+                <div class="message-actions">
+                    <button class="action-button reply-button" onclick="setReply('${msg.user}', '${msg.text.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">↩️</button>
+                    ${msg.user === username ? `<button class="action-button delete-button" onclick="deleteMessage(${messageIndex})">🗑️</button>` : ''}
+                </div>
+            `;
+
+            if (msg.user === username) {
+                el.innerHTML = `${contentHtml}${profileHtml}${actionButtonsHtml}`;
+            } else {
+                el.innerHTML = `${profileHtml}${contentHtml}${actionButtonsHtml}`;
+            }
+            messagesContainer.appendChild(el);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Deletion Function
+        function deleteMessage(index) {
+            if (deletionData.count < DELETION_LIMIT) {
+                if (confirm("Are you sure you want to delete this message?")) {
+                    messages.splice(index, 1);
+                    localStorage.setItem("chatMessages", JSON.stringify(messages));
+                    deletionData.count++;
+                    localStorage.setItem("deletionData", JSON.stringify(deletionData));
+                    
+                    messagesContainer.innerHTML = "";
+                    messages.forEach(appendMessage);
+                    updateDeletionCounter();
+                }
+            } else {
+                alert(`You have reached your monthly deletion limit of ${DELETION_LIMIT}. The count will reset next month.`);
+            }
+        }
+        
+        // New Reply Functions
+        function setReply(user, text) {
+            repliedToMessage = { user, text };
+            const preview = document.getElementById("reply-preview");
+            const previewContent = document.getElementById("reply-preview-content");
+            previewContent.innerHTML = `<strong>${user === username ? 'You' : user}</strong><br>${text}`;
+            preview.style.display = "block";
+            messageInput.focus();
+        }
+
+        function clearReply() {
+            repliedToMessage = null;
+            document.getElementById("reply-preview").style.display = "none";
+        }
+        document.getElementById("reply-preview-close").addEventListener("click", clearReply);
+
+        // --- NEW FORMATTING LOGIC ---
+        function applyFormatting(tag) {
+            const start = messageInput.selectionStart;
+            const end = messageInput.selectionEnd;
+            const text = messageInput.value;
+            let formattedText;
+            
+            if (start !== end) { // If text is selected
+                formattedText = text.substring(0, start) +
+                                tag + text.substring(start, end) + tag +
+                                text.substring(end);
+            } else { // If no text is selected, just insert the tags
+                formattedText = text.substring(0, start) + tag + tag + text.substring(start);
+            }
+            
+            messageInput.value = formattedText;
+            messageInput.focus();
+            if (start === end) {
+                messageInput.setSelectionRange(start + tag.length, start + tag.length);
+            }
+        }
+        
+        document.getElementById("boldBtn").addEventListener("click", () => applyFormatting('**'));
+        document.getElementById("italicBtn").addEventListener("click", () => applyFormatting('*'));
+
+        // --- ALL BUTTON LOGIC WORKING ---
+        
+        // 1. Emoji picker (😊)
+        const emojiButtonToggle = document.getElementById("emoji-button-toggle");
+        const emojiPicker = document.getElementById("emoji-picker");
+        
+        emojiButtonToggle.addEventListener("click", () => {
+            emojiPicker.style.display = emojiPicker.style.display === "flex" ? "none" : "flex";
+        });
+        
+        emojiPicker.addEventListener("click", (event) => {
+            if (event.target.classList.contains("emoji-button")) {
+                const emoji = event.target.innerText;
+                messageInput.value += emoji;
+                messageInput.focus();
+            }
+        });
+        
+        document.addEventListener("click", (event) => {
+            if (!emojiPicker.contains(event.target) && event.target !== emojiButtonToggle) {
+                emojiPicker.style.display = "none";
+            }
+        });
+
+        // 2. Dark mode toggle (🌙) and Theme Picker (🎨)
+        const modeToggleBtn = document.getElementById("modeToggle");
+        const themeToggleBtn = document.getElementById("themeToggle");
+        const themePicker = document.getElementById("theme-picker");
+        const swatches = document.querySelectorAll(".theme-swatch");
+        
+        const savedMode = localStorage.getItem("mode") || "light";
+        const savedTheme = localStorage.getItem("theme") || "default";
+        applyMode(savedMode);
+        applyTheme(savedTheme);
+
+        modeToggleBtn.addEventListener("click", () => {
+            const newMode = document.body.classList.contains("dark-mode") ? "light" : "dark-mode";
+            applyMode(newMode);
+        });
+
+        themeToggleBtn.addEventListener("click", (event) => {
+            event.stopPropagation();
+            themePicker.style.display = themePicker.style.display === "block" ? "none" : "block";
+        });
+        
+        document.addEventListener("click", (event) => {
+            if (!themePicker.contains(event.target) && event.target !== themeToggleBtn) {
+                themePicker.style.display = "none";
+            }
+        });
+
+        swatches.forEach(swatch => {
+            swatch.addEventListener("click", () => {
+                const theme = swatch.getAttribute("data-theme");
+                applyTheme(theme);
+            });
+        });
+
+        function applyMode(mode) {
+            if (mode === "dark-mode") {
+                document.body.classList.add("dark-mode");
+                modeToggleBtn.innerText = "☀️";
+            } else {
+                document.body.classList.remove("dark-mode");
+                modeToggleBtn.innerText = "🌙";
+            }
+            localStorage.setItem("mode", mode);
+        }
+
+        function applyTheme(theme) {
+            document.body.classList.remove("blue-theme", "green-theme", "pink-theme");
+            if (theme !== "default") {
+                document.body.classList.add(`${theme}-theme`);
+            }
+            localStorage.setItem("theme", theme);
+            updateSwatchState(theme);
+        }
+        
+        function updateSwatchState(activeTheme) {
+            swatches.forEach(swatch => {
+                if (swatch.getAttribute("data-theme") === activeTheme) {
+                    swatch.classList.add("active");
+                } else {
+                    swatch.classList.remove("active");
+                }
+            });
+        }
+        // --- END OF THEME LOGIC ---
+
+        // File handling with Base64 encoding
+        function handleFileSelection() {
+            const files = document.getElementById("fileInput").files;
+            Array.from(files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64Data = e.target.result;
+                    const isImage = file.type.startsWith('image/');
+                    const msg = {
+                        user: username,
+                        text: file.name,
+                        timestamp: new Date().toISOString(),
+                        type: isImage ? "image" : "file",
+                        data: base64Data,
+                        size: (file.size / 1024).toFixed(2) + ' KB'
+                    };
+                    messages.push(msg);
+                    localStorage.setItem("chatMessages", JSON.stringify(messages));
+                    appendMessage(msg);
+                };
+                reader.readAsDataURL(file);
+            });
+            document.getElementById("fileInput").value = '';
+        }
+
+        // Voice input with visual feedback
+        const micBtn = document.getElementById("microphoneBtn");
+        micBtn.addEventListener("click", startVoiceSearch);
+
+        function startVoiceSearch() {
+            if ('webkitSpeechRecognition' in window) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.lang = 'en-US';
+                
+                recognition.onstart = () => {
+                    micBtn.classList.add('listening');
+                    messageInput.placeholder = "Listening...";
+                };
+
+                recognition.onresult = event => {
+                    const transcript = event.results[0][0].transcript;
+                    messageInput.value = transcript;
+                };
+                
+                recognition.onend = () => {
+                    micBtn.classList.remove('listening');
+                    messageInput.placeholder = "Type your message...";
+                };
+
+                recognition.onerror = err => {
+                    micBtn.classList.remove('listening');
+                    messageInput.placeholder = "Type your message...";
+                    alert("Speech error: " + err.error);
+                };
+
+                recognition.start();
+            } else {
+                alert("Speech recognition not supported in this browser.");
+            }
+        }
+
+        // Schedule Modal Logic
+        const scheduleModal = document.getElementById("scheduleModal");
+        const scheduleBtn = document.getElementById("scheduleBtn");
+        const closeButton = document.getElementsByClassName("close-button")[0];
+        const scheduleTimeInput = document.getElementById("scheduleTimeInput");
+        const scheduleSendBtn = document.getElementById("scheduleSendBtn");
+
+        scheduleBtn.onclick = function() {
+            if (messageInput.value.trim() === '') {
+                alert("Please write a message before scheduling.");
+                return;
+            }
+            // Set min date to now
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = (now.getMonth() + 1).toString().padStart(2, '0');
+            const day = now.getDate().toString().padStart(2, '0');
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            scheduleTimeInput.min = `${year}-${month}-${day}T${hours}:${minutes}`;
+            scheduleModal.style.display = "flex";
+        }
+
+        closeButton.onclick = function() {
+            scheduleModal.style.display = "none";
+        }
+
+        scheduleSendBtn.onclick = scheduleMessage;
+
+        window.onclick = function(event) {
+            if (event.target == scheduleModal) {
+                scheduleModal.style.display = "none";
+            }
+        }
+    </script>
 </body>
 </html>
