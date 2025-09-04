@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .list-item {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .list-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .highlight {
+            background-color: #a5b4fc;
+            border: 2px solid #4f46e5;
+        }
+        .profile-image {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #4f46e5;
+        }
+        #backButton {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #ff6f00;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1100;
+            transition: transform 0.2s ease, background-color 0.3s ease;
+        }
+        #backButton:hover {
+            background-color: #e65c00;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 flex flex-col items-center">
+
+    <div class="container mx-auto p-6 bg-white rounded-lg shadow-xl mt-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-800">Global Leaderboard</h1>
+            <p class="text-lg text-gray-500 mt-2">Top Performers in Quizzes</p>
+        </header>
+
+        <div id="leaderboard-list" class="space-y-4">
+        </div>
+    </div>
+    
+    <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Predefined list of users for a more realistic leaderboard
+            const users = [
+                { id: 1, fullname: 'Ethan Carter', email: 'ethan.c@example.com', branch: 'Computer Science' },
+                { id: 2, fullname: 'Olivia Rodriguez', email: 'olivia.r@example.com', branch: 'Electrical Engineering' },
+                { id: 3, fullname: 'Liam Chen', email: 'liam.c@example.com', branch: 'Mechanical Engineering' },
+                { id: 4, fullname: 'Ava Gupta', email: 'ava.g@example.com', branch: 'Civil Engineering' },
+                { id: 5, fullname: 'Noah Williams', email: 'noah.w@example.com', branch: 'Computer Science' },
+                { id: 6, fullname: 'Sophia Martinez', email: 'sophia.m@example.com', branch: 'Architecture' },
+                { id: 7, fullname: 'Jackson Lee', email: 'jackson.l@example.com', branch: 'Chemical Engineering' },
+                { id: 8, fullname: 'Isabella Wilson', email: 'isabella.w@example.com', branch: 'Computer Science' },
+                { id: 9, fullname: 'Lucas Brown', email: 'lucas.b@example.com', branch: 'Aerospace Engineering' },
+                { id: 10, fullname: 'Mia Davis', email: 'mia.d@example.com', branch: 'Biomedical Engineering' },
+            ];
+
+            const currentUserEmail = localStorage.getItem('currentUserEmail');
+            const leaderboardList = document.getElementById('leaderboard-list');
+
+            if (users.length === 0) {
+                leaderboardList.innerHTML = '<p class="text-center text-gray-500">No users found.</p>';
+                return;
+            }
+
+            // Assign random scores and times to each user to make the leaderboard dynamic
+            const usersWithScores = users.map(user => {
+                const score = Math.floor(Math.random() * (100 - 60 + 1)) + 60; // Score between 60% and 100%
+                const timeInSeconds = Math.floor(Math.random() * (120 - 30 + 1)) + 30; // Time between 30 and 120 seconds
+                const profileImage = localStorage.getItem('profileImage') || "https://placehold.co/45x45/f58220/ffffff?text=U";
+                return { ...user, score, timeInSeconds, profileImage };
+            });
+
+            // Sort users by score (descending) and then by time (ascending)
+            usersWithScores.sort((a, b) => {
+                if (b.score !== a.score) {
+                    return b.score - a.score;
+                }
+                return a.timeInSeconds - b.timeInSeconds;
+            });
+
+            // If a current user exists, find their data and place them in the list if not already present
+            let currentUserData = null;
+            if (currentUserEmail) {
+                currentUserData = JSON.parse(localStorage.getItem('users')).find(u => u.email === currentUserEmail);
+            }
+
+            // Check if the current user is already in the dummy data
+            const isCurrentUserInList = usersWithScores.some(user => user.email === currentUserEmail);
+
+            if (currentUserData && !isCurrentUserInList) {
+                // If not, generate a score for the current user and insert them into the sorted list
+                const userScore = Math.floor(Math.random() * (100 - 60 + 1)) + 60;
+                const userTime = Math.floor(Math.random() * (120 - 30 + 1)) + 30;
+                const userProfileImage = localStorage.getItem('profileImage') || "https://placehold.co/45x45/f58220/ffffff?text=U";
+                
+                const newUserData = {
+                    ...currentUserData,
+                    score: userScore,
+                    timeInSeconds: userTime,
+                    profileImage: userProfileImage
+                };
+
+                // Find the correct position to insert the current user
+                let inserted = false;
+                for (let i = 0; i < usersWithScores.length; i++) {
+                    if (newUserData.score > usersWithScores[i].score || (newUserData.score === usersWithScores[i].score && newUserData.timeInSeconds < usersWithScores[i].timeInSeconds)) {
+                        usersWithScores.splice(i, 0, newUserData);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) {
+                    usersWithScores.push(newUserData);
+                }
+            }
+
+
+            // Render the leaderboard
+            usersWithScores.forEach((user, index) => {
+                const isCurrentUser = user.email === currentUserEmail;
+                const listItem = document.createElement('div');
+                listItem.className = `list-item bg-gray-100 p-4 rounded-lg shadow-md flex items-center justify-between ${isCurrentUser ? 'highlight' : ''}`;
+                
+                // Use a placeholder image for other users and the actual image for the current user
+                const profileImageSrc = isCurrentUser ? user.profileImage : `https://placehold.co/45x45/4f46e5/ffffff?text=${user.fullname.charAt(0)}`;
+
+                listItem.innerHTML = `
+                    <div class="flex items-center space-x-4">
+                        <span class="text-xl font-bold text-gray-600 w-8 text-center">${index + 1}</span>
+                        <img src="${profileImageSrc}" alt="Profile Image" class="profile-image"/>
+                        <div>
+                            <p class="font-semibold text-gray-800">${user.fullname}</p>
+                            <p class="text-sm text-gray-500">${user.branch}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-green-600">${user.score}%</p>
+                        <p class="text-sm text-gray-500">${Math.floor(user.timeInSeconds / 60)}m ${user.timeInSeconds % 60}s</p>
+                    </div>
+                `;
+                leaderboardList.appendChild(listItem);
+            });
+        });
+    </script>
+</body>
+</html>

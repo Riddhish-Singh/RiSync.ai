@@ -1,29 +1,83 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Subjects</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    :root {
+      --primary-color: #004aad;
+      --secondary-color: #5da9ff;
+      --background-light: #f9f9f9;
+      --text-color-light: #000;
+      --card-bg-light: #ffffff;
+      --card-hover-light: #e8e8e8;
+      --shadow-light: rgba(0, 0, 0, 0.1);
+      --star-color: gold;
+
+      --background-dark: #121212;
+      --text-color-dark: #f1f1f1;
+      --card-bg-dark: #1e1e1e;
+      --card-hover-dark: #2a2a2a;
+      --shadow-dark: rgba(255, 255, 255, 0.05);
+    }
+
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 20px;
-      background-color: #f9f9f9;
-      color: #000;
+      background-color: var(--background-light);
+      color: var(--text-color-light);
       transition: background-color 0.3s, color 0.3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
+
     .dark-mode {
-      background-color: #121212;
+      background-color: var(--background-dark);
+      color: var(--text-color-dark);
+    }
+    
+    .dark-mode .card, .dark-mode .search-container, .dark-mode #factBox {
+      background-color: var(--card-bg-dark);
+      box-shadow: 0 4px 12px var(--shadow-dark);
+      color: var(--text-color-dark);
+    }
+
+    .dark-mode .card:hover {
+      background-color: var(--card-hover-dark);
+    }
+
+    .dark-mode h1 { color: var(--secondary-color); }
+    .dark-mode .search-container { background-color: #2c2c2c; }
+    .dark-mode .search-container input {
+      background-color: #383838;
       color: #f1f1f1;
     }
+    .dark-mode .search-container input::placeholder { color: #aaa; }
+    .dark-mode .search-container .voice-button, .dark-mode .search-container .clear-button {
+      color: #f1f1f1;
+    }
+    .dark-mode .switch input:checked + .slider { background-color: var(--primary-color); }
+    .dark-mode .action-button { background-color: #00337a; }
+
     h1 {
-      color: #004aad;
+      text-align: center;
+      color: var(--primary-color);
+      font-weight: 700;
+      margin-bottom: 20px;
     }
-    .dark-mode h1 {
-      color: #5da9ff;
+    
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
     }
+
     .switch {
       position: relative;
       display: inline-block;
@@ -51,39 +105,102 @@
       transition: 0.4s;
       border-radius: 50%;
     }
-    input:checked + .slider {
-      background-color: #004aad;
-    }
-    input:checked + .slider:before {
-      transform: translateX(26px);
-    }
-    .subject-card {
-      background-color: #ff914d;
-      color: white;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
+    input:checked + .slider { background-color: var(--primary-color); }
+    input:checked + .slider:before { transform: translateX(26px); }
+
+    .search-container {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      transition: transform 0.3s, background-color 0.3s;
+      background-color: var(--card-bg-light);
+      border-radius: 50px;
+      padding: 5px 20px;
+      box-shadow: 0 2px 8px var(--shadow-light);
+      margin: 0 auto 30px;
+      max-width: 600px;
+      width: 100%;
     }
-    .subject-card:hover {
-      transform: scale(1.03);
-      background-color: #e67c3e;
+    .search-container input {
+      flex-grow: 1;
+      border: none;
+      outline: none;
+      font-size: 16px;
+      padding: 10px 0;
+      background: transparent;
+      color: var(--text-color-light);
     }
-    .emoji {
-      font-size: 24px;
+    .search-container .search-icon {
+      color: #888;
       margin-right: 10px;
     }
+    .search-container .voice-button, .search-container .clear-button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      margin-left: 10px;
+      color: #888;
+      transition: color 0.2s;
+    }
+    .search-container .voice-button:hover, .search-container .clear-button:hover {
+      color: var(--primary-color);
+    }
+    .voice-button.listening {
+      color: var(--primary-color);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+    #mic-status {
+      font-size: 14px;
+      color: var(--primary-color);
+      margin-top: 5px;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: center;
+      flex-grow: 1;
+    }
+
+    .card {
+      background-color: var(--card-bg-light);
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 12px var(--shadow-light);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      width: 250px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: inherit;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 16px var(--shadow-light);
+      background-color: var(--card-hover-light);
+    }
+
     .star {
       cursor: pointer;
       font-size: 20px;
-      color: grey;
+      color: #ccc;
       transition: color 0.3s;
+      position: absolute;
+      top: 10px;
+      right: 15px;
     }
     .favorite.star {
-      color: gold;
+      color: var(--star-color);
     }
     .star::before {
       content: "\2606"; /* empty star */
@@ -91,282 +208,292 @@
     .favorite.star::before {
       content: "\2605"; /* filled star */
     }
-    #searchInput {
-      width: 100%;
-      max-width: 500px;
-      padding: 10px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin: 20px 0;
+
+    .card-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+      color: var(--primary-color);
     }
-    #microphoneBtn {
-      margin-left: 10px;
-      padding: 10px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-      background-color: #004aad;
-      color: white;
-      cursor: pointer;
-      transition: box-shadow 0.3s;
+    .card h2 {
+      font-size: 20px;
+      margin: 0;
+      color: var(--text-color-light);
     }
-    #microphoneBtn.listening {
-      box-shadow: 0 0 10px 2px #00e5ff;
-      background-color: #0077cc;
-    }
+
     #factBox {
-      margin-top: 20px;
+      background-color: var(--card-bg-light);
       padding: 15px;
-      background-color: #004aad;
-      color: white;
-      border-radius: 8px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px var(--shadow-light);
+      margin-top: 20px;
+      text-align: center;
+      font-style: italic;
+      font-size: 14px;
+      width: 100%;
+      max-width: 600px;
+      margin: 20px auto;
     }
-    #showFavoritesBtn {
-      margin: 10px 0 20px 0;
+
+    .action-button {
+      display: block;
+      margin: 10px auto 20px auto;
       padding: 10px 20px;
-      background-color: #004aad;
+      background-color: var(--primary-color);
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
+      transition: background-color 0.2s;
     }
-    #showFavoritesBtn:hover {
+    .action-button:hover {
       background-color: #00337a;
     }
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-	#factBox {
-  display: flex;
-  justify-content: center;  /* horizontal center */
-  align-items: center;      /* vertical center */
-  white-space: nowrap;
-  overflow: hidden;
-  animation: marquee-text 10s linear infinite;
-  height: 40px; /* or your preferred height */
-}
 
+    @media (max-width: 768px) {
+      body { padding: 10px; }
+      h1 { font-size: 24px; }
+      .search-container { max-width: 100%; }
+      .card { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div style="display: flex; justify-content: space-between; align-items: center;">
+  <div class="header-container">
     <h1 id="pageTitle">Subjects</h1>
-    <label class="switch">
+    <label class="switch" aria-label="Dark mode toggle">
       <input type="checkbox" id="darkModeToggle">
-      <span class="slider round"></span>
+      <span class="slider"></span>
     </label>
   </div>
 
-  <div style="display: flex; align-items: center;">
-    <input type="text" id="searchInput" placeholder="Search for a subject or use your voice." />
-    <button id="microphoneBtn" onclick="startVoiceSearch()">🎤</button>
+  <div class="search-container">
+    <i class="fas fa-search search-icon"></i>
+    <input type="text" id="searchInput" placeholder="Search for a subject..." aria-label="Search subjects">
+    <button class="voice-button" id="microphoneBtn" aria-label="Voice search"><i class="fas fa-microphone"></i></button>
+    <button class="clear-button" id="clearBtn" aria-label="Clear search input" style="display: none;"><i class="fas fa-times"></i></button>
   </div>
+  <div id="mic-status" style="display: none;"></div>
 
-  <button id="showFavoritesBtn" onclick="toggleFavoriteView()">Show Favorites ⭐</button>
+  <div id="factBox" role="region" aria-live="polite"></div>
 
-  <div id="subjectList">
-	    <a href="math game.html" target="_blank" style="text-decoration: none; color: inherit;">
-      <div class="subject-card" data-subject="Mathematics">
-        <span class="emoji">🧮</span> Mathematics
-        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
-      </div>
-    </a>
-    <div class="subject-card" data-subject="Science"><span class="emoji">🧬</span> Science <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card" data-subject="Social Studies"><span class="emoji">🌍</span> Social Studies <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card" data-subject="English"><span class="emoji">📚</span> English <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card" data-subject="Computer Science"><span class="emoji">💻</span> Computer Science <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <div class="subject-card" data-subject="Art"><span class="emoji">🎨</span> Art <span class="star" onclick="toggleFavorite(this)"></span></div>
-    <a href="sports.html" target="_blank" style="text-decoration: none; color: inherit;">
-      <div class="subject-card" data-subject="Physical Education">
-        <span class="emoji">🏃‍♂️</span> Physical Education
-        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
-      </div>
-    </a>
-    <a href="astronomy.html" target="_blank" style="text-decoration: none; color: inherit;">
-      <div class="subject-card" data-subject="Astronomy">
-        <span class="emoji">🔭</span> Astronomy
-        <span class="star" onclick="event.stopPropagation(); toggleFavorite(this)"></span>
-      </div>
-    </a>
-    <div class="subject-card" data-subject="Creative Arts"><span class="emoji">🎭</span> Creative Arts <span class="star" onclick="toggleFavorite(this)"></span></div>
-  </div>
-
-  <div id="factBox"></div>
-  <button id="backButton" onclick="window.location.href='content.html'" style="margin-top: 20px; padding: 10px 20px; background-color: #004aad; color: white; border: none; border-radius: 8px; cursor: pointer;">
+  <button id="showFavoritesBtn" class="action-button">Show Favorites ⭐</button>
+  
+  <div id="subjectList" class="card-container">
+    </div>
+  
+  <button id="backButton" class="action-button" onclick="window.location.href='content.html'">
     ← Back to Content
   </button>
 
 <script>
-  // Language translations (kept from your original)
-  const translations = {
-    hi: {
-      title: "विषय",
-      searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें।",
-      showFavorites: "पसंदीदा दिखाएँ ⭐",
-      dontShowFavorites: "पसंदीदा न दिखाएँ",
-      backButton: "← सामग्री पर वापस जाएँ"
-    },
-    fr: {
-      title: "Sujets",
-      searchPlaceholder: "Recherchez un sujet ou utilisez votre voix.",
-      showFavorites: "Afficher les favoris ⭐",
-      dontShowFavorites: "Ne pas afficher les favoris",
-      backButton: "← Retour au contenu"
-    },
-    en: {
-      title: "Subjects",
-      searchPlaceholder: "Search for a subject or use your voice.",
-      showFavorites: "Show Favorites ⭐",
-      dontShowFavorites: "Don't Show Favorites",
-      backButton: "← Back to Content"
-    },
-	 pu: {
-      title: "ਵਿਸ਼ੇ",
-      searchPlaceholder: "ਕਿਸੇ ਵਿਸ਼ੇ ਦੀ ਖੋਜ ਕਰੋ ਜਾਂ ਆਪਣੀ ਆਵਾਜ਼ ਦੀ ਵਰਤੋਂ ਕਰੋ।",
-      showFavorites: "ਮਨਪਸੰਦ ਦਿਖਾਓ ⭐",
-      dontShowFavorites: "ਮਨਪਸੰਦ ਨਾ ਦਿਖਾਓ",
-      backButton: "← ਸਮੱਗਰੀ ਤੇ ਵਾਪਸ ਜਾਓ"
-    }
-  };
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- Data & Constants ---
+    const translations = {
+      hi: {
+        title: "विषय",
+        searchPlaceholder: "विषय खोजें या अपनी आवाज़ का उपयोग करें।",
+        showFavorites: "पसंदीदा दिखाएँ ⭐",
+        dontShowFavorites: "पसंदीदा न दिखाएँ",
+        backButton: "← सामग्री पर वापस जाएँ"
+      },
+      fr: {
+        title: "Sujets",
+        searchPlaceholder: "Recherchez un sujet ou utilisez votre voix.",
+        showFavorites: "Afficher les favoris ⭐",
+        dontShowFavorites: "Ne pas afficher les favoris",
+        backButton: "← Retour au contenu"
+      },
+      en: {
+        title: "Subjects",
+        searchPlaceholder: "Search for a subject or use your voice.",
+        showFavorites: "Show Favorites ⭐",
+        dontShowFavorites: "Don't Show Favorites",
+        backButton: "← Back to Content"
+      },
+      pu: {
+        title: "ਵਿਸ਼ੇ",
+        searchPlaceholder: "ਕਿਸੇ ਵਿਸ਼ੇ ਦੀ ਖੋਜ ਕਰੋ ਜਾਂ ਆਪਣੀ ਆਵਾਜ਼ ਦੀ ਵਰਤੋਂ ਕਰੋ।",
+        showFavorites: "ਮਨਪਸੰਦ ਦਿਖਾਓ ⭐",
+        dontShowFavorites: "ਮਨਪਸੰਦ ਨਾ ਦਿਖਾਓ",
+        backButton: "← ਸਮੱਗਰੀ ਤੇ ਵਾਪਸ ਜਾਓ"
+      }
+    };
 
-  // Setup translation
-  const preferredLang = localStorage.getItem("preferredLanguage") || "en";
-  const dict = translations[preferredLang] || translations["en"];
-  document.getElementById("pageTitle").textContent = dict.title;
-  document.getElementById("searchInput").placeholder = dict.searchPlaceholder;
-  document.getElementById("showFavoritesBtn").textContent = dict.showFavorites;
-  document.getElementById("backButton").textContent = dict.backButton;
+    const subjects = [
+      { name: "Mathematics", icon: "fas fa-calculator", url: "math game.html", searchTerms: ["math", "mathematics", "numbers", "equations"] },
+      { name: "Science", icon: "fas fa-flask", url: "science.html", searchTerms: ["science", "biology", "chemistry", "physics"] },
+      { name: "History", icon: "fas fa-book-open", url: "history.html", searchTerms: ["history", "social studies", "past"] },
+      { name: "English", icon: "fas fa-language", url: "english.html", searchTerms: ["english", "language arts", "literature", "reading"] },
+      { name: "Computer Science", icon: "fas fa-code", url: "computer-science.html", searchTerms: ["computer science", "coding", "programming", "technology"] },
+      { name: "Art", icon: "fas fa-palette", url: "art.html", searchTerms: ["art", "painting", "drawing", "sketching", "creative arts"] },
+      { name: "Music", icon: "fas fa-music", url: "music.html", searchTerms: ["music", "instruments", "theory", "song"] },
+      { name: "Geography", icon: "fas fa-globe-asia", url: "geography.html", searchTerms: ["geography", "maps", "earth", "continents"] },
+      { name: "Astronomy", icon: "fas fa-rocket", url: "astronomy.html", searchTerms: ["astronomy", "space", "stars", "planets"] },
+      { name: "Physical Education", icon: "fas fa-futbol", url: "sports.html", searchTerms: ["physical education", "sports", "exercise"] },
+    ];
 
-  // Dark mode toggle
-  const darkToggle = document.getElementById('darkModeToggle');
-  const body = document.body;
-  const input = document.getElementById('searchInput');
-  const cards = document.querySelectorAll('.subject-card');
-  const factBox = document.getElementById('factBox');
-  const showFavoritesBtn = document.getElementById('showFavoritesBtn');
-  const micBtn = document.getElementById('microphoneBtn');
-  let showingFavorites = false;
+    const facts = [
+      "Math was used to land on the moon! 🌕",
+      "Your body has more bacteria than cells. 🦠",
+      "Hindi is one of the oldest languages. 🕉️",
+      "Art helps boost memory and creativity. 🎨",
+      "Computer Science powers your games! 🕹️"
+    ];
 
-// Initialize dark mode from localStorage
-if (localStorage.getItem("darkMode") === "enabled") {
-  body.classList.add("dark-mode");
-  darkToggle.checked = true;
-}
+    // --- DOM Elements ---
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const searchInput = document.getElementById('searchInput');
+    const subjectList = document.getElementById('subjectList');
+    const factBox = document.getElementById('factBox');
+    const microphoneBtn = document.getElementById('microphoneBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const showFavoritesBtn = document.getElementById('showFavoritesBtn');
+    const pageTitle = document.getElementById("pageTitle");
+    const backButton = document.getElementById("backButton");
+    let showingFavorites = false;
 
-darkToggle.addEventListener("change", () => {
-  if (darkToggle.checked) {
-    body.classList.add("dark-mode");
-    localStorage.setItem("darkMode", "enabled");
-  } else {
-    body.classList.remove("dark-mode");
-    localStorage.setItem("darkMode", "disabled");
-  }
-});
-
-
-  // Search filter
-  input.addEventListener('input', () => {
-    const query = input.value.toLowerCase();
-    cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(query) ? 'flex' : 'none';
-    });
-  });
-
-  // Toggle favorite star and save to localStorage
-  function toggleFavorite(el) {
-    const subject = el.parentElement.getAttribute('data-subject');
-    let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-
-    if (el.classList.contains("favorite")) {
-      el.classList.remove("favorite");
-      favorites = favorites.filter(item => item !== subject);
-    } else {
-      el.classList.add("favorite");
-      favorites.push(subject);
+    // --- Initialization Functions ---
+    function applyLanguage() {
+      const preferredLang = localStorage.getItem("preferredLanguage") || "en";
+      const dict = translations[preferredLang] || translations["en"];
+      pageTitle.textContent = dict.title;
+      searchInput.placeholder = dict.searchPlaceholder;
+      showFavoritesBtn.textContent = dict.showFavorites;
+      backButton.textContent = dict.backButton;
     }
 
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-  }
+    function applyDarkMode() {
+      if (localStorage.getItem("darkMode") === "enabled") {
+        document.body.classList.add("dark-mode");
+        darkModeToggle.checked = true;
+      }
+    }
 
-  // Restore favorites from localStorage on load
-  function restoreFavorites() {
-    let storedFavorites = JSON.parse(localStorage.getItem("favorites")) || [];
+    function renderSubjects(subjectArray) {
+      subjectList.innerHTML = '';
+      subjectArray.forEach(subject => {
+        const isFavorite = isSubjectFavorite(subject.name);
+        const card = document.createElement('a');
+        card.href = subject.url;
+        card.className = 'card';
+        card.setAttribute('data-subject', [subject.name, ...subject.searchTerms].join(' '));
+        card.setAttribute('aria-label', `Go to ${subject.name} subject page`);
+        card.innerHTML = `
+          <div class="card-content">
+            <i class="${subject.icon} card-icon"></i>
+            <h2>${subject.name}</h2>
+          </div>
+          <span class="star ${isFavorite ? 'favorite' : ''}" onclick="event.preventDefault(); toggleFavorite(this)"></span>
+        `;
+        subjectList.appendChild(card);
+      });
+    }
 
-    cards.forEach(card => {
-      const subject = card.getAttribute('data-subject');
-      if (storedFavorites.includes(subject)) {
-        const star = card.querySelector('.star');
-        if (star) star.classList.add("favorite");
+    // --- Utility Functions ---
+    function isSubjectFavorite(subjectName) {
+      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+      return favorites.includes(subjectName);
+    }
+
+    window.toggleFavorite = function(el) {
+      const card = el.closest('.card');
+      const subjectName = card.querySelector('h2').textContent;
+      let favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+
+      if (el.classList.contains("favorite")) {
+        el.classList.remove("favorite");
+        favorites = favorites.filter(item => item !== subjectName);
+      } else {
+        el.classList.add("favorite");
+        favorites.push(subjectName);
+      }
+      localStorage.setItem("favorites", JSON.stringify(favorites));
+    };
+
+    // --- Event Listeners ---
+    darkModeToggle.addEventListener("change", () => {
+      if (darkModeToggle.checked) {
+        document.body.classList.add("dark-mode");
+        localStorage.setItem("darkMode", "enabled");
+      } else {
+        document.body.classList.remove("dark-mode");
+        localStorage.setItem("darkMode", "disabled");
       }
     });
-  }
 
-  restoreFavorites();
-
-  // Show favorites toggle button
-  function toggleFavoriteView() {
-    showingFavorites = !showingFavorites;
-    if (showingFavorites) {
-      showFavoritesBtn.textContent = dict.dontShowFavorites;
-      const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
-      cards.forEach(card => {
-        const subject = card.getAttribute('data-subject');
-        card.style.display = favorites.includes(subject) ? 'flex' : 'none';
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filteredSubjects = subjects.filter(subject => {
+        const subjectText = [subject.name, ...subject.searchTerms].join(' ').toLowerCase();
+        return subjectText.includes(query);
       });
-    } else {
+      renderSubjects(filteredSubjects);
+      clearBtn.style.display = query.length > 0 ? 'inline-block' : 'none';
+      showingFavorites = false;
       showFavoritesBtn.textContent = dict.showFavorites;
-      cards.forEach(card => {
-        card.style.display = 'flex';
-      });
-    }
-  }
+    });
 
-  // Random fact display
-  const facts = [
-    "Math was used to land on the moon! 🌕",
-    "Your body has more bacteria than cells. 🦠",
-    "Hindi is one of the oldest languages. 🕉️",
-    "Art helps boost memory and creativity. 🎨",
-    "Computer Science powers your games! 🕹️"
-  ];
-  factBox.textContent = facts[Math.floor(Math.random() * facts.length)];
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.focus();
+      renderSubjects(subjects);
+      clearBtn.style.display = 'none';
+    });
 
-  // Voice search functionality
-  function startVoiceSearch() {
-    if ('webkitSpeechRecognition' in window) {
-      const recognition = new webkitSpeechRecognition();
-      recognition.continuous = false;
-      recognition.interimResults = true;
-      recognition.lang = 'en-US';
+    showFavoritesBtn.addEventListener('click', () => {
+      showingFavorites = !showingFavorites;
+      if (showingFavorites) {
+        const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
+        const favoriteSubjects = subjects.filter(subject => favorites.includes(subject.name));
+        renderSubjects(favoriteSubjects);
+        showFavoritesBtn.textContent = dict.dontShowFavorites;
+      } else {
+        renderSubjects(subjects);
+        showFavoritesBtn.textContent = dict.showFavorites;
+      }
+    });
 
-      micBtn.classList.add('listening');
-      recognition.start();
+    microphoneBtn.addEventListener('click', () => {
+      if ('webkitSpeechRecognition' in window) {
+        const recognition = new webkitSpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
 
-      recognition.onresult = function(event) {
-        let interim = '';
-        for (let i = 0; i < event.results.length; ++i) {
-          interim += event.results[i][0].transcript;
-        }
-        input.value = interim;
-        input.dispatchEvent(new Event('input'));
-      };
+        microphoneBtn.classList.add('listening');
+        searchInput.placeholder = "Listening...";
+        
+        recognition.start();
 
-      recognition.onend = function() {
-        micBtn.classList.remove('listening');
-      };
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          searchInput.value = transcript;
+          searchInput.dispatchEvent(new Event('input'));
+        };
 
-      recognition.onerror = function(event) {
-        micBtn.classList.remove('listening');
-        alert('Voice recognition error: ' + event.error);
-      };
-    } else {
-      alert('Speech recognition not supported in this browser.');
-    }
-  }
+        recognition.onend = () => {
+          microphoneBtn.classList.remove('listening');
+          searchInput.placeholder = "Search for a subject...";
+        };
+
+        recognition.onerror = (event) => {
+          microphoneBtn.classList.remove('listening');
+          searchInput.placeholder = "Search for a subject...";
+          console.error('Speech recognition error:', event.error);
+        };
+      } else {
+        alert('Speech recognition not supported in this browser.');
+        microphoneBtn.style.display = 'none';
+      }
+    });
+
+    // --- Initial Setup Calls ---
+    applyLanguage();
+    applyDarkMode();
+    renderSubjects(subjects);
+    factBox.textContent = `Did you know? ${facts[Math.floor(Math.random() * facts.length)]}`;
+  });
 </script>
 </body>
 </html>

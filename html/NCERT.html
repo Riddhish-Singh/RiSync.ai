@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Class 6 Learning Platform</title>
-    <!-- Tailwind CSS CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         body {
@@ -107,10 +105,8 @@
 </head>
 <body class="min-h-screen p-4 flex flex-col items-center">
 
-    <!-- Main Container -->
     <div class="container mx-auto p-6 bg-white rounded-lg shadow-xl mt-8">
 
-        <!-- Header with Logo -->
         <header class="flex flex-col md:flex-row items-center justify-center mb-8">
             <img src="https://raw.githubusercontent.com/Riddhish-Singh/RiSync-Web/main/assets/logo.png" onerror="this.onerror=null;this.src='https://placehold.co/60x60/4f46e5/ffffff?text=Logo';" alt="Platform Logo" class="h-16 w-16 md:mr-4 mb-4 md:mb-0 rounded-full">
             <div>
@@ -119,13 +115,15 @@
             </div>
         </header>
 
-        <!-- Main Dashboard -->
         <div id="dashboard" class="transition-all duration-300">
 
-            <!-- Student Progress Summary -->
             <div class="bg-indigo-50 p-6 rounded-lg mb-8">
                 <h2 class="text-2xl font-semibold text-indigo-700 mb-4">Your Progress Dashboard</h2>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <p class="text-3xl font-bold text-indigo-500" id="total-points">0</p>
+                        <p class="text-gray-500">Total Points</p>
+                    </div>
                     <div class="bg-white p-4 rounded-lg shadow">
                         <p class="text-3xl font-bold text-indigo-500" id="completed-subjects">0</p>
                         <p class="text-gray-500">Subjects Completed</p>
@@ -141,14 +139,11 @@
                 </div>
             </div>
 
-            <!-- Subject Selection -->
             <h2 class="text-3xl font-bold text-gray-700 mb-6">Select a Subject to Begin</h2>
             <div id="subject-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Subject cards will be dynamically generated here -->
-            </div>
+                </div>
         </div>
 
-        <!-- Lesson View -->
         <div id="lesson-view" class="hidden transition-all duration-300">
             <button id="back-to-dashboard" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Dashboard</button>
             <h2 id="lesson-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
@@ -156,8 +151,7 @@
             <div class="bg-gray-50 p-6 rounded-lg mb-6">
                 <h3 class="text-2xl font-bold text-gray-700 mb-2">Chapter Concepts</h3>
                 <div class="text-gray-600 space-y-4" id="lesson-content">
-                    <!-- Lesson content will be loaded here -->
-                </div>
+                    </div>
             </div>
             
             <div class="flex justify-between items-center mb-6">
@@ -174,7 +168,6 @@
                 </div>
             </div>
             
-            <!-- Interactive Activities & Exam Prep Buttons -->
             <h3 class="text-2xl font-bold text-gray-700 mb-4">Interactive Activities & Exam Prep</h3>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <button id="start-quiz-button" class="button-primary w-full"><i class="fas fa-question-circle mr-2"></i> Take Quiz</button>
@@ -183,32 +176,27 @@
             </div>
         </div>
 
-        <!-- Quiz View -->
         <div id="quiz-view" class="hidden transition-all duration-300">
             <button id="back-to-lesson" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
             <h2 id="quiz-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
             <div class="bg-indigo-50 p-6 rounded-lg mb-6">
                 <h3 class="text-xl font-semibold text-indigo-700 mb-4" id="quiz-question"></h3>
                 <div id="quiz-options" class="space-y-3">
-                    <!-- Quiz options will be loaded here -->
-                </div>
+                    </div>
             </div>
         </div>
 
-        <!-- Game View (Matching Game) -->
         <div id="game-view" class="hidden transition-all duration-300">
             <button id="back-to-lesson-from-game" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
             <h2 id="game-title" class="text-3xl font-bold text-gray-700 mb-4"></h2>
             <div class="bg-indigo-50 p-6 rounded-lg mb-6">
                 <h3 class="text-xl font-semibold text-indigo-700 mb-4 text-center">Match the Terms with their Definitions</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="matching-grid">
-                    <!-- Game items will be loaded here -->
-                </div>
+                    </div>
                 <div class="mt-4 text-center" id="game-message"></div>
             </div>
         </div>
         
-        <!-- Exam Prep View -->
         <div id="exam-prep-view" class="hidden transition-all duration-300">
             <button id="back-to-lesson-from-prep" class="mb-6 button-primary px-4 py-2 text-sm"><i class="fas fa-arrow-left mr-2"></i> Back to Lesson</button>
             <h2 class="text-3xl font-bold text-gray-700 mb-4">Exam Preparation: How to Write Long Answers</h2>
@@ -216,27 +204,25 @@
                 <h3 class="text-2xl font-bold text-gray-700 mb-2">Sample Long-Answer Question:</h3>
                 <p id="long-answer-question" class="text-lg italic text-gray-600 mb-4"></p>
                 <div id="long-answer-content" class="space-y-4 text-gray-600">
-                    <!-- Long answer content will be loaded here -->
-                </div>
+                    </div>
             </div>
             
             <div class="bg-indigo-50 p-6 rounded-lg mb-6">
                 <h3 class="text-2xl font-bold text-indigo-700 mb-2">General Tips for Board Exams</h3>
                 <div id="exam-tips-content" class="space-y-4 text-gray-700">
-                    <!-- Exam tips will be loaded here -->
-                </div>
+                    </div>
             </div>
         </div>
 
     </div>
 
-    <!-- Scorecard Modal -->
     <div id="scorecard-modal" class="modal fixed inset-0 flex items-center justify-center p-4 z-50 opacity-0 invisible">
         <div class="modal-content bg-white p-8 rounded-lg shadow-2xl max-w-xl w-full">
             <h3 class="text-3xl font-bold text-gray-800 mb-4 text-center">Quiz Results</h3>
             <div class="text-center mb-6">
                 <div class="text-5xl font-extrabold text-indigo-600" id="quiz-score"></div>
                 <p class="text-lg text-gray-500">Time Spent: <span id="time-spent"></span></p>
+                <p class="text-xl font-bold text-green-600 mt-2">Points Earned: <span id="points-earned"></span></p>
             </div>
             <div class="bg-gray-100 p-4 rounded-lg mb-6">
                 <h4 class="text-xl font-semibold text-gray-700 mb-2">Detailed Performance & Suggestions</h4>
@@ -702,6 +688,154 @@
                         }
                     }
                 ]
+            },
+            'english': {
+                icon: 'fas fa-book-open',
+                title: 'English',
+                description: 'Improve your language skills with grammar, vocabulary, and creative writing.',
+                lessons: [
+                    {
+                        title: 'Nouns: The Naming Words',
+                        content: `
+                            <p>In this lesson, you will learn about nouns, which are words used to name a person, place, animal, or thing.</p>
+                            <p>We'll cover different types of nouns like common, proper, collective, and abstract nouns with many examples.</p>
+                            <p><strong>NEP 2020 Focus:</strong> Developing foundational literacy skills and a strong command of grammar.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the difference between a common noun and a proper noun with examples.',
+                            answer: `
+                                <p>A **common noun** is a general name for a person, place, animal, or thing. It does not refer to any specific one. For example: 'girl,' 'city,' 'river.'</p>
+                                <p>A **proper noun** is the specific name of a particular person, place, animal, or thing. Proper nouns always begin with a capital letter. For example: 'Priya' (specific girl), 'Mumbai' (specific city), 'Ganga' (specific river).</p>
+                                <p>The main difference is that a common noun is a general category, while a proper noun is a unique, specific name within that category.</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Define both terms:</strong> Start by giving a clear, one-sentence definition for both common and proper nouns.</p>
+                            <p><strong>Step 2: Provide examples for each:</strong> Create two columns or a list to show multiple examples for each type of noun.</p>
+                            <p><strong>Step 3: Highlight the key difference:</strong> Explicitly state that proper nouns are capitalized while common nouns are not. This is a crucial rule.</p>
+                            <p><strong>Step 4: Use a concluding statement:</strong> Summarize the core difference, emphasizing the general vs. specific nature of the two types of nouns.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'Which of the following is a proper noun?',
+                                options: ['book', 'teacher', 'India', 'park'],
+                                answer: 'India'
+                            },
+                            {
+                                question: 'The word "flock" is an example of which type of noun?',
+                                options: ['Common Noun', 'Proper Noun', 'Collective Noun', 'Abstract Noun'],
+                                answer: 'Collective Noun'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Nouns Match',
+                            pairs: [
+                                { term: 'A general name', definition: 'Common Noun' },
+                                { term: 'A specific name', definition: 'Proper Noun' },
+                                { term: 'Group of things', definition: 'Collective Noun' },
+                                { term: 'Qualities or ideas', definition: 'Abstract Noun' }
+                            ]
+                        }
+                    },
+                    {
+                        title: 'Verbs: The Action Words',
+                        content: `
+                            <p>Verbs are the most important part of a sentence. This lesson teaches you about verbs, which describe an action, state, or occurrence.</p>
+                            <p>You'll learn about different verb forms and how they change with time (tenses).</p>
+                            <p><strong>NEP 2020 Focus:</strong> Building a strong foundation in English grammar for effective communication.</p>
+                        `,
+                        long_answers: {
+                            question: 'Explain the difference between present, past, and future tense with a sentence example for each.',
+                            answer: `
+                                <p>Tense refers to the time an action takes place. There are three main tenses:</p>
+                                <p><strong>Present Tense:</strong> Used to describe an action that is happening now or a habitual action. Example: 'He **walks** to school every day.'</p>
+                                <p><strong>Past Tense:</strong> Used to describe an action that has already happened. Example: 'He **walked** to school yesterday.'</p>
+                                <p><strong>Future Tense:</strong> Used to describe an action that will happen in the future. Example: 'He **will walk** to school tomorrow.'</p>
+                                <p>The verb form changes to indicate the time of the action, making it easy to understand when the event occurred.</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: Define "Tense":</strong> Start by defining what tense means in grammar.</p>
+                            <p><strong>Step 2: Use Subheadings for each Tense:</strong> Use bold subheadings for Present, Past, and Future Tense to make your answer organized.</p>
+                            <p><strong>Step 3: Provide a clear rule and example:</strong> For each tense, state its function and then provide a simple sentence to illustrate it. Using the same subject and action (e.g., "he" and "walk") makes the comparison clearer.</p>
+                            <p><strong>Step 4: Summarize the concept:</strong> End by explaining how verbs change form to show time, which is the core concept of tense.</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'What is the verb in the sentence "The cat is sleeping"?',
+                                options: ['The', 'cat', 'is sleeping', 'sleeping'],
+                                answer: 'is sleeping'
+                            },
+                            {
+                                question: 'What is the past tense of the verb "eat"?',
+                                options: ['eaten', 'ate', 'eating', 'eats'],
+                                answer: 'ate'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'Verbs Match',
+                            pairs: [
+                                { term: 'Present Tense', definition: 'is eating' },
+                                { term: 'Past Tense', definition: 'was eating' },
+                                { term: 'Future Tense', definition: 'will eat' },
+                                { term: 'An action word', definition: 'Verb' }
+                            ]
+                        }
+                    }
+                ]
+            },
+            'hindi': {
+                icon: 'fas fa-language',
+                title: 'Hindi',
+                description: 'Learn the fundamentals of Hindi grammar, vocabulary, and sentence formation.',
+                lessons: [
+                    {
+                        title: 'संज्ञा (Nouns)',
+                        content: `
+                            <p>इस पाठ में, हम संज्ञा के बारे में सीखेंगे। संज्ञा वे शब्द हैं जो किसी व्यक्ति, स्थान, वस्तु, या भाव के नाम को दर्शाते हैं।</p>
+                            <p>हम संज्ञा के विभिन्न भेदों जैसे व्यक्तिवाचक, जातिवाचक, और भाववाचक संज्ञा को उदाहरणों के साथ समझेंगे।</p>
+                            <p><strong>NEP 2020 Focus:</strong>Developing foundational literacy and a strong command of the Hindi language.</p>
+                        `,
+                        long_answers: {
+                            question: 'व्यक्तिवाचक संज्ञा और जातिवाचक संज्ञा के बीच का अंतर उदाहरणों के साथ समझाएं।',
+                            answer: `
+                                <p><strong>व्यक्तिवाचक संज्ञा (Proper Noun):</strong> यह किसी विशेष व्यक्ति, स्थान, या वस्तु का नाम होता है। जैसे: 'राम' (एक विशेष व्यक्ति), 'दिल्ली' (एक विशेष शहर), 'गंगा' (एक विशेष नदी)।</p>
+                                <p><strong>जातिवाचक संज्ञा (Common Noun):</strong> यह किसी संपूर्ण जाति या वर्ग का नाम होता है। जैसे: 'लड़का' (किसी भी लड़के के लिए), 'शहर' (किसी भी शहर के लिए), 'नदी' (किसी भी नदी के लिए)।</p>
+                                <p>मुख्य अंतर यह है कि व्यक्तिवाचक संज्ञा एक विशिष्ट नाम है, जबकि जातिवाचक संज्ञा एक सामान्य वर्ग का प्रतिनिधित्व करती है।</p>
+                            `
+                        },
+                        exam_tips: `
+                            <p><strong>Step 1: परिभाषा से शुरू करें:</strong> दोनों संज्ञाओं की स्पष्ट परिभाषा दें।</p>
+                            <p><strong>Step 2: उदाहरण दें:</strong> प्रत्येक प्रकार के लिए कम से कम दो-तीन उदाहरण दें।</p>
+                            <p><strong>Step 3: मुख्य अंतर बताएं:</strong> स्पष्ट करें कि व्यक्तिवाचक संज्ञा विशिष्ट है और जातिवाचक संज्ञा सामान्य है।</p>
+                            <p><strong>Step 4: सारांश के साथ समाप्त करें:</strong> एक अंतिम वाक्य में मुख्य बिंदुओं को दोहराएं।</p>
+                        `,
+                        quiz: [
+                            {
+                                question: 'इनमें से कौन सा शब्द व्यक्तिवाचक संज्ञा है?',
+                                options: ['पुस्तक', 'पेड़', 'हिमालय', 'गाड़ी'],
+                                answer: 'हिमालय'
+                            },
+                            {
+                                question: 'पशुओं के समूह को क्या कहते हैं?',
+                                options: ['झुंड', 'भीड़', 'दल', 'सेना'],
+                                answer: 'झुंड'
+                            }
+                        ],
+                        game: {
+                            type: 'matching',
+                            title: 'संज्ञा (Nouns) Match',
+                            pairs: [
+                                { term: 'व्यक्ति का नाम', definition: 'व्यक्तिवाचक संज्ञा' },
+                                { term: 'पूरी जाति का नाम', definition: 'जातिवाचक संज्ञा' },
+                                { term: 'समूह का नाम', definition: 'समूहवाचक संज्ञा' },
+                                { term: 'गुण या भाव का नाम', definition: 'भाववाचक संज्ञा' }
+                            ]
+                        }
+                    }
+                ]
             }
         };
 
@@ -711,6 +845,7 @@
             currentLessonIndex: 0,
             quizAttempts: {},
             performance: {},
+            totalPoints: 0,
             startTime: null,
             matchingGame: {
                 termSelected: null,
@@ -747,6 +882,7 @@
             backToLessonFromPrep: document.getElementById('back-to-lesson-from-prep'),
             scorecardModal: document.getElementById('scorecard-modal'),
             closeModalButton: document.getElementById('close-modal-button'),
+            totalPoints: document.getElementById('total-points'),
             completedSubjects: document.getElementById('completed-subjects'),
             totalQuizzes: document.getElementById('total-quizzes'),
             averageScore: document.getElementById('average-score'),
@@ -755,9 +891,22 @@
             correctCount: document.getElementById('correct-count'),
             incorrectCount: document.getElementById('incorrect-count'),
             improvementAreas: document.getElementById('improvement-areas'),
+            pointsEarned: document.getElementById('points-earned'),
             lessonProgressBar: document.getElementById('lesson-progress-bar'),
             progressPercentage: document.getElementById('progress-percentage')
         };
+        
+        // --- Persistence Functions (Local Storage) ---
+        function saveState() {
+            localStorage.setItem('learningPlatformState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            const savedState = localStorage.getItem('learningPlatformState');
+            if (savedState) {
+                Object.assign(state, JSON.parse(savedState));
+            }
+        }
 
         // --- Functions ---
 
@@ -790,26 +939,27 @@
             let totalScore = 0;
             let completedSubjects = 0;
 
-            for (const subjectKey in state.performance) {
-                const subjectPerformance = state.performance[subjectKey];
-                let subjectComplete = true;
-                for (const lessonIndex in subjectPerformance) {
-                    if (subjectPerformance[lessonIndex] && subjectPerformance[lessonIndex].completed) {
+            for (const subjectKey in courseData) {
+                let allLessonsCompleted = true;
+                for (const lessonIndex in courseData[subjectKey].lessons) {
+                    if (state.performance[subjectKey] && state.performance[subjectKey][lessonIndex]) {
                         totalQuizzesAttempted++;
-                        totalScore += subjectPerformance[lessonIndex].score;
+                        totalScore += state.performance[subjectKey][lessonIndex].score;
                     } else {
-                        subjectComplete = false;
+                        allLessonsCompleted = false;
                     }
                 }
-                if (subjectComplete) {
+                if (allLessonsCompleted) {
                     completedSubjects++;
                 }
             }
 
             const average = totalQuizzesAttempted > 0 ? (totalScore / totalQuizzesAttempted).toFixed(2) : 0;
+            elements.totalPoints.textContent = state.totalPoints;
             elements.completedSubjects.textContent = completedSubjects;
             elements.totalQuizzes.textContent = totalQuizzesAttempted;
             elements.averageScore.textContent = `${average}%`;
+            saveState();
         }
 
         /**
@@ -848,6 +998,15 @@
             const progress = (state.currentLessonIndex + 1) / subject.lessons.length * 100;
             elements.lessonProgressBar.style.width = `${progress}%`;
             elements.progressPercentage.textContent = `${Math.round(progress)}%`;
+            
+            // Award points for completing a lesson
+            if (!state.performance[state.currentSubject] || !state.performance[state.currentSubject][state.currentLessonIndex] || !state.performance[state.currentSubject][state.currentLessonIndex].read) {
+                if (!state.performance[state.currentSubject]) state.performance[state.currentSubject] = {};
+                if (!state.performance[state.currentSubject][state.currentLessonIndex]) state.performance[state.currentSubject][state.currentLessonIndex] = {};
+                state.performance[state.currentSubject][state.currentLessonIndex].read = true;
+                state.totalPoints += 5;
+                updateDashboard();
+            }
         }
 
         /**
@@ -859,7 +1018,7 @@
             elements.lessonView.classList.add('hidden');
             elements.quizView.classList.remove('hidden');
             elements.quizTitle.textContent = `Quiz: ${lesson.title}`;
-            state.quizAttempts[state.currentLessonIndex] = { correct: 0, incorrect: 0 };
+            state.quizAttempts[state.currentLessonIndex] = { correct: 0, incorrect: 0, total: lesson.quiz.length };
             state.startTime = new Date(); // Reset timer for quiz
             renderQuestion(0);
         }
@@ -898,6 +1057,7 @@
             if (selectedOption === correctAnswer) {
                 element.classList.add('correct');
                 state.quizAttempts[state.currentLessonIndex].correct++;
+                state.totalPoints += 10; // Award points for correct answer
             } else {
                 element.classList.add('incorrect');
                 state.quizAttempts[state.currentLessonIndex].incorrect++;
@@ -934,6 +1094,11 @@
             state.matchingGame.completedPairs = 0;
             elements.matchingGrid.innerHTML = '';
             elements.gameMessage.textContent = '';
+            
+            // Track if game has been completed for points
+            if (!state.performance[state.currentSubject]) state.performance[state.currentSubject] = {};
+            if (!state.performance[state.currentSubject][state.currentLessonIndex]) state.performance[state.currentSubject][state.currentLessonIndex] = {};
+            state.performance[state.currentSubject][state.currentLessonIndex].gameCompleted = false;
 
             const pairs = [...lesson.game.pairs];
             const allItems = shuffle([...pairs.map(p => p.term), ...pairs.map(p => p.definition)]);
@@ -971,7 +1136,15 @@
                     element.classList.add('correct', 'disabled');
                     elements.gameMessage.textContent = 'Match Found!';
                     state.matchingGame.completedPairs++;
+                    state.totalPoints += 20; // Award points for a successful match
+                    updateDashboard();
+
                     if (state.matchingGame.completedPairs === lesson.game.pairs.length) {
+                        if (!state.performance[state.currentSubject][state.currentLessonIndex].gameCompleted) {
+                            state.totalPoints += 50; // Bonus points for completing the game
+                            state.performance[state.currentSubject][state.currentLessonIndex].gameCompleted = true;
+                            updateDashboard();
+                        }
                         setTimeout(() => {
                            elements.gameMessage.textContent = 'Congratulations! You matched all pairs!';
                         }, 500);
@@ -1035,6 +1208,14 @@
             const totalQuestions = courseData[state.currentSubject].lessons[state.currentLessonIndex].quiz.length;
             const score = (attempt.correct / totalQuestions) * 100 || 0;
 
+            let pointsForQuiz = 0;
+            if (score === 100) {
+                pointsForQuiz = 100; // Bonus for perfect score
+            } else {
+                pointsForQuiz = attempt.correct * 10;
+            }
+            state.totalPoints += pointsForQuiz;
+            
             // Save performance data
             if (!state.performance[state.currentSubject]) {
                 state.performance[state.currentSubject] = {};
@@ -1042,7 +1223,8 @@
             state.performance[state.currentSubject][state.currentLessonIndex] = {
                 score: score,
                 timeSpent: timeDiff,
-                completed: true
+                completed: true,
+                read: true
             };
             
             // Update modal content
@@ -1050,6 +1232,7 @@
             elements.timeSpent.textContent = `${minutes}m ${seconds}s`;
             elements.correctCount.textContent = attempt.correct;
             elements.incorrectCount.textContent = attempt.incorrect;
+            elements.pointsEarned.textContent = pointsForQuiz;
 
             // Generate improvement areas based on incorrect answers
             const improvementSuggestions = [];
@@ -1134,6 +1317,7 @@
 
         // Initial render
         window.onload = () => {
+            loadState();
             renderSubjectCards();
             updateDashboard();
         };

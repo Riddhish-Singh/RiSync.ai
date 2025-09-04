@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RiSync Dashboard</title>
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
   <style>
     /* --- THEME & CORE VARIABLES --- */
     :root {
@@ -19,6 +21,7 @@
       --dark-text: #333;
       --light-text: #6c757d;
       --white: #ffffff;
+      --glass-bg: rgba(255, 255, 255, 0.5);
       --box-shadow-light: 0 4px 15px rgba(0, 0, 0, 0.06);
       --box-shadow-medium: 0 8px 25px rgba(0, 0, 0, 0.1);
       --border-radius: 12px;
@@ -45,15 +48,23 @@
       color: var(--dark-text);
       line-height: 1.6;
     }
-    
+
     .main-wrapper {
       display: flex;
       height: 100vh;
     }
 
+    .content-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
     /* --- HEADER / TOP BAR --- */
     header.top-bar {
-      background-color: var(--white);
+      background-color: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       color: var(--primary-dark);
       display: flex;
       align-items: center;
@@ -61,9 +72,10 @@
       padding: 12px 25px;
       position: fixed;
       top: 0;
-      left: 280px; /* Aligned with sidebar width */
+      left: 280px;
       right: 0;
       height: 70px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.3);
       box-shadow: var(--box-shadow-medium), var(--box-glow-orange);
       z-index: 99;
       transition: left 0.3s ease;
@@ -74,15 +86,15 @@
       align-items: center;
       gap: 15px;
     }
-    
+
     .menu-toggle {
-      display: none; /* Hidden by default, shown on mobile */
+      display: none;
       font-size: 24px;
       cursor: pointer;
       color: var(--primary-dark);
       text-shadow: var(--text-glow-light);
     }
-    
+
     .header-title h3 {
       margin: 0;
       font-size: 24px;
@@ -95,7 +107,7 @@
       align-items: center;
       gap: 20px;
     }
-    
+
     .settings-icon {
       font-size: 24px;
       cursor: pointer;
@@ -146,7 +158,7 @@
       background-color: var(--light-gray);
       color: var(--accent-orange);
     }
-    
+
     .profile-icon {
       width: 45px;
       height: 45px;
@@ -165,9 +177,9 @@
     nav.sidebar {
       background-color: var(--primary-dark);
       color: var(--white);
-      padding: 0 15px 25px 15px; /* Adjusted padding */
+      padding: 0 15px 25px 15px;
       width: 280px;
-      height: 100vh; /* Ensure sidebar takes full height */
+      height: 100vh;
       display: flex;
       flex-direction: column;
       flex-shrink: 0;
@@ -175,15 +187,18 @@
       transition: transform 0.3s ease;
       box-shadow: 5px 0px 20px rgba(0,0,0,0.1), var(--box-glow-blue);
     }
+    .sidebar.open {
+      transform: translateX(0);
+    }
     .logo-container {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 25px 15px 25px 15px; /* Added top padding */
+      padding: 25px 15px 25px 15px;
       text-align: center;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       margin-bottom: 20px;
-      flex-shrink: 0; /* Prevent logo from shrinking */
+      flex-shrink: 0;
     }
     .logo-container img {
       width: 70px;
@@ -201,12 +216,12 @@
     }
 
     .nav-menu {
-      flex-grow: 1; /* Allow this container to grow and fill space */
-      overflow-y: auto; /* Add scrollbar ONLY when content overflows */
+      flex-grow: 1;
+      overflow-y: auto;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      padding-right: 5px; /* Space for the scrollbar */
+      padding-right: 5px;
     }
 
     /* Custom Scrollbar for Sidebar */
@@ -226,7 +241,6 @@
         background-color: var(--accent-orange-dark);
     }
 
-
     .nav-button {
       background-color: transparent;
       color: rgba(255, 255, 255, 0.8);
@@ -240,7 +254,7 @@
       gap: 15px;
       text-align: left;
       transition: all 0.2s ease;
-      flex-shrink: 0; /* Prevent buttons from shrinking */
+      flex-shrink: 0;
     }
     .nav-button:hover {
       background-color: var(--primary-light);
@@ -264,17 +278,20 @@
       flex-grow: 1;
       padding: 30px;
       overflow-y: auto;
-      margin-top: 70px; /* Push content below fixed header */
+      margin-top: 70px;
       animation: fadeIn 0.5s ease-out;
     }
-    
+
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
         gap: 25px;
     }
     .card {
-        background-color: var(--white);
+        background-color: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
         border-radius: var(--border-radius);
         padding: 25px;
         box-shadow: var(--box-shadow-light);
@@ -320,6 +337,90 @@
         border-bottom: none;
     }
 
+    /* New Progress Card Styles */
+    .progress-bar-container {
+        width: 100%;
+        background-color: var(--medium-gray);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-top: 15px;
+    }
+    .progress-bar {
+        height: 15px;
+        width: 0%;
+        background-color: var(--accent-orange);
+        transition: width 0.5s ease-in-out;
+        border-radius: 10px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .progress-text {
+        text-align: center;
+        margin-top: 10px;
+        font-weight: 500;
+        color: var(--dark-text);
+    }
+
+    /* New To-Do List Card Styles */
+    .todo-list-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .todo-input-group {
+        display: flex;
+        gap: 10px;
+    }
+    .todo-input-group input {
+        flex-grow: 1;
+        padding: 10px;
+        border: 1px solid var(--medium-gray);
+        border-radius: 8px;
+        font-size: 15px;
+    }
+    .todo-input-group button {
+        background-color: var(--accent-blue);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 0 15px;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .todo-input-group button:hover {
+        background-color: var(--accent-orange);
+    }
+    .todo-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .todo-list li {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--medium-gray);
+        font-size: 15px;
+    }
+    .todo-list li:last-child {
+        border-bottom: none;
+    }
+    .todo-list li.completed {
+        text-decoration: line-through;
+        color: var(--light-text);
+    }
+    .todo-list .remove-btn {
+        background: none;
+        border: none;
+        color: var(--light-text);
+        cursor: pointer;
+        font-size: 18px;
+        transition: color 0.2s ease;
+    }
+    .todo-list .remove-btn:hover {
+        color: var(--accent-orange);
+    }
+
     /* Loading state */
     .loading-spinner {
         border: 4px solid #f3f3f3;
@@ -327,7 +428,7 @@
         border-top: 4px solid var(--accent-orange);
         width: 20px;
         height: 20px;
-        -webkit-animation: spin 1s linear infinite; /* Safari */
+        -webkit-animation: spin 1s linear infinite;
         animation: spin 1s linear infinite;
         margin-left: 10px;
     }
@@ -386,7 +487,7 @@
       50% { transform: scale(1.2); }
       100% { transform: scale(1); }
     }
-    
+
     /* Mic button animation */
     #mic-btn.active {
       background-color: var(--accent-orange);
@@ -408,7 +509,7 @@
         user-select: none;
         font-size: 15px;
         font-weight: 500;
-        width: 160px; /* Adjusted width to fit longer text */
+        width: 160px;
         z-index: 10;
         color: var(--dark-text);
     }
@@ -432,10 +533,10 @@
     .language-dropdown-container.active .selected-language .dropdown-arrow {
         transform: rotate(180deg);
     }
-    
+
     .language-dropdown-list {
         position: absolute;
-        top: 110%; /* Position below the selected language display */
+        top: 110%;
         left: 0;
         width: 100%;
         background: var(--white);
@@ -469,7 +570,7 @@
     /* New Chatbot Pop-up Styles */
     #chatbot-popup {
       position: fixed;
-      bottom: 100px; /* Adjust this to sit above the music button */
+      bottom: 100px;
       right: 30px;
       width: 300px;
       background-color: var(--white);
@@ -477,7 +578,7 @@
       box-shadow: var(--box-shadow-medium);
       padding: 20px;
       z-index: 1000;
-      display: none; /* Initially hidden */
+      display: none;
       flex-direction: column;
       gap: 15px;
       transform: scale(0.8);
@@ -499,13 +600,13 @@
       border-bottom: 1px solid var(--medium-gray);
       padding-bottom: 10px;
     }
-    
+
     #chatbot-popup p {
       margin: 0;
       color: var(--light-text);
       font-size: 15px;
     }
-    
+
     #chatbot-popup .chatbot-buttons {
       display: flex;
       gap: 10px;
@@ -526,9 +627,9 @@
     #chatbot-popup button:hover {
       background-color: var(--accent-orange);
     }
-	
-	/* New RiBot Settings Pop-up Styles */
-	#ribot-settings-popup {
+
+    /* New RiBot Settings Pop-up Styles */
+    #ribot-settings-popup {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -552,7 +653,7 @@
       transform: translate(-50%, -50%) scale(1);
       opacity: 1;
     }
-    
+
     #ribot-settings-popup .popup-header {
         display: flex;
         justify-content: space-between;
@@ -601,7 +702,7 @@
         background-color: var(--medium-gray);
         color: var(--accent-orange);
     }
-    
+
     .ribot-response {
         padding: 15px;
         background-color: var(--light-gray);
@@ -686,7 +787,6 @@
         width: 40px;
         height: 40px;
       }
-      /* Ensure language dropdown is styled for mobile */
       .language-dropdown-container {
         width: 120px;
         font-size: 14px;
@@ -698,7 +798,7 @@
         padding: 10px 15px;
       }
       .header-title {
-        display: none; /* Hide title on very small screens */
+        display: none;
       }
       main.content-area {
         padding: 20px;
@@ -714,9 +814,9 @@
         font-size: 20px;
       }
     }
-	
-	/* Utility */
-	.profile-upload { display: none; }
+
+    /* Utility */
+    .profile-upload { display: none; }
   </style>
 </head>
 <body>
@@ -726,51 +826,51 @@
     <nav class="sidebar" id="sidebar">
       <div class="logo-container">
         <img src="../assets/logo.png" alt="RiSync Logo">
-        <h2 data-i18n="title">RiSync</h2>
-        <p data-i18n="tagline">Let's Re Sync With RiSync</p>
+        <h2>RiSync</h2>
+        <p>Let's Re Sync With RiSync</p>
       </div>
-      <div class="nav-menu flex-grow flex flex-col gap-2 overflow-y-auto px-4">
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'RiSync-CHAT.html')"><i class="fas fa-comments w-5 text-center"></i> RiSync Chat</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'https://calendar.google.com/calendar/u/0/r/eventedit?text=RiSync%20-%20&vcon=meet&dates=now&hl=en')"><i class="fas fa-video w-5 text-center"></i> Schedule Meeting</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'https://calendar.google.com')"><i class="fas fa-calendar-alt w-5 text-center"></i> Calendar</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'Data Base.html')"><i class="fas fa-database w-5 text-center"></i> Database</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'subjects.html')"><i class="fas fa-book-open w-5 text-center"></i> Subjects</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'NCERT.html')"><i class="fas fa-book w-5 text-center"></i> NCERT</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'Whiteboard.html')"><i class="fas fa-chalkboard w-5 text-center"></i> White Board</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'Calculator.html')"><i class="fas fa-calculator w-5 text-center"></i> Calculator</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'gpt.html')"><i class="fas fa-robot w-5 text-center"></i> Chat Bot</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=')"><i class="fas fa-search w-5 text-center"></i> Search Engine</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, '#')"><i class="fas fa-trophy w-5 text-center"></i>Leaderboard</button>
-        <button class="nav-button bg-transparent text-white text-opacity-80 hover:bg-[#1a1a4a] hover:text-white px-5 py-3 rounded-lg text-base cursor-pointer flex items-center gap-4 text-left transition-all duration-200 flex-shrink-0" onclick="navigateTo(this, 'PPT.html')"><i class="fas fa-file-powerpoint w-5 text-center"></i>PPT</button>
-      </div>
+<div class="nav-menu">
+    <a href="RiSync-CHAT.html" class="nav-button" role="link" aria-label="Go to RiSync Chat"><i class="fas fa-comments"></i> RiSync Chat</a>
+    <a href="profile.html" class="nav-button" role="link" aria-label="View Profile"><i class="fas fa-user-circle"></i> Profile</a>
+    <a href="https://calendar.google.com/calendar/u/0/r/eventedit?text=RiSync%20-%20&vcon=meet&dates=now&hl=en" class="nav-button" role="link" aria-label="Schedule a new meeting"><i class="fas fa-video"></i> Schedule Meeting</a>
+    <a href="calendar.html" class="nav-button" role="link" aria-label="Open Calendar"><i class="fas fa-calendar-alt"></i> Calendar</a>
+    <a href="Data Base.html" class="nav-button" role="link" aria-label="Open Database"><i class="fas fa-database"></i> Database</a>
+    <a href="subjects.html" class="nav-button" role="link" aria-label="Open Subjects"><i class="fas fa-book-open"></i> Subjects</a>
+    <a href="NCERT.html" class="nav-button" role="link" aria-label="Open NCERT books"><i class="fas fa-book"></i> NCERT</a>
+    <a href="Whiteboard.html" class="nav-button" role="link" aria-label="Open White Board"><i class="fas fa-chalkboard"></i> White Board</a>
+    <a href="Calculator.html" class="nav-button" role="link" aria-label="Open Calculator"><i class="fas fa-calculator"></i> Calculator</a>
+    <a href="gpt.html" class="nav-button" role="link" aria-label="Open Chat Bot"><i class="fas fa-robot"></i> Chat Bot</a>
+    <a href="https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=" class="nav-button" role="link" aria-label="Open Search Engine"><i class="fas fa-search"></i> Search Engine</a>
+    <a href="leaderboard.html" class="nav-button" role="link" aria-label="Open Leaderboard"><i class="fas fa-trophy"></i>Leaderboard</a>
+    <a href="PPT.html" class="nav-button" role="link" aria-label="Open PPT"><i class="fas fa-file-powerpoint"></i>PPT</a>
+</div>
     </nav>
     
-    <div style="display: flex; flex-direction: column; width: 100%;">
+    <div class="content-container">
       <header class="top-bar">
         <div class="header-left">
-          <div class="menu-toggle" onclick="toggleMenu()">
+          <div class="menu-toggle" aria-controls="sidebar" aria-expanded="false" role="button" tabindex="0">
             <i class="fas fa-bars"></i>
           </div>
           <div class="header-title">
-            <h3 id="welcome-message" data-i18n="welcome">   Welcome to RiSync</h3>
+            <h3 id="welcome-message" data-i18n="welcome">Welcome to RiSync</h3>
           </div>
         </div>
         <div class="settings-container">
           <div class="language-dropdown-container" id="language-dropdown-container">
             <div class="selected-language" id="selected-language">
-              <span>English</span>
+              <span data-i18n-name="en">English</span>
               <i class="fas fa-chevron-down dropdown-arrow"></i>
             </div>
-            <ul class="language-dropdown-list" id="language-dropdown-list">
-              </ul>
+            <ul class="language-dropdown-list" id="language-dropdown-list"></ul>
           </div>
           <input type="file" id="profileUpload" class="profile-upload" accept=".png, .jpg" />
           <img src="https://placehold.co/45x45/f58220/ffffff?text=U" alt="Profile" class="profile-icon" id="profileIcon" />
-          <i class="fas fa-cog settings-icon" onclick="toggleSettings()"></i>
+          <i class="fas fa-cog settings-icon"></i>
           <div class="settings-menu" id="settingsMenu">
-            <button onclick="openProfilePage()"><i class="fas fa-user-circle"></i>Profile</button>
-            <button onclick="openRiBotSettings()"><i class="fas fa-robot"></i>RiBot Settings</button>
-            <button id="logoutButton" onclick="logout()"><i class="fas fa-sign-out-alt"></i>Log Out</button>
+            <button id="profileBtn"><i class="fas fa-user-circle"></i>Profile</button>
+            <button id="ribotSettingsBtn"><i class="fas fa-robot"></i>RiBot Settings</button>
+            <button id="logoutButton"><i class="fas fa-sign-out-alt"></i>Log Out</button>
           </div>
         </div>
       </header>
@@ -783,7 +883,31 @@
                     <h4 data-i18n="quick-actions-h4">Quick Actions</h4>
                 </div>
                 <p data-i18n="quick-actions-p">Jump right back into your learning journey.</p>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-tasks"></i>
+                    <h4 data-i18n="todo-h4">Your To-Do List</h4>
                 </div>
+                <div class="todo-list-container">
+                    <div class="todo-input-group">
+                        <input type="text" id="todo-input" data-i18n-placeholder="add-task-placeholder" placeholder="Add a new task...">
+                        <button id="add-todo-btn"><i class="fas fa-plus"></i></button>
+                    </div>
+                    <ul class="todo-list" id="todo-list"></ul>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    <h4 data-i18n="progress-h4">My Progress</h4>
+                </div>
+                <p data-i18n="progress-p">Overall Course Completion</p>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 75%;"></div>
+                </div>
+                <div class="progress-text" id="progress-text">75% Complete</div>
+            </div>
             <div class="card">
                 <div class="card-header">
                     <i class="fas fa-lightbulb"></i>
@@ -794,10 +918,9 @@
         </div>
       </main>
     </div>
-  
   </div>
 
-  <audio id="bg-music" loop preload="auto">
+  <audio id="bg-music" loop preload="none">
     <source src="../assets/logo.mp3" type="audio/mpeg">
     Your browser does not support the audio element.
   </audio>
@@ -812,782 +935,1627 @@
   </div>
 
   <div id="chatbot-popup">
-    <h5 id="chatbot-welcome-message">Hello, User! Welcome to the wonderful journey with RiSync.</h5>
-    <p>Do you want me to assist you to find what you are looking for?</p>
+    <h5 id="chatbot-welcome-message" data-i18n="chatbot-welcome">Hello, User! Welcome to the wonderful journey with RiSync.</h5>
+    <p data-i18n="chatbot-assistance">Do you want me to assist you to find what you are looking for?</p>
     <div class="chatbot-buttons">
-      <button onclick="startAssistance()">Yes, please</button>
-      <button onclick="hideChatbotPopup()">No, thanks</button>
+      <button id="startAssistanceBtn" data-i18n="yes-please">Yes, please</button>
+      <button id="hideChatbotBtn" data-i18n="no-thanks">No, thanks</button>
     </div>
   </div>
   
   <div id="ribot-settings-popup">
       <div class="popup-header">
         <h4 data-i18n="ribot-title">RiBot Settings</h4>
-        <button class="close-btn" onclick="closeRiBotSettings()">&times;</button>
+        <button class="close-btn" id="closeRibotSettingsBtn">&times;</button>
       </div>
       <div class="ribot-intro">
-          <p data-i18n="ribot-intro-text">Hi, I am RiBot. How can I help you today? Please select an option below.</p>
-          <div class="ribot-options">
-              <button onclick="handleRiBotOption('help')" data-i18n="ribot-help">What is RiSync?</button>
-              <button onclick="handleRiBotOption('features')" data-i18n="ribot-features">What are the main features?</button>
-              <button onclick="handleRiBotOption('contact')" data-i18n="ribot-contact">How can I contact support?</button>
-              <button onclick="handleRiBotOption('voice')" data-i18n="ribot-voice">What voice commands are available?</button>
-          </div>
+        <p data-i18n="ribot-intro-text">Hi, I am RiBot. How can I help you today? Please select an option below.</p>
+        <div class="ribot-options">
+          <button class="ribot-option-btn" data-option="help" data-i18n="ribot-help">What is RiSync?</button>
+          <button class="ribot-option-btn" data-option="features" data-i18n="ribot-features">What are the main features?</button>
+          <button class="ribot-option-btn" data-option="contact" data-i18n="ribot-contact">How can I contact support?</button>
+          <button class="ribot-option-btn" data-option="voice" data-i18n="ribot-voice">What voice commands are available?</button>
+        </div>
       </div>
       <div id="ribot-response-area" class="ribot-response" style="display: none;">
-          <p id="ribot-response-text"></p>
+        <p id="ribot-response-text"></p>
       </div>
   </div>
-
-<script>
-// --- MENU & NAVIGATION --- //
-function toggleMenu() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.querySelector('.main-wrapper').classList.toggle('sidebar-open');
-}
-
-function openProfilePage() {
-  // TODO: Create a file named `profile.html` to make this button work.
-  // The original error was caused because this file did not exist.
-  window.location.href = "profile.html"; 
-}
-
-// New function to handle active state of nav buttons
-function setActiveNavButton(clickedButton) {
-    // Remove 'active' class from all buttons
-    document.querySelectorAll('.nav-button').forEach(button => {
-        button.classList.remove('active');
-    });
-    // Add 'active' class to the clicked button
-    if (clickedButton) {
-        clickedButton.classList.add('active');
-    }
-}
-
-// Updated navigateTo function to accept the button element
-function navigateTo(button, page) {
-  setActiveNavButton(button);
-
-  const openInNewTab = [
-    "https://calendar.google.com/calendar/u/0/r/eventedit?vcon=meet&dates=now&hl=en",
-    "https://calendar.google.com",
-    "https://cse.google.com/cse?cx=21639bebac7284493#gsc.tab=0&gsc.sort=",
-    "https://aistudio.google.com/app/prompts?state=%7B%22ids%5B%221lHsYju8FWMjs75J3H9ZRcc50LJbSTyJX%22%5D,%22action%22:%22open%22,%22userId%22:%22103318311448138677723%22,%22resourceKeys%22:%7B%7D%7D&usp=sharing"
-  ];
-
-  if (openInNewTab.includes(page) || page === '#') { // Also handle placeholder links
-    if (page !== '#') window.open(page, "_blank");
-  } else {
-    window.location.href = page;
-  }
-}
-
-// --- SETTINGS & PROFILE --- //
-function toggleSettings() {
-  document.getElementById("settingsMenu").classList.toggle('active');
-}
-document.addEventListener("click", function (event) {
-  const settingsMenu = document.getElementById("settingsMenu");
-  const settingsIcon = document.querySelector(".settings-icon");
-  if (!settingsMenu.contains(event.target) && !settingsIcon.contains(event.target)) {
-    settingsMenu.classList.remove('active');
-  }
-});
-
-function logout() {
-  localStorage.clear();
-  window.location.href = "../index.html";
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Wrap localStorage retrieval in a try-catch block for safety
-    try {
-        const savedImage = localStorage.getItem("profileImage");
-        if (savedImage) {
-            document.getElementById("profileIcon").src = savedImage;
+  
+  <script>
+    // --- CENTRALIZED TRANSLATIONS ---
+    const translations = {
+      en: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "RiSync Chat",
+        profile: "Profile",
+        schedule: "Schedule Meeting",
+        calendar: "Calendar",
+        database: "Database",
+        chatbot: "Chat Bot",
+        search: "Search Engine",
+        subjects: "Subjects",
+        "white-board": "White Board",
+        ncert: "NCERT",
+        calculator: "Calculator",
+        welcome: "Welcome to RiSync",
+        instruction: "Select an option from the left menu to get started.",
+        "quick-actions-h4": "Quick Actions",
+        "quick-actions-p": "Jump right back into your learning journey.",
+        "did-you-know-h4": "Did You Know?",
+        "did-you-know-p": "You can use the White Board feature to collaborate on complex problems in real-time with your peers!",
+        "leaderboard": "Leaderboard",
+        "ppt": "PPT",
+        "todo-h4": "Your To-Do List",
+        "progress-h4": "My Progress",
+        "progress-p": "Overall Course Completion",
+        "ribot-title": "RiBot Settings",
+        "ribot-intro-text": "Hi, I am RiBot. How can I help you today? Please select an option below.",
+        "ribot-help": "What is RiSync?",
+        "ribot-features": "What are the main features?",
+        "ribot-contact": "How can I contact support?",
+        "ribot-voice": "What voice commands are available?",
+        "add-task-placeholder": "Add a new task...",
+        "chatbot-welcome": "Hello, User! Welcome to the wonderful journey with RiSync.",
+        "chatbot-assistance": "Do you want me to assist you to find what you are looking for?",
+        "yes-please": "Yes, please",
+        "no-thanks": "No, thanks",
+        "ribot-responses": {
+          "help": "RiSync is an all-in-one educational platform designed to help you organize your studies and collaborate with others. It includes features like a chat, calendar, search engine, and a virtual whiteboard.",
+          "features": "Key features include RiSync Chat for collaboration, a scheduling tool for meetings, a whiteboard for real-time problem-solving, and voice commands for hands-free navigation.",
+          "contact": "You can contact support by emailing support@risync.com or by visiting our 'Help' section which will be added soon!",
+          "voice": "You can use voice commands to navigate to any section listed in the sidebar. For example, you can say 'Go to NCERT' or 'Open Search Engine'.",
+          "default": "Sorry, I did not understand that option. Please select one of the buttons."
         }
-    } catch (e) {
-        console.error("Failed to retrieve profile image from localStorage:", e);
-    }
-
-    document.getElementById("profileIcon").addEventListener("click", () => {
-        document.getElementById("profileUpload").click();
-    });
-
-    document.getElementById("profileUpload").addEventListener("change", (event) => {
-        const file = event.target.files[0];
-        if (file && (file.type === "image/png" || file.type === "image/jpeg")) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const imageSrc = e.target.result;
-                document.getElementById("profileIcon").src = imageSrc;
-                // Wrap the setItem call in a try-catch block to handle QuotaExceededError
-                try {
-                    localStorage.setItem("profileImage", imageSrc);
-                } catch (e) {
-                    console.error("Failed to save profile image to localStorage:", e);
-                    // Display a custom modal to inform the user about the error
-                    const modal = document.createElement('div');
-                    modal.innerHTML = `
-                        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-                            <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px;">
-                                <p>Warning: The profile image could not be saved. It may be too large. The image will only be visible during this session.</p>
-                                <button onclick="this.parentNode.parentNode.remove()" style="background-color: var(--accent-orange); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">OK</button>
-                            </div>
-                        </div>
-                    `;
-                    document.body.appendChild(modal);
-                }
-            };
-            reader.readAsDataURL(file);
-        } else {
-            // Using a custom modal instead of alert()
-            const modal = document.createElement('div');
-            modal.innerHTML = `
-                <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;">
-                    <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px;">
-                        <p>Please upload a .png or .jpg image file.</p>
-                        <button onclick="this.parentNode.parentNode.remove()" style="background-color: var(--accent-orange); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-top: 10px;">OK</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
+      },
+      hi: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रायसिंक चैट",
+        profile: "प्रोफ़ाइल",
+        schedule: "मीटिंग शेड्यूल करें",
+        calendar: "कैलेंडर",
+        database: "डेटाबेस",
+        chatbot: "चैट बॉट",
+        search: "खोज इंजन",
+        subjects: "विषय",
+        "white-board": "व्हाइट बोर्ड",
+        ncert: "एनसीईआरटी",
+        calculator: "कैलकुलेटर",
+        welcome: "RiSync में आपका स्वागत है",
+        instruction: "शुरू करने के लिए बाईं ओर के मेनू से एक विकल्प चुनें।",
+        "quick-actions-h4": "त्वरित कार्य",
+        "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
+        "did-you-know-h4": "क्या आप जानते हैं?",
+        "did-you-know-p": "आप अपने साथियों के साथ वास्तविक समय में जटिल समस्याओं पर सहयोग करने के लिए व्हाइट बोर्ड सुविधा का उपयोग कर सकते हैं!",
+        "leaderboard": "लीडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "आपकी करने की सूची",
+        "progress-h4": "मेरी प्रगति",
+        "progress-p": "कुल कोर्स पूरा होना",
+        "ribot-title": "राइबॉट सेटिंग्स",
+        "ribot-intro-text": "नमस्ते, मैं राइबॉट हूँ। आज मैं आपकी क्या मदद कर सकता हूँ? कृपया नीचे एक विकल्प चुनें।",
+        "ribot-help": "RiSync क्या है?",
+        "ribot-features": "मुख्य विशेषताएं क्या हैं?",
+        "ribot-contact": "मैं सहायता से कैसे संपर्क कर सकता हूँ?",
+        "ribot-voice": "कौन से वॉयस कमांड उपलब्ध हैं?",
+        "add-task-placeholder": "एक नया कार्य जोड़ें...",
+        "chatbot-welcome": "नमस्ते, उपयोगकर्ता! RiSync के साथ अद्भुत यात्रा में आपका स्वागत है।",
+        "chatbot-assistance": "क्या आप चाहते हैं कि मैं आपकी मदद करूं जो आप ढूंढ रहे हैं?",
+        "yes-please": "हाँ, कृपया",
+        "no-thanks": "नहीं, धन्यवाद",
+        "ribot-responses": {
+          "help": "RiSync एक ऑल-इन-वन शैक्षिक प्लेटफ़ॉर्म है जिसे आपकी पढ़ाई को व्यवस्थित करने और दूसरों के साथ सहयोग करने में मदद करने के लिए डिज़ाइन किया गया है। इसमें चैट, कैलेंडर, खोज इंजन और एक वर्चुअल व्हाइटबोर्ड जैसी सुविधाएं शामिल हैं।",
+          "features": "मुख्य विशेषताओं में सहयोग के लिए RiSync चैट, मीटिंग्स के लिए एक शेड्यूलिंग टूल, वास्तविक समय में समस्याओं को हल करने के लिए एक व्हाइटबोर्ड और हैंड्स-फ्री नेविगेशन के लिए वॉयस कमांड शामिल हैं।",
+          "contact": "आप support@risync.com पर ईमेल करके या हमारे 'सहायता' अनुभाग पर जाकर सहायता से संपर्क कर सकते हैं जिसे जल्द ही जोड़ा जाएगा!",
+          "voice": "आप साइडबार में सूचीबद्ध किसी भी अनुभाग पर नेविगेट करने के लिए वॉयस कमांड का उपयोग कर सकते हैं। उदाहरण के लिए, आप 'एनसीईआरटी पर जाएं' या 'खोज इंजन खोलें' कह सकते हैं।",
+          "default": "क्षमा करें, मुझे वह विकल्प समझ नहीं आया। कृपया एक बटन चुनें।"
         }
-    });
-});
-
-
-// --- TRANSLATION & LANGUAGE SELECTOR --- //
-const translations = {
-  hi: { 
-    title: "RiSync", tagline: "RiSync के साथ फिर से सिंक करें", chat: "RiSync चैट", schedule: "बैठक शेड्यूल करें", calendar: "कैलेंडर", database: "डेटाबेस", chatbot: "चैट बोट", search: "खोज इंजन", subjects: "विषय", "white-board": "श्वेतपट", ncert: "एनसीईआरटी", calculator: "कैलकुलेटर", welcome: "RiSync में आपका स्वागत है", instruction: "शुरू करने के लिए बाएं मेनू से एक विकल्प चुनें।",
-    "quick-actions-h4": "त्वरित कार्य", "quick-actions-p": "अपनी सीखने की यात्रा में तुरंत वापस जाएं।",
-    "did-you-know-h4": "क्या आप जानते थे?", "did-you-know-p": "आप अपने साथियों के साथ वास्तविक समय में जटिल समस्याओं पर सहयोग करने के लिए व्हाइट बोर्ड सुविधा का उपयोग कर सकते हैं!",
-    "leaderboard": "लीडरबोर्ड", "ppt": "पीपीटी",
-    "ribot-title": "RiBot सेटिंग्स",
-    "ribot-intro-text": "नमस्ते, मैं RiBot हूँ। मैं आज आपकी कैसे मदद कर सकता हूँ? कृपया नीचे एक विकल्प चुनें।",
-    "ribot-help": "RiSync क्या है?",
-    "ribot-features": "मुख्य विशेषताएं क्या हैं?",
-    "ribot-contact": "मैं सहायता से कैसे संपर्क कर सकता हूँ?",
-    "ribot-voice": "कौन से वॉयस कमांड उपलब्ध हैं?",
-    "ribot-responses": {
-      "help": "RiSync एक ऑल-इन-वन शैक्षिक मंच है जिसे आपके अध्ययन को व्यवस्थित करने और दूसरों के साथ सहयोग करने में मदद करने के लिए डिज़ाइन किया गया है। इसमें चैट, कैलेंडर, सर्च इंजन और एक वर्चुअल व्हाइटबोर्ड जैसी सुविधाएं शामिल हैं।",
-      "features": "मुख्य विशेषताओं में सहयोग के लिए RiSync चैट, बैठकों के लिए एक शेड्यूलिंग टूल, वास्तविक समय में समस्या-समाधान के लिए एक व्हाइटबोर्ड, और हैंड्स-फ्री नेविगेशन के लिए वॉयस कमांड शामिल हैं।",
-      "contact": "आप support@risync.com पर ईमेल करके या हमारे 'सहायता' अनुभाग पर जाकर सहायता से संपर्क कर सकते हैं, जिसे जल्द ही जोड़ा जाएगा!",
-      "voice": "आप साइडबार में सूचीबद्ध किसी भी अनुभाग पर नेविगेट करने के लिए वॉयस कमांड का उपयोग कर सकते हैं। उदाहरण के लिए, आप 'NCERT पर जाएं' या 'सर्च इंजन खोलें' कह सकते हैं।",
-      "default": "क्षमा करें, मैं उस विकल्प को नहीं समझ पाया। कृपया बटनों में से एक का चयन करें।"
-    }
-  },
-  fr: { 
-    title: "RiSync", tagline: "Resynchronisez avec RiSync", chat: "Chat RiSync", schedule: "Planifier une réunion", calendar: "Calendrier", database: "Base de données", chatbot: "Chat Bot", search: "Moteur de recherche", subjects: "Sujets", "white-board": "Tableau blanc", ncert: "NCERT", calculator: "Calculatrice", welcome: "Bienvenue à RiSync", instruction: "Sélectionnez une option dans le menu de gauche pour commencer.",
-    "quick-actions-h4": "Actions rapides", "quick-actions-p": "Reprenez rapidement votre parcours d'apprentissage.",
-    "did-you-know-h4": "Le saviez-vous ?", "did-you-know-p": "Vous pouvez utiliser la fonction de tableau blanc pour collaborer sur des problèmes complexes en temps réel avec vos pairs !",
-    "leaderboard": "Classement", "ppt": "PPT",
-    "ribot-title": "Paramètres RiBot",
-    "ribot-intro-text": "Bonjour, je suis RiBot. Comment puis-je vous aider aujourd'hui ? Veuillez sélectionner une option ci-dessous.",
-    "ribot-help": "Qu'est-ce que RiSync ?",
-    "ribot-features": "Quelles sont les principales fonctionnalités ?",
-    "ribot-contact": "Comment puis-je contacter le support ?",
-    "ribot-voice": "Quelles sont les commandes vocales disponibles ?",
-    "ribot-responses": {
-      "help": "RiSync est une plateforme éducative tout-en-un conçue pour vous aider à organiser vos études et à collaborer avec d'autres. Elle comprend des fonctionnalités comme un chat, un calendrier, un moteur de recherche et un tableau blanc virtuel.",
-      "features": "Les principales fonctionnalités incluent le chat RiSync pour la collaboration, un outil de planification pour les réunions, un tableau blanc pour la résolution de problèmes en temps réel et des commandes vocales pour une navigation mains libres.",
-      "contact": "Vous pouvez contacter le support par email à support@risync.com ou en visitant notre section 'Aide' qui sera bientôt ajoutée !",
-      "voice": "Vous pouvez utiliser des commandes vocales pour naviguer vers n'importe quelle section listée dans la barre latérale. Par exemple, vous pouvez dire 'Aller à NCERT' ou 'Ouvrir Moteur de recherche'.",
-      "default": "Désolé, je n'ai pas compris cette option. Veuillez sélectionner l'un des boutons."
-    }
-  },
-  en: { 
-    title: "RiSync", tagline: "Let's Re Sync With RiSync", chat: "RiSync Chat", schedule: "Schedule Meeting", calendar: "Calendar", database: "Database", chatbot: "Chat Bot", search: "Search Engine", subjects: "Subjects", "white-board": "White Board", ncert: "NCERT", calculator: "Calculator", welcome: "Welcome to RiSync", instruction: "Select an option from the left menu to get started.",
-    "quick-actions-h4": "Quick Actions", "quick-actions-p": "Jump right back into your learning journey.",
-    "did-you-know-h4": "Did You Know?", "did-you-know-p": "You can use the White Board feature to collaborate on complex problems in real-time with your peers!",
-    "leaderboard": "Leaderboard", "ppt": "PPT",
-    "ribot-title": "RiBot Settings",
-    "ribot-intro-text": "Hi, I am RiBot. How can I help you today? Please select an option below.",
-    "ribot-help": "What is RiSync?",
-    "ribot-features": "What are the main features?",
-    "ribot-contact": "How can I contact support?",
-    "ribot-voice": "What voice commands are available?",
-    "ribot-responses": {
-      "help": "RiSync is an all-in-one educational platform designed to help you organize your studies and collaborate with others. It includes features like a chat, calendar, search engine, and a virtual whiteboard.",
-      "features": "The main features include RiSync Chat for collaboration, a scheduling tool for meetings, a whiteboard for real-time problem-solving, and voice commands for hands-free navigation.",
-      "contact": "You can contact support by emailing support@risync.com or by visiting our 'Help' section which will be added soon!",
-      "voice": "You can use voice commands to navigate to any section listed in the sidebar. For example, you can say 'Go to NCERT' or 'Open Search Engine'.",
-      "default": "Sorry, I didn't understand that option. Please select one of the buttons."
-    }
-  },
-  pu: { 
-    title: "RiSync", tagline: "ਆਓ RiSync ਨਾਲ ਦੁਬਾਰਾ ਸਿੰਕ ਕਰੀਏ", chat: "RiSync ਚੈਟ", schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤਹਿ ਕਰੋ", calendar: "ਕੈਲੰਡਰ", database: "ਡਾਟਾਬੇਸ", chatbot: "ਚੈਟ ਬੋਟ", search: "ਖੋਜ ਇੰਜਣ", subjects: "ਵਿਸ਼ੇ", "white-board": "ਵਾਈਟ ਬੋਰਡ", ncert: "ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ", calculator: "ਕੈਲਕੁਲੇਟਰ", welcome: "RiSync ਵਿੱਚ ਸੁਆਗਤ ਹੈ", instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਮੀਨੂ ਵਿੱਚੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।",
-    "quick-actions-h4": "ਤੇਜ਼ ਕਾਰਵਾਈਆਂ", "quick-actions-p": "ਆਪਣੀ ਸਿੱਖਣ ਦੀ ਯਾਤਰਾ ਵਿੱਚ ਵਾਪਸ ਜਾਓ।",
-    "did-you-know-h4": "ਕੀ ਤੁਸੀਂ ਜਾਣਦੇ ਸੀ?", "did-you-know-p": "ਤੁਸੀਂ ਆਪਣੇ ਸਾਥੀਆਂ ਨਾਲ ਅਸਲ ਸਮੇਂ ਵਿੱਚ ਗੁੰਝਲਦਾਰ ਸਮੱਸਿਆਵਾਂ 'ਤੇ ਸਹਿਯੋਗ ਕਰਨ ਲਈ ਵ੍ਹਾਈਟ ਬੋਰਡ ਵਿਸ਼ੇਸ਼ਤਾ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ!",
-    "leaderboard": "ਲੀਡਰਬੋਰਡ", "ppt": "ਪੀਪੀਟੀ",
-    "ribot-title": "RiBot ਸੈਟਿੰਗਾਂ",
-    "ribot-intro-text": "ਹੈਲੋ, ਮੈਂ RiBot ਹਾਂ। ਮੈਂ ਅੱਜ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ? ਕਿਰਪਾ ਕਰਕੇ ਹੇਠਾਂ ਦਿੱਤੇ ਵਿਕਲਪਾਂ ਵਿੱਚੋਂ ਇੱਕ ਚੁਣੋ।",
-    "ribot-help": "RiSync ਕੀ ਹੈ?",
-    "ribot-features": "ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਕੀ ਹਨ?",
-    "ribot-contact": "ਮੈਂ ਸਹਾਇਤਾ ਨਾਲ ਕਿਵੇਂ ਸੰਪਰਕ ਕਰ ਸਕਦਾ ਹਾਂ?",
-    "ribot-voice": "ਕਿਹੜੇ ਵੌਇਸ ਕਮਾਂਡ ਉਪਲਬਧ ਹਨ?",
-    "ribot-responses": {
-      "help": "RiSync ਇੱਕ ਆਲ-ਇਨ-ਵਨ ਵਿਦਿਅਕ ਪਲੇਟਫਾਰਮ ਹੈ ਜੋ ਤੁਹਾਡੀ ਪੜ੍ਹਾਈ ਨੂੰ ਵਿਵਸਥਿਤ ਕਰਨ ਅਤੇ ਦੂਜਿਆਂ ਨਾਲ ਸਹਿਯੋਗ ਕਰਨ ਵਿੱਚ ਤੁਹਾਡੀ ਮਦਦ ਕਰਨ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਵਿੱਚ ਚੈਟ, ਕੈਲੰਡਰ, ਖੋਜ ਇੰਜਣ ਅਤੇ ਇੱਕ ਵਰਚੁਅਲ ਵ੍ਹਾਈਟਬੋਰਡ ਵਰਗੀਆਂ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਸ਼ਾਮਲ ਹਨ।",
-      "features": "ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਵਿੱਚ ਸਹਿਯੋਗ ਲਈ RiSync ਚੈਟ, ਮੀਟਿੰਗਾਂ ਲਈ ਇੱਕ ਸਮਾਂ-ਸਾਰਣੀ ਟੂਲ, ਰੀਅਲ-ਟਾਈਮ ਸਮੱਸਿਆ-ਹੱਲ ਲਈ ਇੱਕ ਵ੍ਹਾਈਟਬੋਰਡ, ਅਤੇ ਹੈਂਡਸ-ਫ੍ਰੀ ਨੈਵੀਗੇਸ਼ਨ ਲਈ ਵੌਇਸ ਕਮਾਂਡ ਸ਼ਾਮਲ ਹਨ।",
-      "contact": "ਤੁਸੀਂ support@risync.com 'ਤੇ ਈਮੇਲ ਕਰਕੇ ਜਾਂ ਸਾਡੇ 'ਸਹਾਇਤਾ' ਸੈਕਸ਼ਨ 'ਤੇ ਜਾ ਕੇ ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ ਕਰ ਸਕਦੇ ਹੋ, ਜੋ ਜਲਦੀ ਹੀ ਜੋੜਿਆ ਜਾਵੇਗਾ!",
-      "voice": "ਤੁਸੀਂ ਸਾਈਡਬਾਰ ਵਿੱਚ ਸੂਚੀਬੱਧ ਕਿਸੇ ਵੀ ਭਾਗ ਵਿੱਚ ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਵੌਇਸ ਕਮਾਂਡਾਂ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ। ਉਦਾਹਰਨ ਲਈ, ਤੁਸੀਂ 'NCERT 'ਤੇ ਜਾਓ' ਜਾਂ 'ਸਰਚ ਇੰਜਨ ਖੋਲ੍ਹੋ' ਕਹਿ ਸਕਦੇ ਹੋ।",
-      "default": "ਮੈਨੂੰ ਅਫਸੋਸ ਹੈ, ਮੈਂ ਉਹ ਵਿਕਲਪ ਨਹੀਂ ਸਮਝ ਸਕਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਬਟਨਾਂ ਵਿੱਚੋਂ ਇੱਕ ਚੁਣੋ।"
-    }
-  },
-  es: { 
-    title: "RiSync", tagline: "Sincronízate de nuevo con RiSync", chat: "Chat de RiSync", schedule: "Programar reunión", calendar: "Calendario", database: "Base de datos", chatbot: "Chat Bot", search: "Motor de búsqueda", subjects: "Asignaturas", "white-board": "Pizarra", ncert: "NCERT", calculator: "Calculadora", welcome: "Bienvenido a RiSync", instruction: "Selecciona una opción del menú de la izquierda para empezar.",
-    "quick-actions-h4": "Acciones rápidas", "quick-actions-p": "Vuelve a tu viaje de aprendizaje rápidamente.",
-    "did-you-know-h4": "¿Sabías que?", "did-you-know-p": "¡Puedes usar la función de pizarra para colaborar en problemas complejos en tiempo real con tus compañeros!",
-    "leaderboard": "Tabla de clasificación", "ppt": "PPT",
-    "ribot-title": "Configuración de RiBot",
-    "ribot-intro-text": "Hola, soy RiBot. ¿En qué puedo ayudarte hoy? Por favor, selecciona una opción a continuación.",
-    "ribot-help": "¿Qué es RiSync?",
-    "ribot-features": "¿Cuáles son las principales funciones?",
-    "ribot-contact": "¿Cómo puedo contactar con soporte?",
-    "ribot-voice": "¿Qué comandos de voz están disponibles?",
-    "ribot-responses": {
-      "help": "RiSync es una plataforma educativa todo en uno diseñada para ayudarte a organizar tus estudios y colaborar con otros. Incluye funciones como un chat, un calendario, un motor de búsqueda y una pizarra virtual.",
-      "features": "Las principales funciones incluyen el chat de RiSync para la colaboración, una herramienta de programación para reuniones, una pizarra para la resolución de problemas en tiempo real y comandos de voz para la navegación manos libres.",
-      "contact": "Puedes contactar con soporte enviando un correo electrónico a support@risync.com o visitando nuestra sección de 'Ayuda' que se añadirá pronto.",
-      "voice": "Puedes usar comandos de voz para navegar a cualquier sección listada en la barra lateral. Por ejemplo, puedes decir 'Ir a NCERT' o 'Abrir Motor de búsqueda'.",
-      "default": "Lo siento, no he entendido esa opción. Por favor, selecciona uno de los botones."
-    }
-  },
-  de: { 
-    title: "RiSync", tagline: "Mit RiSync neu synchronisieren", chat: "RiSync Chat", schedule: "Meeting planen", calendar: "Kalender", database: "Datenbank", chatbot: "Chat Bot", search: "Suchmaschine", subjects: "Fächer", "white-board": "Whiteboard", ncert: "NCERT", calculator: "Rechner", welcome: "Willkommen bei RiSync", instruction: "Wählen Sie eine Option aus dem linken Menü, um zu beginnen.",
-    "quick-actions-h4": "Schnelle Aktionen", "quick-actions-p": "Steigen Sie schnell wieder in Ihre Lernreise ein.",
-    "did-you-know-h4": "Wussten Sie schon?", "did-you-know-p": "Sie können die Whiteboard-Funktion nutzen, um in Echtzeit mit Ihren Mitschülern an komplexen Problemen zusammenzuarbeiten!",
-    "leaderboard": "Bestenliste", "ppt": "PPT",
-    "ribot-title": "RiBot-Einstellungen",
-    "ribot-intro-text": "Hallo, ich bin RiBot. Wie kann ich Ihnen heute helfen? Bitte wählen Sie eine Option unten aus.",
-    "ribot-help": "Was ist RiSync?",
-    "ribot-features": "Was sind die Hauptfunktionen?",
-    "ribot-contact": "Wie kann ich den Support kontaktieren?",
-    "ribot-voice": "Welche Sprachbefehle sind verfügbar?",
-    "ribot-responses": {
-      "help": "RiSync ist eine All-in-One-Lernplattform, die Ihnen hilft, Ihr Studium zu organisieren und mit anderen zusammenzuarbeiten. Sie umfasst Funktionen wie Chat, Kalender, Suchmaschine und ein virtuelles Whiteboard.",
-      "features": "Die Hauptfunktionen umfassen RiSync Chat für die Zusammenarbeit, ein Planungstool für Meetings, ein Whiteboard für die Problemlösung in Echtzeit und Sprachbefehle für die freihändige Navigation.",
-      "contact": "Sie können den Support per E-Mail an support@risync.com oder durch den Besuch unseres 'Hilfe'-Bereichs kontaktieren, der bald hinzugefügt wird!",
-      "voice": "Sie können Sprachbefehle verwenden, um zu jedem in der Seitenleiste aufgeführten Abschnitt zu navigieren. Zum Beispiel können Sie sagen: 'Gehe zu NCERT' oder 'Öffne Suchmaschine'.",
-      "default": "Entschuldigung, ich habe diese Option nicht verstanden. Bitte wählen Sie eine der Schaltflächen."
-    }
-  },
-  it: { 
-    title: "RiSync", tagline: "Risincronizzati con RiSync", chat: "Chat RiSync", schedule: "Pianifica riunione", calendar: "Calendario", database: "Database", chatbot: "Chat Bot", search: "Motore de ricerca", subjects: "Materie", "white-board": "Lavagna", ncert: "NCERT", calculator: "Calcolatrice", welcome: "Benvenuto in RiSync", instruction: "Seleziona un'opzione dal menu a sinistra per iniziare.",
-    "quick-actions-h4": "Azioni rapide", "quick-actions-p": "Torna subito al tuo percorso di apprendimento.",
-    "did-you-know-h4": "Lo sapevi?", "did-you-know-p": "Puoi utilizzare la funzione Lavagna per collaborare su problemi complessi in tempo reale con i tuoi colleghi!",
-    "leaderboard": "Classifica", "ppt": "PPT",
-    "ribot-title": "Impostazioni RiBot",
-    "ribot-intro-text": "Ciao, sono RiBot. Come posso aiutarti oggi? Per favore, seleziona un'opzione qui sotto.",
-    "ribot-help": "Cos'è RiSync?",
-    "ribot-features": "Quali sono le funzionalità principali?",
-    "ribot-contact": "Come posso contattare l'assistenza?",
-    "ribot-voice": "Quali comandi vocali sono disponibili?",
-    "ribot-responses": {
-      "help": "RiSync è una piattaforma educativa all-in-one progettata per aiutarti a organizzare i tuoi studi e a collaborare con gli altri. Include funzionalità come una chat, un calendario, un motore di ricerca e una lavagna virtuale.",
-      "features": "Le funzionalità principali includono la chat RiSync per la collaborazione, uno strumento di pianificazione per le riunioni, una lavagna per la risoluzione dei problemi in tempo reale e comandi vocali per la navigazione a mani libere.",
-      "contact": "Puoi contattare l'assistenza inviando un'email a support@risync.com o visitando la nostra sezione 'Aiuto' che verrà aggiunta presto!",
-      "voice": "Puoi usare i comandi vocali per navigare in qualsiasi sezione elencata nella barra laterale. Ad esempio, puoi dire 'Vai su NCERT' o 'Apri Motore di ricerca'.",
-      "default": "Scusa, non ho capito questa opzione. Seleziona uno dei pulsanti."
-    }
-  },
-  ja: {
-    title: "RiSync", tagline: "RiSyncで再同期しましょう", chat: "RiSyncチャット", schedule: "会議をスケジュール", calendar: "カレンダー", database: "データベース", chatbot: "チャットボット", search: "検索エンジン", subjects: "教科", "white-board": "ホワイトボード", ncert: "NCERT", calculator: "電卓", welcome: "RiSyncへようこそ", instruction: "左側のメニューからオプションを選択して開始します。",
-    "quick-actions-h4": "クイックアクション", "quick-actions-p": "学習の旅にすぐに戻りましょう。",
-    "did-you-know-h4": "ご存知でしたか？", "did-you-know-p": "ホワイトボード機能を使って、仲間とリアルタイムで複雑な問題について共同作業することができます！",
-    "leaderboard": "リーダーボード", "ppt": "PPT",
-    "ribot-title": "RiBot設定",
-    "ribot-intro-text": "こんにちは、RiBotです。今日はどのようにお手伝いできますか？以下のオプションから選択してください。",
-    "ribot-help": "RiSyncとは何ですか？",
-    "ribot-features": "主な機能は何ですか？",
-    "ribot-contact": "サポートに連絡するにはどうすればよいですか？",
-    "ribot-voice": "利用可能な音声コマンドは何ですか？",
-    "ribot-responses": {
-      "help": "RiSyncは、学習を整理し、他の人と協力するのに役立つオールインワンの教育プラットフォームです。チャット、カレンダー、検索エンジン、仮想ホワイトボードなどの機能が含まれています。",
-      "features": "主な機能には、共同作業用のRiSyncチャット、会議のスケジュール設定ツール、リアルタイムの問題解決用のホワイトボード、およびハンズフリーナビゲーション用の音声コマンドがあります。",
-      "contact": "サポートには、support@risync.comにメールするか、近日追加される「ヘルプ」セクションをご覧ください。",
-      "voice": "サイドバーにリストされている任意のセクションに移動するために音声コマンドを使用できます。たとえば、「NCERTに移動」または「検索エンジンを開く」と言うことができます。",
-      "default": "申し訳ありません、そのオプションは理解できませんでした。ボタンのいずれかを選択してください。"
-    }
-  },
-  zh: { 
-    title: "RiSync", tagline: "使用RiSync重新同步", chat: "RiSync聊天", schedule: "安排会议", calendar: "日历", database: "数据库", chatbot: "聊天机器人", search: "搜索引擎", subjects: "科目", "white-board": "白板", ncert: "NCERT", calculator: "计算器", welcome: "欢迎使用RiSync", instruction: "从左侧菜单中选择一个选项以开始。",
-    "quick-actions-h4": "快速操作", "quick-actions-p": "立即回到你的学习之旅。",
-    "did-you-know-h4": "你知道吗？", "did-you-know-p": "你可以使用白板功能与你的同伴实时协作解决复杂问题！",
-    "leaderboard": "排行榜", "ppt": "PPT",
-    "ribot-title": "RiBot设置",
-    "ribot-intro-text": "你好，我是RiBot。今天我能为您提供什么帮助？请选择以下选项之一。",
-    "ribot-help": "RiSync是什么？",
-    "ribot-features": "主要功能有哪些？",
-    "ribot-contact": "如何联系支持人员？",
-    "ribot-voice": "有哪些可用的语音命令？",
-    "ribot-responses": {
-      "help": "RiSync是一个多功能教育平台，旨在帮助您组织学习并与他人协作。它包括聊天、日历、搜索引擎和虚拟白板等功能。",
-      "features": "主要功能包括用于协作的RiSync聊天、会议安排工具、用于实时解决问题的白板以及用于免提导航的语音命令。",
-      "contact": "您可以通过发送电子邮件至support@risync.com或访问我们即将添加的“帮助”部分来联系支持人员！",
-      "voice": "您可以使用语音命令导航到侧边栏中列出的任何部分。例如，您可以说“转到NCERT”或“打开搜索引擎”。",
-      "default": "抱歉，我不明白该选项。请选择其中一个按钮。"
-    }
-  },
-  ar: {
-    title: "RiSync", tagline: "دعنا نعيد المزامنة مع RiSync", chat: "دردشة RiSync", schedule: "جدولة اجتماع", calendar: "التقويم", database: "قاعدة البيانات", chatbot: "روبوت الدردشة", search: "محرك البحث", subjects: "المواضيع", "white-board": "السبورة البيضاء", ncert: "NCERT", calculator: "آلة حاسبة", welcome: "مرحبا بك في RiSync", instruction: "حدد خيارًا من القائمة اليسرى للبدء.",
-    "quick-actions-h4": "إجراءات سريعة", "quick-actions-p": "عد مباشرة إلى رحلتك التعليمية.",
-    "did-you-know-h4": "هل كنت تعلم؟", "did-you-know-p": "يمكنك استخدام ميزة السبورة البيضاء للتعاون في المشكلات المعقدة في الوقت الفعلي مع زملائك!",
-    "leaderboard": "لوحة المتصدرين", "ppt": "PPT",
-    "ribot-title": "إعدادات RiBot",
-    "ribot-intro-text": "مرحباً، أنا RiBot. كيف يمكنني مساعدتك اليوم؟ يرجى تحديد خيار أدناه.",
-    "ribot-help": "ما هو RiSync؟",
-    "ribot-features": "ما هي الميزات الرئيسية؟",
-    "ribot-contact": "كيف يمكنني الاتصال بالدعم الفني؟",
-    "ribot-voice": "ما هي الأوامر الصوتية المتاحة؟",
-    "ribot-responses": {
-      "help": "RiSync هو منصة تعليمية شاملة مصممة لمساعدتك على تنظيم دراساتك والتعاون مع الآخرين. يتضمن ميزات مثل الدردشة والتقويم ومحرك البحث والسبورة البيضاء الافتراضية.",
-      "features": "تشمل الميزات الرئيسية دردشة RiSync للتعاون، وأداة جدولة للاجتماعات، وسبورة بيضاء لحل المشكلات في الوقت الفعلي، وأوامر صوتية للتنقل بدون استخدام اليدين.",
-      "contact": "يمكنك الاتصال بالدعم الفني عن طريق إرسال بريد إلكتروني إلى support@risync.com أو بزيارة قسم 'المساعدة' الذي سيتم إضافته قريبًا!",
-      "voice": "يمكنك استخدام الأوامر الصوتية للتنقل إلى أي قسم مدرج في الشريط الجانبي. على سبيل المثال، يمكنك أن تقول 'اذهب إلى NCERT' أو 'افتح محرك البحث'.",
-      "default": "عذراً، لم أفهم هذا الخيار. يرجى تحديد أحد الأزرار."
-    }
-  },
-  bn: {
-    title: "RiSync", tagline: "RiSync এর সাথে আবার সিঙ্ক করা যাক", chat: "RiSync চ্যাট", schedule: "মিটিং সময়সূচী করুন", calendar: "ক্যালেন্ডার", database: "ডাটাবেস", chatbot: "চ্যাট বট", search: "সার্চ ইঞ্জিন", subjects: "বিষয়", "white-board": "হোয়াইট বোর্ড", ncert: "এনসিইআরটি", calculator: "ক্যালকুলেটর", welcome: "RiSync এ স্বাগতম", instruction: "শুরু করতে বাম মেনু থেকে একটি বিকল্প নির্বাচন করুন।",
-    "quick-actions-h4": "দ্রুত পদক্ষেপ", "quick-actions-p": "আপনার শেখার যাত্রায় সরাসরি ফিরে যান।",
-    "did-you-know-h4": "আপনি কি জানেন?", "did-you-know-p": "আপনি আপনার সহকর্মীদের সাথে রিয়েল-টাইমে জটিল সমস্যাগুলিতে সহযোগিতা করতে হোয়াইট বোর্ড বৈশিষ্ট্যটি ব্যবহার করতে পারেন!",
-    "leaderboard": "লিডারবোর্ড", "ppt": "পিটিপি",
-    "ribot-title": "RiBot সেটিংস",
-    "ribot-intro-text": "হ্যালো, আমি RiBot। আমি আজ আপনাকে কীভাবে সাহায্য করতে পারি? অনুগ্রহ করে নিচে একটি বিকল্প নির্বাচন করুন।",
-    "ribot-help": "RiSync কী?",
-    "ribot-features": "মূল বৈশিষ্ট্যগুলো কী কী?",
-    "ribot-contact": "আমি কীভাবে সমর্থন বিভাগের সাথে যোগাযোগ করতে পারি?",
-    "ribot-voice": "কী কী ভয়েস কমান্ড উপলব্ধ আছে?",
-    "ribot-responses": {
-      "help": "RiSync হল একটি অল-ইন-ওয়ান শিক্ষামূলক প্ল্যাটফর্ম যা আপনাকে আপনার পড়াশোনা সংগঠিত করতে এবং অন্যদের সাথে সহযোগিতা করতে সাহায্য করার জন্য ডিজাইন করা হয়েছে। এতে চ্যাট, ক্যালেন্ডার, সার্চ ইঞ্জিন এবং একটি ভার্চুয়াল হোয়াইটবোর্ডের মতো বৈশিষ্ট্য রয়েছে।",
-      "features": "মূল বৈশিষ্ট্যগুলোর মধ্যে রয়েছে সহযোগিতার জন্য RiSync চ্যাট, মিটিংয়ের জন্য একটি সময়সূচী সরঞ্জাম, রিয়েল-টাইম সমস্যা সমাধানের জন্য একটি হোয়াইটবোর্ড এবং হ্যান্ডস-ফ্রি নেভিগেশনের জন্য ভয়েস কমান্ড।",
-      "contact": "আপনি support@risync.com-এ ইমেল করে অথবা আমাদের 'সাহায্য' বিভাগে গিয়ে সমর্থন বিভাগের সাথে যোগাযোগ করতে পারেন, যা শীঘ্রই যোগ করা হবে!",
-      "voice": "আপনি সাইডবারে তালিকাভুক্ত যেকোনো বিভাগে নেভিগেট করতে ভয়েস কমান্ড ব্যবহার করতে পারেন। উদাহরণস্বরূপ, আপনি বলতে পারেন 'এনসিইআরটি-তে যান' বা 'সার্চ ইঞ্জিন খুলুন'।",
-      "default": "দুঃখিত, আমি সেই বিকল্পটি বুঝতে পারিনি। অনুগ্রহ করে একটি বোতাম নির্বাচন করুন।"
-    }
-  },
-  pt: {
-    title: "RiSync", tagline: "Vamos sincronizar novamente com o RiSync", chat: "Chat RiSync", schedule: "Agendar Reunião", calendar: "Calendário", database: "Banco de Dados", chatbot: "Chat Bot", search: "Mecanismo de Busca", subjects: "Assuntos", "white-board": "Quadro Branco", ncert: "NCERT", calculator: "Calculadora", welcome: "Bem-vindo ao RiSync", instruction: "Selecione uma opção no menu à esquerda para começar.",
-    "quick-actions-h4": "Ações Rápidas", "quick-actions-p": "Volte direto para sua jornada de aprendizado.",
-    "did-you-know-h4": "Você Sabia?", "did-you-know-p": "Você pode usar o recurso Quadro Branco para colaborar em problemas complexos em tempo real com seus colegas!",
-    "leaderboard": "Placar de Líderes", "ppt": "PPT",
-    "ribot-title": "Configurações do RiBot",
-    "ribot-intro-text": "Olá, eu sou o RiBot. Como posso ajudar você hoje? Por favor, selecione uma opção abaixo.",
-    "ribot-help": "O que é o RiSync?",
-    "ribot-features": "Quais são as principais funcionalidades?",
-    "ribot-contact": "Como posso entrar em contato com o suporte?",
-    "ribot-voice": "Quais comandos de voz estão disponíveis?",
-    "ribot-responses": {
-      "help": "RiSync é uma plataforma educacional completa projetada para ajudar você a organizar seus estudos e colaborar com outras pessoas. Inclui recursos como chat, calendário, motor de busca e um quadro branco virtual.",
-      "features": "As principais funcionalidades incluem o Chat RiSync para colaboração, uma ferramenta de agendamento para reuniões, um quadro branco para resolução de problemas em tempo real e comandos de voz para navegação sem usar as mãos.",
-      "contact": "Você pode entrar em contato com o suporte enviando um e-mail para support@risync.com ou visitando nossa seção de 'Ajuda', que será adicionada em breve!",
-      "voice": "Você pode usar comandos de voz para navegar para qualquer seção listada na barra lateral. Por exemplo, você pode dizer 'Ir para NCERT' ou 'Abrir Motor de Busca'.",
-      "default": "Desculpe, não entendi essa opção. Por favor, selecione um dos botões."
-    }
-  },
-  ru: {
-    title: "RiSync", tagline: "Давайте снова синхронизируемся с RiSync", chat: "Чат RiSync", schedule: "Запланировать встречу", calendar: "Календарь", database: "База данных", chatbot: "Чат-бот", search: "Поисковая система", subjects: "Предметы", "white-board": "Белая доска", ncert: "NCERT", calculator: "Калькулятор", welcome: "Добро пожаловать в RiSync", instruction: "Выберите опцию в левом меню, чтобы начать.",
-    "quick-actions-h4": "Быстрые действия", "quick-actions-p": "Возвращайтесь прямо к своему учебному процессу.",
-    "did-you-know-h4": "Вы знали?", "did-you-know-p": "Вы можете использовать функцию «Белая доска» для совместной работы над сложными проблемами в реальном времени со своими коллегами!",
-    "leaderboard": "Таблица лидеров", "ppt": "ППТ",
-    "ribot-title": "Настройки RiBot",
-    "ribot-intro-text": "Здравствуйте, я RiBot. Чем я могу вам сегодня помочь? Пожалуйста, выберите опцию ниже.",
-    "ribot-help": "Что такое RiSync?",
-    "ribot-features": "Какие основные функции?",
-    "ribot-contact": "Как я могу связаться со службой поддержки?",
-    "ribot-voice": "Какие голосовые команды доступны?",
-    "ribot-responses": {
-      "help": "RiSync — это универсальная образовательная платформа, разработанная, чтобы помочь вам организовать учебу и сотрудничать с другими. Она включает в себя такие функции, как чат, календарь, поисковая система и виртуальная белая доска.",
-      "features": "Основные функции включают чат RiSync для совместной работы, инструмент планирования встреч, белую доску для решения проблем в реальном времени и голосовые команды для навигации без использования рук.",
-      "contact": "Вы можете связаться со службой поддержки, отправив электронное письмо на адрес support@risync.com или посетив наш раздел «Помощь», который будет добавлен в ближайшее время!",
-      "voice": "Вы можете использовать голосовые команды для перехода в любой раздел, указанный в боковой панели. Например, вы можете сказать «Перейти к NCERT» или «Открыть поисковую систему».",
-      "default": "Извините, я не понял эту опцию. Пожалуйста, выберите одну из кнопок."
-    }
-  },
-  ur: {
-    title: "RiSync", tagline: "آئیے RiSync کے ساتھ دوبارہ مطابقت پذیری کریں", chat: "RiSync چیٹ", schedule: "میٹنگ کا شیڈول بنائیں", calendar: "کیلنڈر", database: "ڈیٹا بیس", chatbot: "چیٹ بوٹ", search: "سرچ انجن", subjects: "مضامین", "white-board": "وائٹ بورڈ", ncert: "این سی ای آر ٹی", calculator: "کیلکولیٹر", welcome: "RiSync میں خوش آمدید", instruction: "شروع کرنے کے لیے بائیں مینو سے ایک آپشن منتخب کریں۔",
-    "quick-actions-h4": "فوری اقدامات", "quick-actions-p": "اپنے سیکھنے کے سفر میں واپس جائیں۔",
-    "did-you-know-h4": "کیا آپ جانتے تھے؟", "did-you-know-p": "آپ اپنے ساتھیوں کے ساتھ حقیقی وقت میں پیچیدہ مسائل پر تعاون کرنے کے لیے وائٹ بورڈ کی خصوصیت استعمال کر سکتے ہیں!",
-    "leaderboard": "لیڈر بورڈ", "ppt": "پی پی ٹی",
-    "ribot-title": "RiBot ترتیبات",
-    "ribot-intro-text": "ہیلو، میں RiBot ہوں۔ میں آج آپ کی کیسے مدد کر سکتا ہوں؟ براہ کرم نیچے ایک آپشن منتخب کریں۔",
-    "ribot-help": "RiSync کیا ہے؟",
-    "ribot-features": "اہم خصوصیات کیا ہیں؟",
-    "ribot-contact": "میں سپورٹ سے کیسے رابطہ کر سکتا ہوں؟",
-    "ribot-voice": "کون سی صوتی کمانڈز دستیاب ہیں؟",
-    "ribot-responses": {
-      "help": "RiSync ایک ہمہ جہت تعلیمی پلیٹ فارم ہے جسے آپ کی پڑھائی کو منظم کرنے اور دوسروں کے ساتھ تعاون کرنے میں مدد کے لیے ڈیزائن کیا گیا ہے۔ اس میں چیٹ، کیلنڈر، سرچ انجن، اور ایک ورچوئل وائٹ بورڈ جیسی خصوصیات شامل ہیں۔",
-      "features": "اہم خصوصیات میں تعاون کے لیے RiSync چیٹ، میٹنگز کے لیے ایک شیڈولنگ ٹول، حقیقی وقت میں مسائل حل کرنے کے لیے ایک وائٹ بورڈ، اور ہینڈز فری نیویگیشن کے لیے صوتی کمانڈز شامل ہیں۔",
-      "contact": "آپ support@risync.com پر ای میل کرکے یا ہمارے 'مدد' سیکشن کا دورہ کرکے سپورٹ سے رابطہ کر سکتے ہیں، جو جلد ہی شامل کیا جائے گا!",
-      "voice": "آپ سائیڈ بار میں درج کسی بھی سیکشن پر جانے کے لیے صوتی کمانڈز کا استعمال کر سکتے ہیں۔ مثال کے طور پر، آپ 'NCERT پر جائیں' یا 'سرچ انجن کھولیں' کہہ سکتے ہیں۔",
-      "default": "معذرت، میں اس آپشن کو نہیں سمجھ سکا۔ براہ کرم بٹنوں میں سے ایک کو منتخب کریں۔"
-    }
-  },
-  id: {
-    title: "RiSync", tagline: "Mari Sinkronisasi Ulang dengan RiSync", chat: "Obrolan RiSync", schedule: "Jadwalkan Rapat", calendar: "Kalender", database: "Database", chatbot: "Chat Bot", search: "Mesin Pencari", subjects: "Mata Pelajaran", "white-board": "Papan Tulis", ncert: "NCERT", calculator: "Kalkulator", welcome: "Selamat Datang di RiSync", instruction: "Pilih opsi dari menu kiri untuk memulai.",
-    "quick-actions-h4": "Tindakan Cepat", "quick-actions-p": "Langsung kembali ke perjalanan belajar Anda.",
-    "did-you-know-h4": "Tahukah Anda?", "did-you-know-p": "Anda dapat menggunakan fitur Papan Tulis untuk berkolaborasi dalam masalah kompleks secara real-time dengan rekan-rekan Anda!",
-    "leaderboard": "Papan Peringkat", "ppt": "PPT",
-    "ribot-title": "Pengaturan RiBot",
-    "ribot-intro-text": "Halo, saya RiBot. Bagaimana saya bisa membantu Anda hari ini? Silakan pilih salah satu opsi di bawah ini.",
-    "ribot-help": "Apa itu RiSync?",
-    "ribot-features": "Apa saja fitur utamanya?",
-    "ribot-contact": "Bagaimana cara menghubungi dukungan?",
-    "ribot-voice": "Perintah suara apa saja yang tersedia?",
-    "ribot-responses": {
-      "help": "RiSync adalah platform pendidikan all-in-one yang dirancang untuk membantu Anda mengatur studi dan berkolaborasi dengan orang lain. Ini mencakup fitur-fitur seperti obrolan, kalender, mesin pencari, dan papan tulis virtual.",
-      "features": "Fitur utama termasuk Obrolan RiSync untuk kolaborasi, alat penjadwalan untuk rapat, papan tulis untuk pemecahan masalah secara real-time, dan perintah suara untuk navigasi hands-free.",
-      "contact": "Anda dapat menghubungi dukungan dengan mengirim email ke support@risync.com atau dengan mengunjungi bagian 'Bantuan' kami yang akan segera ditambahkan!",
-      "voice": "Anda dapat menggunakan perintah suara untuk menavigasi ke bagian mana pun yang terdaftar di sidebar. Misalnya, Anda dapat mengatakan 'Pergi ke NCERT' atau 'Buka Mesin Pencari'.",
-      "default": "Maaf, saya tidak mengerti opsi itu. Silakan pilih salah satu tombol."
-    }
-  }
-};
-
-function applyLanguage(lang) {
-  const dict = translations[lang] || translations['en'];
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (dict[key]) el.textContent = dict[key];
-  });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const dropdownContainer = document.getElementById("language-dropdown-container");
-    const dropdownList = document.getElementById("language-dropdown-list");
-    const selectedLanguageSpan = dropdownContainer.querySelector("span");
-
-    // This object holds both the English and native names for each language
-    const availableLangs = {
-      en: { name: "English", native: "English" },
-      hi: { name: "Hindi", native: "हिन्दी" },
-      fr: { name: "French", native: "Français" },
-      pu: { name: "Punjabi", native: "ਪੰਜਾਬੀ" },
-      es: { name: "Spanish", native: "Español" },
-      de: { name: "German", native: "Deutsch" },
-      it: { name: "Italian", native: "Italiano" },
-      ja: { name: "Japanese", native: "日本語" },
-      zh: { name: "Chinese", native: "中文" },
-      ar: { name: "Arabic", native: "العربية" },
-      bn: { name: "Bengali", native: "বাংলা" },
-      pt: { name: "Portuguese", native: "Português" },
-      ru: { name: "Russian", native: "Русский" },
-      ur: { name: "Urdu", native: "اردو" },
-      id: { name: "Indonesian", native: "Bahasa Indonesia" }
+      },
+      ta: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ரைசிங் சாட்",
+        profile: "சுயவிவரம்",
+        schedule: "சந்திப்பை திட்டமிடுங்கள்",
+        calendar: "நாட்காட்டி",
+        database: "தரவுத்தளம்",
+        chatbot: "சாட்பாட்",
+        search: "தேடுபொறி",
+        subjects: "பாடங்கள்",
+        "white-board": "வெள்ளை பலகை",
+        ncert: "NCERT",
+        calculator: "கால்குலேட்டர்",
+        welcome: "ரைசிங்-க்கு வரவேற்கிறோம்",
+        instruction: "தொடங்க இடதுபுற மெனுவிலிருந்து ஒரு விருப்பத்தைத் தேர்ந்தெடுக்கவும்.",
+        "quick-actions-h4": "விரைவான செயல்கள்",
+        "quick-actions-p": "உங்கள் கற்றல் பயணத்திற்கு உடனடியாகத் திரும்பவும்.",
+        "did-you-know-h4": "உங்களுக்குத் தெரியுமா?",
+        "did-you-know-p": "உங்கள் சகாக்களுடன் நிகழ்நேரத்தில் சிக்கலான பிரச்சனைகளில் ஒத்துழைக்க, வெள்ளை பலகை அம்சத்தைப் பயன்படுத்தலாம்!",
+        "leaderboard": "லீடர்போர்டு",
+        "ppt": "பிபிடி",
+        "todo-h4": "உங்கள் செய்ய வேண்டிய பட்டியல்",
+        "progress-h4": "எனது முன்னேற்றம்",
+        "progress-p": "ஒட்டுமொத்த பாட நிறைவு",
+        "ribot-title": "ரைபோட் அமைப்புகள்",
+        "ribot-intro-text": "வணக்கம், நான் ரைபோட். இன்று நான் உங்களுக்கு எப்படி உதவ முடியும்? கீழே ஒரு விருப்பத்தைத் தேர்ந்தெடுக்கவும்.",
+        "ribot-help": "ரைசிங் என்றால் என்ன?",
+        "ribot-features": "முக்கிய அம்சங்கள் என்ன?",
+        "ribot-contact": "நான் ஆதரவைத் தொடர்புகொள்வது எப்படி?",
+        "ribot-voice": "எந்த குரல் கட்டளைகள் கிடைக்கின்றன?",
+        "add-task-placeholder": "புதிய பணியைச் சேர்க்கவும்...",
+        "chatbot-welcome": "வணக்கம், பயனர்! ரைசிங் உடனான அற்புதமான பயணத்திற்கு வரவேற்கிறோம்.",
+        "chatbot-assistance": "நீங்கள் தேடுவதைக் கண்டறிய நான் உங்களுக்கு உதவ வேண்டுமா?",
+        "yes-please": "ஆம், தயவுசெய்து",
+        "no-thanks": "வேண்டாம், நன்றி",
+        "ribot-responses": {
+          "help": "ரைசிங் என்பது உங்கள் படிப்பை ஒழுங்கமைக்க மற்றும் மற்றவர்களுடன் ஒத்துழைக்க வடிவமைக்கப்பட்ட ஒரு ஆல்-இன்-ஒன் கல்வித் தளமாகும். இதில் சாட், காலண்டர், தேடுபொறி மற்றும் மெய்நிகர் வெள்ளை பலகை போன்ற அம்சங்கள் உள்ளன.",
+          "features": "முக்கிய அம்சங்களில் ஒத்துழைப்புக்கான ரைசிங் சாட், சந்திப்புகளுக்கான திட்டமிடல் கருவி, நிகழ்நேர சிக்கல் தீர்க்கும் வெள்ளை பலகை, மற்றும் ஹேண்ட்ஸ்-ஃப்ரீ நேவிகேஷனுக்கான குரல் கட்டளைகள் ஆகியவை அடங்கும்.",
+          "contact": "support@risync.com க்கு மின்னஞ்சல் அனுப்புவதன் மூலம் அல்லது விரைவில் சேர்க்கப்படும் எங்கள் 'உதவி' பிரிவைப் பார்வையிடுவதன் மூலம் நீங்கள் ஆதரவைத் தொடர்புகொள்ளலாம்!",
+          "voice": "பக்க பட்டியில் பட்டியலிடப்பட்டுள்ள எந்தவொரு பகுதிக்கும் செல்ல நீங்கள் குரல் கட்டளைகளைப் பயன்படுத்தலாம். உதாரணமாக, 'NCERT க்குச் செல்லவும்' அல்லது 'தேடுபொறியைத் திறக்கவும்' என்று கூறலாம்。",
+          "default": "மன்னிக்கவும், அந்த விருப்பத்தை நான் புரிந்து கொள்ளவில்லை. தயவுசெய்து ஒரு பொத்தானைத் தேர்ந்தெடுக்கவும்。"
+        }
+      },
+      zh: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "瑞同步聊天",
+        profile: "个人资料",
+        schedule: "安排会议",
+        calendar: "日历",
+        database: "数据库",
+        chatbot: "聊天机器人",
+        search: "搜索引擎",
+        subjects: "科目",
+        "white-board": "白板",
+        ncert: "NCERT",
+        calculator: "计算器",
+        welcome: "欢迎来到 RiSync",
+        instruction: "请从左侧菜单中选择一个选项以开始。",
+        "quick-actions-h4": "快速行动",
+        "quick-actions-p": "立即回到你的学习旅程。",
+        "did-you-know-h4": "你知道吗？",
+        "did-you-know-p": "您可以使用白板功能与同伴实时协作解决复杂问题！",
+        "leaderboard": "排行榜",
+        "ppt": "演示文稿",
+        "todo-h4": "您的待办事项清单",
+        "progress-h4": "我的进度",
+        "progress-p": "课程总完成度",
+        "ribot-title": "RiBot设置",
+        "ribot-intro-text": "嗨，我是RiBot。今天我能为您提供什么帮助？请在下面选择一个选项。",
+        "ribot-help": "什么是RiSync？",
+        "ribot-features": "主要功能有哪些？",
+        "ribot-contact": "如何联系支持？",
+        "ribot-voice": "有哪些语音命令可用？",
+        "add-task-placeholder": "添加一个新任务...",
+        "chatbot-welcome": "你好，用户！欢迎来到 RiSync 的精彩旅程。",
+        "chatbot-assistance": "您希望我帮助您找到您正在寻找的内容吗？",
+        "yes-please": "是的，请",
+        "no-thanks": "不，谢谢",
+        "ribot-responses": {
+          "help": "RiSync是一个多合一的教育平台，旨在帮助您组织学习并与他人协作。它包括聊天、日历、搜索引擎和虚拟白板等功能。",
+          "features": "主要功能包括 RiSync Chat 用于协作，一个用于会议的安排工具，一个用于实时解决问题的白板，以及用于免提导航的语音命令。",
+          "contact": "您可以通过发送电子邮件至support@risync.com或访问我们即将添加的'帮助'部分来联系支持！",
+          "voice": "您可以使用语音命令导航到侧边栏中列出的任何部分。例如，您可以说'去NCERT'或'打开搜索引擎'。",
+          "default": "抱歉，我没有听懂这个选项。请选择其中一个按钮。"
+        }
+      },
+      es: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "Chat RiSync",
+        profile: "Perfil",
+        schedule: "Programar reunión",
+        calendar: "Calendario",
+        database: "Base de datos",
+        chatbot: "Chat Bot",
+        search: "Motor de búsqueda",
+        subjects: "Asignaturas",
+        "white-board": "Pizarra",
+        ncert: "NCERT",
+        calculator: "Calculadora",
+        welcome: "Bienvenido a RiSync",
+        instruction: "Seleccione una opción del menú de la izquierda para empezar.",
+        "quick-actions-h4": "Acciones rápidas",
+        "quick-actions-p": "Vuelve a tu viaje de aprendizaje.",
+        "did-you-know-h4": "¿Sabías que?",
+        "did-you-know-p": "¡Puedes usar la función de Pizarra para colaborar en problemas complejos en tiempo real con tus compañeros!",
+        "leaderboard": "Tabla de clasificación",
+        "ppt": "PPT",
+        "todo-h4": "Tu lista de tareas",
+        "progress-h4": "Mi progreso",
+        "progress-p": "Finalización general del curso",
+        "ribot-title": "Ajustes de RiBot",
+        "ribot-intro-text": "Hola, soy RiBot. ¿Cómo puedo ayudarte hoy? Por favor, selecciona una opción a continuación.",
+        "ribot-help": "¿Qué es RiSync?",
+        "ribot-features": "¿Cuáles son las principales características?",
+        "ribot-contact": "¿Cómo puedo contactar con soporte?",
+        "ribot-voice": "¿Qué comandos de voz están disponibles?",
+        "add-task-placeholder": "Añadir una nueva tarea...",
+        "chatbot-welcome": "¡Hola, Usuario! Bienvenido al maravilloso viaje con RiSync.",
+        "chatbot-assistance": "¿Quieres que te ayude a encontrar lo que buscas?",
+        "yes-please": "Sí, por favor",
+        "no-thanks": "No, gracias",
+        "ribot-responses": {
+          "help": "RiSync es una plataforma educativa todo en uno diseñada para ayudarte a organizar tus estudios y colaborar con otros. Incluye funciones como un chat, calendario, motor de búsqueda y una pizarra virtual.",
+          "features": "Las características clave incluyen RiSync Chat para la colaboración, una herramienta de programación para reuniones, una pizarra para la resolución de problemas en tiempo real y comandos de voz para la navegación manos libres.",
+          "contact": "Puedes contactar con soporte enviando un correo electrónico a support@risync.com o visitando nuestra sección de 'Ayuda' que se añadirá pronto.",
+          "voice": "Puedes usar comandos de voz para navegar a cualquier sección de la barra lateral. Por ejemplo, puedes decir 'Ir a NCERT' o 'Abrir motor de búsqueda'.",
+          "default": "Lo siento, no entendí esa opción. Por favor, selecciona uno de los botones."
+        }
+      },
+      fr: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "Chat RiSync",
+        profile: "Profil",
+        schedule: "Planifier une réunion",
+        calendar: "Calendrier",
+        database: "Base de données",
+        chatbot: "Robot de discussion",
+        search: "Moteur de recherche",
+        subjects: "Sujets",
+        "white-board": "Tableau blanc",
+        ncert: "NCERT",
+        calculator: "Calculatrice",
+        welcome: "Bienvenue sur RiSync",
+        instruction: "Sélectionnez une option dans le menu de gauche pour commencer.",
+        "quick-actions-h4": "Actions rapides",
+        "quick-actions-p": "Reprenez directement votre parcours d'apprentissage.",
+        "did-you-know-h4": "Le saviez-vous ?",
+        "did-you-know-p": "Vous pouvez utiliser la fonction de tableau blanc pour collaborer sur des problèmes complexes en temps réel avec vos pairs !",
+        "leaderboard": "Classement",
+        "ppt": "PPT",
+        "todo-h4": "Votre liste de tâches",
+        "progress-h4": "Ma progression",
+        "progress-p": "Achèvement global du cours",
+        "ribot-title": "Paramètres de RiBot",
+        "ribot-intro-text": "Bonjour, je suis RiBot. Comment puis-je vous aider aujourd'hui ? Veuillez sélectionner une option ci-dessous.",
+        "ribot-help": "Qu'est-ce que RiSync ?",
+        "ribot-features": "Quelles sont les principales fonctionnalités ?",
+        "ribot-contact": "Comment puis-je contacter le support ?",
+        "ribot-voice": "Quelles commandes vocales sont disponibles ?",
+        "add-task-placeholder": "Ajouter une nouvelle tâche...",
+        "chatbot-welcome": "Bonjour, utilisateur ! Bienvenue dans le merveilleux voyage avec RiSync.",
+        "chatbot-assistance": "Souhaitez-vous que je vous aide à trouver ce que vous cherchez ?",
+        "yes-please": "Oui, s'il vous plaît",
+        "no-thanks": "Non, merci",
+        "ribot-responses": {
+          "help": "RiSync est une plateforme éducative tout-en-un conçue pour vous aider à organiser vos études et à collaborer avec d'autres. Elle comprend des fonctionnalités comme un chat, un calendrier, un moteur de recherche et un tableau blanc virtuel.",
+          "features": "Les fonctionnalités clés incluent RiSync Chat pour la collaboration, un outil de planification pour les réunions, un tableau blanc pour la résolution de problèmes en temps réel et des commandes vocales pour une navigation mains libres.",
+          "contact": "Vous pouvez contacter le support par e-mail à support@risync.com ou en visitant notre section 'Aide' qui sera bientôt ajoutée !",
+          "voice": "Vous pouvez utiliser des commandes vocales pour naviguer vers n'importe quelle section répertoriée dans la barre latérale. Par exemple, vous pouvez dire 'Aller à NCERT' ou 'Ouvrir le moteur de recherche'.",
+          "default": "Désolé, je n'ai pas compris cette option. Veuillez sélectionner l'un des boutons."
+        }
+      },
+      ar: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "دردشة ريسينك",
+        profile: "الملف الشخصي",
+        schedule: "جدولة اجتماع",
+        calendar: "التقويم",
+        database: "قاعدة البيانات",
+        chatbot: "دردشة آلية",
+        search: "محرك البحث",
+        subjects: "المواضيع",
+        "white-board": "السبورة البيضاء",
+        ncert: "NCERT",
+        calculator: "الآلة الحاسبة",
+        welcome: "مرحبا بك في ريسينك",
+        instruction: "اختر خيارا من القائمة اليسرى للبدء.",
+        "quick-actions-h4": "إجراءات سريعة",
+        "quick-actions-p": "العودة مباشرة إلى رحلة التعلم الخاصة بك.",
+        "did-you-know-h4": "هل تعلم؟",
+        "did-you-know-p": "يمكنك استخدام ميزة السبورة البيضاء للتعاون في حل المشكلات المعقدة في الوقت الفعلي مع زملائك!",
+        "leaderboard": "لوحة الصدارة",
+        "ppt": "PPT",
+        "todo-h4": "قائمة المهام الخاصة بك",
+        "progress-h4": "تقدمي",
+        "progress-p": "إتمام الدورة التدريبية الشاملة",
+        "ribot-title": "إعدادات RiBot",
+        "ribot-intro-text": "أهلاً، أنا RiBot. كيف يمكنني مساعدتك اليوم؟ يرجى تحديد خيار أدناه.",
+        "ribot-help": "ما هو RiSync؟",
+        "ribot-features": "ما هي الميزات الرئيسية؟",
+        "ribot-contact": "كيف يمكنني الاتصال بالدعم؟",
+        "ribot-voice": "ما هي الأوامر الصوتية المتاحة؟",
+        "add-task-placeholder": "إضافة مهمة جديدة...",
+        "chatbot-welcome": "أهلاً بك، أيها المستخدم! مرحبًا بك في الرحلة الرائعة مع RiSync.",
+        "chatbot-assistance": "هل تريد مني مساعدتك في العثور على ما تبحث عنه؟",
+        "yes-please": "نعم، من فضلك",
+        "no-thanks": "لا، شكراً",
+        "ribot-responses": {
+          "help": "RiSync هي منصة تعليمية متكاملة مصممة لمساعدتك في تنظيم دراساتك والتعاون مع الآخرين. تشمل ميزات مثل الدردشة، التقويم، محرك البحث، والسبورة البيضاء الافتراضية.",
+          "features": "تشمل الميزات الرئيسية RiSync Chat للتعاون، وأداة جدولة للاجتماعات، وسبورة بيضاء لحل المشكلات في الوقت الفعلي، وأوامر صوتية للتنقل بدون استخدام اليدين.",
+          "contact": "يمكنك الاتصال بالدعم عن طريق إرسال بريد إلكتروني إلى support@risync.com أو بزيارة قسم 'المساعدة' الذي سيتم إضافته قريبًا!",
+          "voice": "يمكنك استخدام الأوامر الصوتية للتنقل إلى أي قسم مدرج في الشريط الجانبي. على سبيل المثال، يمكنك قول 'اذهب إلى NCERT' أو 'افتح محرك البحث'.",
+          "default": "عذرا، لم أفهم هذا الخيار. يرجى اختيار أحد الأزرار."
+        }
+      },
+      as: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ৰিছিংক চাট",
+        profile: "প্ৰ'ফাইল",
+        schedule: "মিটিং সূচী কৰক",
+        calendar: "কেলেণ্ডাৰ",
+        database: "ডাটাবেচ",
+        chatbot: "চাট বট",
+        search: "অনুসন্ধান ইঞ্জিন",
+        subjects: "বিষয়সমূহ",
+        "white-board": "বগা ব'ৰ্ড",
+        ncert: "এন.চি.ই.আৰ.টি",
+        calculator: "গণক যন্ত্ৰ",
+        welcome: "ৰিছিংকলৈ স্বাগতম",
+        instruction: "শুরু কৰিবলৈ বাঁওফালৰ মেনুৰ পৰা এটা বিকল্প বাছনি কৰক।",
+        "quick-actions-h4": "দ্ৰুত ক্ৰিয়াসমূহ",
+        "quick-actions-p": "আপোনাৰ শিক্ষাৰ যাত্ৰালৈ পুনৰাই যাওক।",
+        "did-you-know-h4": "আপুনি জানেনে?",
+        "did-you-know-p": "আপুনি আপোনাৰ সহপাঠীৰ সৈতে বাস্তৱ সময়ত জটিল সমস্যাসমূহ সমাধান কৰিবলৈ বগা ব'ৰ্ড ব্যৱহাৰ কৰিব পাৰে!",
+        "leaderboard": "লিডাৰব'ৰ্ড",
+        "ppt": "পি.পি.টি.",
+        "todo-h4": "আপোনাৰ কৰিবলগীয়া তালিকা",
+        "progress-h4": "মোৰ অগ্ৰগতি",
+        "progress-p": "সামগ্ৰিক পাঠ্যক্ৰম সম্পূৰ্ণ কৰা",
+        "ribot-title": "ৰিবাট ছেটিংছ",
+        "ribot-intro-text": "নমস্কাৰ, মই ৰিবট। আজি আপোনাক কিদৰে সহায় কৰিব পাৰোঁ? অনুগ্ৰহ কৰি তলত এটা বিকল্প বাছনি কৰক।",
+        "ribot-help": "ৰিছিংক কি?",
+        "ribot-features": "মুখ্য সুবিধাসমূহ কি?",
+        "ribot-contact": "মই সমৰ্থনৰ সৈতে কেনেদৰে যোগাযোগ কৰিব পাৰোঁ?",
+        "ribot-voice": "কি কি ভইচ কমাণ্ড উপলব্ধ আছে?",
+        "add-task-placeholder": "এটা নতুন কাম যোগ কৰক...",
+        "chatbot-welcome": "নমস্কাৰ, ব্যৱহাৰকাৰী! ৰিছিংকৰ সৈতে আপোনাৰ যাত্ৰালৈ স্বাগতম।",
+        "chatbot-assistance": "মই আপোনাক কিবা বিচাৰি উলিওৱাত সহায় কৰিমনে?",
+        "yes-please": "হয়, অনুগ্ৰহ কৰি",
+        "no-thanks": "নাই, ধন্যবাদ",
+        "ribot-responses": {
+          "help": "ৰিছিংক হৈছে এটা সৰ্বমুঠ শিক্ষামূলক মঞ্চ যি আপোনাৰ অধ্যয়নসমূহ সংগঠিত কৰাত আৰু আনৰ সৈতে সহযোগিতা কৰাত সহায় কৰে। ইয়াৰ বৈশিষ্ট্যসমূহৰ ভিতৰত আছে চাট, কেলেণ্ডাৰ, অনুসন্ধান ইঞ্জিন, আৰু এটা ভাৰ্চুৱেল বগা ব'ৰ্ড।",
+          "features": "সহযোগিতাৰ বাবে ৰিছিংক চাট, মিটিংসমূহৰ বাবে এটা সূচী কৰণ আহিলা, বাস্তৱ সময়ত সমস্যা সমাধানৰ বাবে এটা বগা ব'ৰ্ড, আৰু হাত-মুক্ত নেভিগেশ্যনৰ বাবে ভইচ কমাণ্ড মুখ্য বৈশিষ্ট্যসমূহ।",
+          "contact": "আপুনি support@risync.com লৈ ইমেইল কৰি বা সোনকালে যোগ কৰা হ'ব লগা 'সহায়' অনুভাগলৈ গৈ সমৰ্থনৰ সৈতে যোগাযোগ কৰিব পাৰে!",
+          "voice": "আপুনি চাইডবাৰত তালিকাভুক্ত যিকোনো অংশলৈ নেভিগেট কৰিবলৈ ভইচ কমাণ্ড ব্যৱহাৰ কৰিব পাৰে। যেনে, আপুনি 'এন.চি.ই.আৰ.টি.' লৈ যাওক বা 'অনুসন্ধান ইঞ্জিন খোলক' বুলিব পাৰে।",
+          "default": "দুঃখিত, মই সেই বিকল্পটো বুজি নাপালোঁ। অনুগ্ৰহ কৰি এটা বুটাম বাছনি কৰক।"
+        }
+      },
+      bn: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "রিসিংক চ্যাট",
+        profile: "প্রোফাইল",
+        schedule: "মিটিং শিডিউল করুন",
+        calendar: "ক্যালেন্ডার",
+        database: "ডেটাবেস",
+        chatbot: "চ্যাট বট",
+        search: "সার্চ ইঞ্জিন",
+        subjects: "বিষয়সমূহ",
+        "white-board": "হোয়াইট বোর্ড",
+        ncert: "এনসিইআরটি",
+        calculator: "ক্যালকুলেটর",
+        welcome: "রিসিংকে আপনাকে স্বাগতম",
+        instruction: "শুরু করতে বাম দিকের মেনু থেকে একটি অপশন নির্বাচন করুন।",
+        "quick-actions-h4": "দ্রুত অ্যাকশন",
+        "quick-actions-p": "আপনার শেখার যাত্রায় ফিরে যান।",
+        "did-you-know-h4": "আপনি কি জানেন?",
+        "did-you-know-p": "আপনি হোয়াইট বোর্ড ফিচার ব্যবহার করে রিয়েল-টাইমে আপনার সহপাঠীদের সাথে জটিল সমস্যা নিয়ে সহযোগিতা করতে পারেন!",
+        "leaderboard": "লিডারবোর্ড",
+        "ppt": "পিপিটি",
+        "todo-h4": "আপনার করণীয় তালিকা",
+        "progress-h4": "আমার অগ্রগতি",
+        "progress-p": "সার্বিক কোর্স সমাপ্তি",
+        "ribot-title": "রিবট সেটিংস",
+        "ribot-intro-text": "হাই, আমি রিবট। আজ আমি আপনাকে কিভাবে সাহায্য করতে পারি? অনুগ্রহ করে নিচে একটি অপশন নির্বাচন করুন।",
+        "ribot-help": "রিসিংক কি?",
+        "ribot-features": "প্রধান বৈশিষ্ট্যগুলো কি?",
+        "ribot-contact": "আমি কিভাবে সহায়তার সাথে যোগাযোগ করতে পারি?",
+        "ribot-voice": "কোন ভয়েস কমান্ডগুলো উপলব্ধ?",
+        "add-task-placeholder": "একটি নতুন কাজ যোগ করুন...",
+        "chatbot-welcome": "হ্যালো, ব্যবহারকারী! রিসিংকের সাথে এই দারুণ যাত্রায় আপনাকে স্বাগতম।",
+        "chatbot-assistance": "আপনি যা খুঁজছেন তা খুঁজে পেতে আমি কি আপনাকে সাহায্য করব?",
+        "yes-please": "হ্যাঁ, অনুগ্রহ করে",
+        "no-thanks": "না, ধন্যবাদ",
+        "ribot-responses": {
+          "help": "রিসিংক একটি অল-ইন-ওয়ান শিক্ষামূলক প্ল্যাটফর্ম যা আপনাকে আপনার অধ্যয়ন সংগঠিত করতে এবং অন্যদের সাথে সহযোগিতা করতে সহায়তা করার জন্য ডিজাইন করা হয়েছে। এতে চ্যাট, ক্যালেন্ডার, সার্চ ইঞ্জিন এবং একটি ভার্চুয়াল হোয়াইট বোর্ডের মতো ফিচার রয়েছে।",
+          "features": "মূল বৈশিষ্ট্যগুলির মধ্যে রয়েছে সহযোগিতার জন্য রিসিংক চ্যাট, মিটিংয়ের জন্য একটি শিডিউলিং টুল, রিয়েল-টাইম সমস্যা সমাধানের জন্য একটি হোয়াইট বোর্ড এবং হ্যান্ডস-ফ্রি নেভিগেশনের জন্য ভয়েস কমান্ড।",
+          "contact": "আপনি support@risync.com এ ইমেল করে বা আমাদের 'সাহায্য' বিভাগে গিয়ে সহায়তার সাথে যোগাযোগ করতে পারেন যা শীঘ্রই যোগ করা হবে!",
+          "voice": "আপনি সাইডবারে তালিকাভুক্ত যেকোনো বিভাগে নেভিগেট করতে ভয়েস কমান্ড ব্যবহার করতে পারেন। যেমন, আপনি 'এনসিইআরটি-তে যান' বা 'সার্চ ইঞ্জিন খুলুন' বলতে পারেন।",
+          "default": "দুঃখিত, আমি সেই অপশনটি বুঝতে পারিনি। অনুগ্রহ করে একটি বাটন নির্বাচন করুন।"
+        }
+      },
+      brx: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "राइ सिं चात",
+        profile: "प्र'फाइल",
+        schedule: "मिटिंनि फारिलाय",
+        calendar: "कलेन्दार",
+        database: "देताबेस",
+        chatbot: "चात बत",
+        search: "सार्ज इञ्जिन",
+        subjects: "बिषयफोर",
+        "white-board": "गाबाम ब'र्त",
+        ncert: "एन.सि.इ.आर.टि.",
+        calculator: "खेलग्रा",
+        welcome: "राइ सिंआव बरायनाय थाबाय",
+        instruction: "जानायनि थाखाय गंसे आप्सन लाखो दासिमफ्राय।",
+        "quick-actions-h4": "गाज्रि खामानि",
+        "quick-actions-p": "जाथोआ गोजोननायनि थानो थाखाय थाबाय।",
+        "did-you-know-h4": "नोंसोर मोननायसो मोनदोंमोन?",
+        "did-you-know-p": "नोंसोरनि गोजोननायनि मावखोबनायजों दावदावनायनि थाखाय गाबाम ब'र्तनि थाखाय गोजोननायनि थाखाय।",
+        "leaderboard": "लिदारब'र्त",
+        "ppt": "पि.पि.टि.",
+        "todo-h4": "नोंसोरनि मावनांगौ फारिलाय",
+        "progress-h4": "आंनि फारिलाय",
+        "progress-p": "गोजोननायनि मावनांगौ फारिलाय",
+        "ribot-title": "राइबतनि सेटिं",
+        "ribot-intro-text": "नमसकार, आं राइबत। आं नोंसोरखौ मा बायदि रांखोनै? मोनसे आप्सन लाखो दासिमफ्राय।",
+        "ribot-help": "राइ सिं मा?",
+        "ribot-features": "मोजां मोनसे मा बायदि?",
+        "ribot-contact": "आं मा बायदि रांखोनै?",
+        "ribot-voice": "मा बायदि गांखोननि मोनसे मा बायदि?",
+        "add-task-placeholder": "गाबाम खामानि खामानि...",
+        "chatbot-welcome": "नमसकार, सुबुंनि! राइ सिंआवनो नोंसोरखौ बरायनाय थाबाय।",
+        "chatbot-assistance": "मा नोंसोरखौ मदद खालामनायनि थाखाय मोनसे मा बायदि?",
+        "yes-please": "मोजां, नोंसोरखौ",
+        "no-thanks": "नङा, नोंसोरखौ",
+        "ribot-responses": {
+          "help": "राइ सिंआवनो मोनसे गोजोननायनि मावनांगौनि थाखाय, आं मोनसे खामानि खामानि खामानि खालामनायनि थाखाय।",
+          "features": "मोजां मोनसे मा बायदि खामानि खामानि खामानि खालामनायनि थाखाय, आं मोनसे खामानि खामानि खामानि खालामनायनि थाखाय।",
+          "contact": "नोंसोरखौ support@risync.comआव मदद खालामनायनि थाखाय",
+          "voice": "नोंसोरखौ मदद खालामनायनि थाखाय, नोंसोरखौ मदद खालामनायनि थाखाय।",
+          "default": "स्रि, आं नोंसोरखौ मदद खालामनायनि थाखाय मोनसे खामानि खामानि खालामनायनि थाखाय।"
+        }
+      },
+      dgo: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रायसिंक चैट",
+        profile: "प्रोफाइल",
+        schedule: "मीटिंग शेड्यूल करो",
+        calendar: "कैलेंडर",
+        database: "डेटाबेस",
+        chatbot: "चैट बॉट",
+        search: "सर्च इंजन",
+        subjects: "विषय",
+        "white-board": "व्हाइट बोर्ड",
+        ncert: "एनसीईआरटी",
+        calculator: "कैलकुलेटर",
+        welcome: "रायसिंक विच तुंदा स्वागत है",
+        instruction: "शुरू करने लेई खब्बे पासे दे मैनू चो इक ऑप्शन चुनो।",
+        "quick-actions-h4": "झटपट कम्म",
+        "quick-actions-p": "अपनी पढ़ाई च वापस आओ।",
+        "did-you-know-h4": "क्या तुस जानदे हो?",
+        "did-you-know-p": "तुस अपने साथियां दे कन्नै मुश्कल मसाइलें गी हल करने लेई व्हाइट बोर्ड दी वर्तो करी सकदे ओ!",
+        "leaderboard": "लीडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "तुंदी करने दी लिस्ट",
+        "progress-h4": "मेरी तरक्की",
+        "progress-p": "पूरा कोर्स पूरा होया",
+        "ribot-title": "राइबॉट सेटिंग्स",
+        "ribot-intro-text": "हाई, मैं राइबॉट आं। अज मैं तुंदी के मदद करी सकदा आं? कृपया हेठ दित्ती गेदी इक ऑप्शन चुनो।",
+        "ribot-help": "रायसिंक की है?",
+        "ribot-features": "मुक्ख खुस्सुसियात की हन?",
+        "ribot-contact": "मैं सपोर्ट दे कन्नै के संपर्क करी सकदा आं?",
+        "ribot-voice": "की वॉइस कमांड्स उपलब्ध हन?",
+        "add-task-placeholder": "नमें काम जोड़ो...",
+        "chatbot-welcome": "हेलो, यूजर! रायसिंक दे कन्नै सफर विच तुंदा स्वागत है।",
+        "chatbot-assistance": "के मैं तुंदी तुस जो लब्भदे ओ ओ लब्भने विच मदद करां?",
+        "yes-please": "हां, कृपया",
+        "no-thanks": "नइं, शुक्रिया",
+        "ribot-responses": {
+          "help": "रायसिंक इक ऑल-इन-वन एजुकेशन प्लेटफॉर्म है जो तुआडी पढ़ाई गी व्यवस्थित करने ते दूएं दे कन्नै सहयोग करने लेई बनाया गेआ है। एह् चैट, कैलेंडर, सर्च इंजन ते वर्चुअल व्हाइट बोर्ड जेंह्दे फिचर शामिल करदा है।",
+          "features": "मुक्ख फिचर विच सहयोग लेई रायसिंक चैट, मीटिंग लेई इक शेड्यूल करने दी टूल, रियल-टाइम समस्या हल करने लेई इक व्हाइट बोर्ड ते हैंड्स-फ्री नेविगेशन लेई वॉइस कमांड शामिल हन।",
+          "contact": "तुस support@risync.com गी ईमेल भेजियै या साडे 'मदद' सेक्शन गी विजिट करी सकदे ओ जो जल्दी गै जोड़ेआ जाग!",
+          "voice": "तुस साइडबार विच लिस्ट कीते गेदे किसे बी सेक्शन विच नेविगेट करने लेई वॉइस कमांड दी वर्तो करी सकदे ओ। मिसाल लेई, तुस 'एनसीईआरटी पर जाओ' जां 'सर्च इंजन खोलो' आखी सकदे ओ।",
+          "default": "माफ करना, मैं ओ ऑप्शन समझ नइ सक्या। कृपया इक बटन चुनो।"
+        }
+      },
+      gu: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "રાયસિંક ચેટ",
+        profile: "પ્રોફાઇલ",
+        schedule: "મીટિંગ શેડ્યુલ કરો",
+        calendar: "કેલેન્ડર",
+        database: "ડેટાબેઝ",
+        chatbot: "ચેટ બોટ",
+        search: "સર્ચ એન્જિન",
+        subjects: "વિષયો",
+        "white-board": "વ્હાઇટ બોર્ડ",
+        ncert: "એનસીઇઆરટી",
+        calculator: "કેલ્ક્યુલેટર",
+        welcome: "રાયસિંકમાં તમારું સ્વાગત છે",
+        instruction: "શરૂ કરવા માટે ડાબી બાજુના મેનુમાંથી એક વિકલ્પ પસંદ કરો.",
+        "quick-actions-h4": "ઝડપી ક્રિયાઓ",
+        "quick-actions-p": "તમારી શીખવાની યાત્રામાં પાછા આવો.",
+        "did-you-know-h4": "શું તમે જાણો છો?",
+        "did-you-know-p": "તમે તમારા સાથીદારો સાથે વાસ્તવિક સમયમાં જટિલ સમસ્યાઓ પર સહયોગ કરવા માટે વ્હાઇટ બોર્ડ સુવિધાનો ઉપયોગ કરી શકો છો!",
+        "leaderboard": "લીડરબોર્ડ",
+        "ppt": "પીપીટી",
+        "todo-h4": "તમારી કરવા માટેની સૂચિ",
+        "progress-h4": "મારી પ્રગતિ",
+        "progress-p": "એકંદર કોર્સ પૂર્ણતા",
+        "ribot-title": "રાયબોટ સેટિંગ્સ",
+        "ribot-intro-text": "હાય, હું રાયબોટ છું. આજે હું તમને કેવી રીતે મદદ કરી શકું? કૃપા કરીને નીચે એક વિકલ્પ પસંદ કરો.",
+        "ribot-help": "રાયસિંક શું છે?",
+        "ribot-features": "મુખ્ય વિશેષતાઓ શું છે?",
+        "ribot-contact": "હું સપોર્ટનો સંપર્ક કેવી રીતે કરી શકું?",
+        "ribot-voice": "કયા અવાજ આદેશો ઉપલબ્ધ છે?",
+        "add-task-placeholder": "એક નવું કાર્ય ઉમેરો...",
+        "chatbot-welcome": "હેલો, યુઝર! રાયસિંક સાથેની અદ્ભુત યાત્રામાં તમારું સ્વાગત છે.",
+        "chatbot-assistance": "શું તમે જે શોધી રહ્યા છો તે શોધવામાં હું તમને મદદ કરું?",
+        "yes-please": "હા, કૃપા કરીને",
+        "no-thanks": "ના, આભાર",
+        "ribot-responses": {
+          "help": "રાયસિંક એક ઓલ-ઇન-વન શૈક્ષણિક પ્લેટફોર્મ છે જે તમારા અભ્યાસને ગોઠવવામાં અને અન્ય લોકો સાથે સહયોગ કરવામાં મદદ કરવા માટે રચાયેલ છે. તેમાં ચેટ, કેલેન્ડર, સર્ચ એન્જિન અને વર્ચ્યુઅલ વ્હાઇટ બોર્ડ જેવી સુવિધાઓ શામેલ છે.",
+          "features": "મુખ્ય વિશેષતાઓમાં સહયોગ માટે રાયસિંક ચેટ, મીટિંગ્સ માટેનું શેડ્યુલિંગ ટૂલ, વાસ્તવિક સમયના સમસ્યા નિવારણ માટે વ્હાઇટ બોર્ડ અને હેન્ડ્સ-ફ્રી નેવિગેશન માટે વૉઇસ કમાન્ડ્સનો સમાવેશ થાય છે.",
+          "contact": "તમે support@risync.com પર ઇમેઇલ કરીને અથવા અમારી 'મદદ' વિભાગની મુલાકાત લઈને સપોર્ટનો સંપર્ક કરી શકો છો જે ટૂંક સમયમાં ઉમેરવામાં આવશે!",
+          "voice": "તમે સાઇડબારમાં સૂચિબદ્ધ કોઈપણ વિભાગમાં નેવિગેટ કરવા માટે વૉઇસ કમાન્ડ્સનો ઉપયોગ કરી શકો છો. ઉદાહરણ તરીકે, તમે 'એનસીઇઆરટી પર જાઓ' અથવા 'સર્ચ એન્જિન ખોલો' કહી શકો છો.",
+          "default": "માફ કરશો, હું તે વિકલ્પ સમજી શક્યો નથી. કૃપા કરીને એક બટન પસંદ કરો."
+        }
+      },
+      kn: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ರಿ ಸಿಂಕ್ ಚಾಟ್",
+        profile: "ಪ್ರೊಫೈಲ್",
+        schedule: "ಸಭೆ ನಿಗದಿಪಡಿಸಿ",
+        calendar: "ಕ್ಯಾಲೆಂಡರ್",
+        database: "ಡೇಟಾಬೇಸ್",
+        chatbot: "ಚಾಟ್ ಬೋಟ್",
+        search: "ಸರ್ಚ್ ಇಂಜಿನ್",
+        subjects: "ವಿಷಯಗಳು",
+        "white-board": "ಬಿಳಿ ಹಲಗೆ",
+        ncert: "ಎನ್ ಸಿ ಇ ಆರ್ ಟಿ",
+        calculator: "ಕ್ಯಾಲ್ಕುಲೇಟರ್",
+        welcome: "ರಿ ಸಿಂಕ್ ಗೆ ಸ್ವಾಗತ",
+        instruction: "ಪ್ರಾರಂಭಿಸಲು ಎಡಭಾಗದ ಮೆನುವಿನಿಂದ ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ.",
+        "quick-actions-h4": "ತ್ವರಿತ ಕ್ರಿಯೆಗಳು",
+        "quick-actions-p": "ನಿಮ್ಮ ಕಲಿಕೆಯ ಪ್ರಯಾಣಕ್ಕೆ ಹಿಂತಿರುಗಿ.",
+        "did-you-know-h4": "ನಿಮಗೆ ಗೊತ್ತಾ?",
+        "did-you-know-p": "ನಿಮ್ಮ ಸಹಪಾಠಿಗಳೊಂದಿಗೆ ನೈಜ ಸಮಯದಲ್ಲಿ ಸಂಕೀರ್ಣ ಸಮಸ್ಯೆಗಳ ಮೇಲೆ ಸಹಕರಿಸಲು ನೀವು ಬಿಳಿ ಹಲಗೆ ವೈಶಿಷ್ಟ್ಯವನ್ನು ಬಳಸಬಹುದು!",
+        "leaderboard": "ಲೀಡರ್ಬೋರ್ಡ್",
+        "ppt": "ಪಿಪಿಟಿ",
+        "todo-h4": "ನಿಮ್ಮ ಮಾಡಬೇಕಾದ ಪಟ್ಟಿ",
+        "progress-h4": "ನನ್ನ ಪ್ರಗತಿ",
+        "progress-p": "ಒಟ್ಟಾರೆ ಕೋರ್ಸ್ ಪೂರ್ಣಗೊಂಡಿದೆ",
+        "ribot-title": "ರಿಬೋಟ್ ಸೆಟ್ಟಿಂಗ್ಸ್",
+        "ribot-intro-text": "ಹಾಯ್, ನಾನು ರಿಬೋಟ್. ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು? ದಯವಿಟ್ಟು ಕೆಳಗೆ ಒಂದು ಆಯ್ಕೆಯನ್ನು ಆರಿಸಿ.",
+        "ribot-help": "ರಿ ಸಿಂಕ್ ಎಂದರೇನು?",
+        "ribot-features": "ಪ್ರಮುಖ ವೈಶಿಷ್ಟ್ಯಗಳು ಯಾವುವು?",
+        "ribot-contact": "ನಾನು ಬೆಂಬಲವನ್ನು ಹೇಗೆ ಸಂಪರ್ಕಿಸಬಹುದು?",
+        "ribot-voice": "ಯಾವ ಧ್ವನಿ ಆಜ್ಞೆಗಳು ಲಭ್ಯವಿದೆ?",
+        "add-task-placeholder": "ಹೊಸ ಕಾರ್ಯವನ್ನು ಸೇರಿಸಿ...",
+        "chatbot-welcome": "ಹಲೋ, ಬಳಕೆದಾರರೇ! ರಿ ಸಿಂಕ್ ನೊಂದಿಗೆ ಅದ್ಭುತ ಪ್ರಯಾಣಕ್ಕೆ ಸ್ವಾಗತ.",
+        "chatbot-assistance": "ನೀವು ಏನನ್ನು ಹುಡುಕುತ್ತಿದ್ದೀರೋ ಅದನ್ನು ಕಂಡುಹಿಡಿಯಲು ನಾನು ನಿಮಗೆ ಸಹಾಯ ಮಾಡಬೇಕೆ?",
+        "yes-please": "ಹೌದು, ದಯವಿಟ್ಟು",
+        "no-thanks": "ಇಲ್ಲ, ಧನ್ಯವಾದಗಳು",
+        "ribot-responses": {
+          "help": "ರಿ ಸಿಂಕ್ ಒಂದು ಆಲ್-ಇನ್-ಒನ್ ಶೈಕ್ಷಣಿಕ ವೇದಿಕೆಯಾಗಿದ್ದು, ನಿಮ್ಮ ಅಧ್ಯಯನಗಳನ್ನು ಆಯೋಜಿಸಲು ಮತ್ತು ಇತರರೊಂದಿಗೆ ಸಹಕರಿಸಲು ಸಹಾಯ ಮಾಡಲು ವಿನ್ಯಾಸಗೊಳಿಸಲಾಗಿದೆ. ಇದು ಚಾಟ್, ಕ್ಯಾಲೆಂಡರ್, ಸರ್ಚ್ ಇಂಜಿನ್ ಮತ್ತು ವರ್ಚುವಲ್ ಬಿಳಿ ಹಲಗೆಯಂತಹ ವೈಶಿಷ್ಟ್ಯಗಳನ್ನು ಒಳಗೊಂಡಿದೆ.",
+          "features": "ಪ್ರಮುಖ ವೈಶಿಷ್ಟ್ಯಗಳಲ್ಲಿ ಸಹಕಾರಕ್ಕಾಗಿ ರಿ ಸಿಂಕ್ ಚಾಟ್, ಸಭೆಗಳಿಗಾಗಿ ವೇಳಾಪಟ್ಟಿ ಸಾಧನ, ನೈಜ-ಸಮಯದ ಸಮಸ್ಯೆ ಪರಿಹಾರಕ್ಕಾಗಿ ಬಿಳಿ ಹಲಗೆ ಮತ್ತು ಹ್ಯಾಂಡ್ಸ್-ಫ್ರೀ ನ್ಯಾವಿಗೇಷನ್ಗಾಗಿ ಧ್ವನಿ ಆಜ್ಞೆಗಳು ಸೇರಿವೆ.",
+          "contact": "ನೀವು support@risync.com ಗೆ ಇಮೇಲ್ ಮಾಡುವ ಮೂಲಕ ಅಥವಾ ನಮ್ಮ 'ಸಹಾಯ' ವಿಭಾಗಕ್ಕೆ ಭೇಟಿ ನೀಡುವ ಮೂಲಕ ಬೆಂಬಲವನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು, ಇದನ್ನು ಶೀಘ್ರದಲ್ಲೇ ಸೇರಿಸಲಾಗುವುದು!",
+          "voice": "ಸೈಡ್ಬಾರ್ ನಲ್ಲಿ ಪಟ್ಟಿ ಮಾಡಲಾದ ಯಾವುದೇ ವಿಭಾಗಕ್ಕೆ ನ್ಯಾವಿಗೇಟ್ ಮಾಡಲು ನೀವು ಧ್ವನಿ ಆಜ್ಞೆಗಳನ್ನು ಬಳಸಬಹುದು. ಉದಾಹರಣೆಗೆ, ನೀವು 'NCERT ಗೆ ಹೋಗು' ಅಥವಾ 'ಸರ್ಚ್ ಇಂಜಿನ್ ತೆರೆ' ಎಂದು ಹೇಳಬಹುದು.",
+          "default": "ಕ್ಷಮಿಸಿ, ಆ ಆಯ್ಕೆಯನ್ನು ನಾನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಒಂದು ಬಟನ್ ಅನ್ನು ಆಯ್ಕೆಮಾಡಿ."
+        }
+      },
+      ks: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ری سِنٛک چیٹ",
+        profile: "پروفایل",
+        schedule: "میٹنگ شیڈول کرو",
+        calendar: "کیلنڈر",
+        database: "ڈیٹا بیس",
+        chatbot: "چیٹ بوٹ",
+        search: "سرچ انجن",
+        subjects: "موضوعات",
+        "white-board": "وائٹ بورڈ",
+        ncert: "این.سی.ای.آر.ٹی",
+        calculator: "کیلکولیٹر",
+        welcome: "ری سِنٛک یَتھہِ چھُہِ تہندِ چھِہِ آمدہِ چِہِ خوش",
+        instruction: "شروع کرنہٕ خٲطرٕ ژورَس ہندِ مینیو پیٹھہٕ اکھ آپشن چونہٕ۔",
+        "quick-actions-h4": "تیز کٲم",
+        "quick-actions-p": "تیمِس سیتھۍ چھِہِ پنہٕ تہٕ پانہٕ پرنای چہِ گژھان۔",
+        "did-you-know-h4": "کیاہ تہٕ چھِہِ پتہٕ؟",
+        "did-you-know-p": "تہندِ چھِہِ پنہٕ پانہٕ تہٕ پیچیدہِ مسئلِ چھُہِ پنہٕ پانہٕ وائٹ بورڈس چھُہِ پانہٕ استعمال کرنہِ آسن۔",
+        "leaderboard": "لیڈر بورڈ",
+        "ppt": "پی پی ٹی",
+        "todo-h4": "تہندِ کٲم لسٹ",
+        "progress-h4": "میٚٲنؠ ترَقہِ",
+        "progress-p": "چھُہِ کٲم مکمل کرنہٕ آسن",
+        "ribot-title": "ری بوٹ سیتِنگس",
+        "ribot-intro-text": "ہیلو، مےٚ چھُہِ ریبوٹ۔ ازٕ چھُہِ مےٚ تہندِ کیٚو مدد کرہِ؟ مِہربانی کٲمہِ یمِس آپشن چھِہِ پانہٕ چُونہٕ۔",
+        "ribot-help": "ری سِنٛک چھُہِ کیہٕ؟",
+        "ribot-features": "چھُہِ مکھ خصوصیات چھُہِ کیہٕ؟",
+        "ribot-contact": "چھُہِ مےٚ چھُہِ کس تہندِ مدد کرنہِ؟",
+        "ribot-voice": "چھُہِ کٲم چھُہِ وائس کٲم چھُہِ چھُہِ؟",
+        "add-task-placeholder": "چھُہِ کٲم چھُہِ چھُہِ...",
+        "chatbot-welcome": "ہیلو، صارف! ری سِنٛک چھُہِ پانہٕ خوش",
+        "chatbot-assistance": "چھُہِ مےٚ تہندِ مدد کرہِ؟",
+        "yes-please": "ہو، مہربانی کٲمہِ",
+        "no-thanks": "نہٕ، شکریہ",
+        "ribot-responses": {
+          "help": "ری سِنٛک چھُہِ پانہٕ اکہِ پانہٕ تعلیمی پلیٹ فارم، چھُہِ مےٚ تہندِ سیتھ تہٕ پانہٕ تعاون کرہِ، یَتھہِ چھُہِ چُہِ چیٹ، کیلنڈر، سرچ انجن تہٕ ورچوئل وائٹ بورڈ چھُہِ۔",
+          "features": "چھُہِ مکھ خصوصیات چھُہِ مےٚ تہندِ چُہِ ری سِنٛک چیٹ، میٹنگس چھُہِ، وائٹ بورڈ تہٕ وائس کٲم چھُہِ۔",
+          "contact": "تہندِ چھُہِ support@risync.com یسٕ چہِ ای میل تہٕ 'مدد' سیکشنس چھُہِ۔",
+          "voice": "تہندِ چھُہِ وائس کٲم چھُہِ پانہٕ نیویگیٹ کرہِ، 'این.سی.ای.آر.ٹی' چھُہِ پانہٕ، 'سرچ انجن کھولو' چھُہِ پانہٕ۔",
+          "default": "معاف کرہِ، مےٚ چھُہِ آپشن نہٕ سمجھ۔ مہربانی کٲمہِ اکھ بٹن چونہٕ۔"
+        }
+      },
+      kok: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रीसिंक गप्पां",
+        profile: "प्रोफाइल",
+        schedule: "मेळवणेची वेळापत्रक",
+        calendar: "कॅलेंडर",
+        database: "डेटाबेस",
+        chatbot: "गप्पां बॉट",
+        search: "सर्च इंजिन",
+        subjects: "विषय",
+        "white-board": "धवे फाळ",
+        ncert: "एनसीईआरटी",
+        calculator: "कॅलक्युलेटर",
+        welcome: "रीसिंक्‍क येवकार आसा",
+        instruction: "सुरू करपाक डाव्या मेन्यूंतल्यान एक पर्याय निवडात.",
+        "quick-actions-h4": "बेगीन कृती",
+        "quick-actions-p": "तुमच्या शिकपाच्या प्रवासांत परत येयात.",
+        "did-you-know-h4": "तुमकां खबर आसा?",
+        "did-you-know-p": "तुम्ही तुमच्या इश्टां कडेन जटिल समस्यांविशीं सहयोग करपाक धवे फाळीचो वापर करूंक शकतात!",
+        "leaderboard": "लीडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "तुमची करपाची वळेरी",
+        "progress-h4": "माझी प्रगती",
+        "progress-p": "सगळ्या कोर्साची पुरायताय",
+        "ribot-title": "रीबोट सेटिंग्स",
+        "ribot-intro-text": "हाय, हांव रीबोट. हांव तुमकां आयज कसो मदत करूंक शकता? कृपया सकयल दिल्ल्यान एक पर्याय निवडात.",
+        "ribot-help": "रीसिंक कितें आसा?",
+        "ribot-features": "मुखेल खाशेलपणां कितें आसात?",
+        "ribot-contact": "हांव सपोर्टा कडेन कसो संपर्क करूंक शकता?",
+        "ribot-voice": "खंयच्यो आवाजाच्यो कमांड्स उपलब्ध आसात?",
+        "add-task-placeholder": "एक नवें काम जोडात...",
+        "chatbot-welcome": "हॅलो, वापरपी! रीसिंक कडेन अद्भुत प्रवासांत तुमचें स्वागत आसा.",
+        "chatbot-assistance": "तुम्ही सोदपी आसात तें सोदपाक हांव तुमकां मदत करूंक हांव?",
+        "yes-please": "होय, कृपया",
+        "no-thanks": "ना, देव बरे करूं",
+        "ribot-responses": {
+          "help": "रीसिंक ही एक सर्व-इन-वन शैक्षणिक वेवस्थ्या आसा जी तुमचें शिकप वेवस्थापन करपाक आनी दुसऱ्यां वांगडा सहयोग करपाक आदार दिता। तातूंत गप्पां, कॅलेंडर, सर्च इंजिन आनी एक आभासी धवे फाळ सारके खाशेलपणां आसात।",
+          "features": "मुखेल खाशेलपणांत सहकार्या खातीर रीसिंक गप्पां, मेळवणे खातीर वेळापत्रक उपकरण, रीयल-टायम समस्येचें निवारण करपाक धवे फाळ आनी हात-मुक्त नेव्हिगेशन खातीर आवाजाच्यो कमांड्स हांचो आस्पाव जाता।",
+          "contact": "तुम्ही support@risync.com ह्या ईमेल पत्त्याचेर ईमेल धाडून वा आमचे 'मदत' विभागाक भेट दिवन आदार संपर्क करूंक शकतात जे बेगीन जोडले जातले!",
+          "voice": "तुम्ही साडबगलांत दिल्ल्या खंयच्याय विभागांत नेव्हिगेट करपाक आवाजाच्यो कमांड्स वापरूंक शकतात. देखीक, 'एनसीईआरटी कडेन वच' वा 'सर्च इंजिन उगड' अशें तुमकां म्हणपाक मेळटा।",
+          "default": "माफ करात, म्हाका तो पर्याय समजूंक ना. कृपया एक बटण निवडात."
+        }
+      },
+      mai: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रीसिंक गप्प",
+        profile: "प्रोफ़ाइल",
+        schedule: "मीटिंग निर्धारित करू",
+        calendar: "कैलेंडर",
+        database: "डेटाबेस",
+        chatbot: "गप्प बॉट",
+        search: "सर्च इंजन",
+        subjects: "विषय",
+        "white-board": "सफेद बोर्ड",
+        ncert: "एनसीईआरटी",
+        calculator: "कैलकुलेटर",
+        welcome: "रीसिंक में अहाँक स्वागत अछि",
+        instruction: "शुरू करबाक लेल बामा दिस सँ मेनू सँ एकटा विकल्प चुनू।",
+        "quick-actions-h4": "तुरंत कार्रवाई",
+        "quick-actions-p": "अहाँ अपन पढ़ाइ के यात्रा में वापस आउ।",
+        "did-you-know-h4": "की अहाँ जानैत छी?",
+        "did-you-know-p": "अहाँ अपन मित्रसभ सँ जटिल समस्या पर सहयोग करबाक लेल सफेद बोर्ड केर सुविधा के उपयोग क' सकैत छी!",
+        "leaderboard": "लीडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "अहाँक करब के सूची",
+        "progress-h4": "हमर प्रगति",
+        "progress-p": "कुल कोर्स पूरा भेल",
+        "ribot-title": "राइबोट सेटिंग्स",
+        "ribot-intro-text": "नमस्ते, हम राइबोट छी। आज हम अहाँक की मदद क' सकैत छी? कृपया नीचाँ एकटा विकल्प चुनू।",
+        "ribot-help": "रीसिंक की अछि?",
+        "ribot-features": "मुख्य विशेषता की अछि?",
+        "ribot-contact": "हम सपोर्ट सँ संपर्क कोना क' सकैत छी?",
+        "ribot-voice": "कोनटा वॉइस कमांड उपलब्ध अछि?",
+        "add-task-placeholder": "एकटा नव काज जोड़ू...",
+        "chatbot-welcome": "नमस्ते, उपयोगकर्ता! रीसिंक सँ अद्भुत यात्रा में अहाँक स्वागत अछि।",
+        "chatbot-assistance": "की हम अहाँक ओ खोजबा में मदद करब जे अहाँ खोजि रहल छी?",
+        "yes-please": "हाँ, कृपया",
+        "no-thanks": "नहि, धन्यवाद",
+        "ribot-responses": {
+          "help": "रीसिंक एकटा ऑल-इन-वन शैक्षिक मंच अछि जे अहाँक अध्ययन के व्यवस्थित करबाक आ दोसर सँ सहयोग करबाक लेल डिजाइन कयल गेल अछि। इमें गप्प, कैलेंडर, सर्च इंजन आ एकटा आभासी सफेद बोर्ड जेहन विशेषता शामिल अछि।",
+          "features": "मुख्य विशेषता में सहयोग लेल रीसिंक गप्प, मीटिंग्स लेल एकटा निर्धारित करब के उपकरण, वास्तविक समय में समस्या समाधान लेल एकटा सफेद बोर्ड आ हैंड्स-फ्री नेविगेशन लेल वॉइस कमांड शामिल अछि।",
+          "contact": "अहाँ support@risync.com पर ईमेल क' कय वा हमर 'मदद' सेक्शन में जा कय सपोर्ट सँ संपर्क क' सकैत छी जे जल्दिए जोड़ल जायत!",
+          "voice": "अहाँ साइडबार में सूचीबद्ध कोनो भी सेक्शन में नेविगेट करबाक लेल वॉइस कमांड केर उपयोग क' सकैत छी। उदाहरण के लेल, अहाँ 'एनसीईआरटी पर जाऊ' या 'सर्च इंजन खोलू' कहि सकैत छी।",
+          "default": "माफ करू, हम ओ विकल्प नहि बुझलि। कृपया एकटा बटन चुनू।"
+        }
+      },
+      ml: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "റിസിങ്ക് ചാറ്റ്",
+        profile: "പ്രൊഫൈൽ",
+        schedule: "മീറ്റിംഗ് ഷെഡ്യൂൾ ചെയ്യുക",
+        calendar: "കലണ്ടർ",
+        database: "ഡാറ്റാബേസ്",
+        chatbot: "ചാറ്റ് ബോട്ട്",
+        search: "സെർച്ച് എഞ്ചിൻ",
+        subjects: "വിഷയങ്ങൾ",
+        "white-board": "വെള്ള ബോർഡ്",
+        ncert: "എൻ.സി.ഇ.ആർ.ടി.",
+        calculator: "കാൽക്കുലേറ്റർ",
+        welcome: "റിസിങ്കിലേക്ക് സ്വാഗതം",
+        instruction: "ആരംഭിക്കാൻ ഇടത് വശത്തെ മെനുവിൽ നിന്ന് ഒരു ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക.",
+        "quick-actions-h4": "വേഗത്തിലുള്ള പ്രവർത്തനങ്ങൾ",
+        "quick-actions-p": "നിങ്ങളുടെ പഠന യാത്രയിലേക്ക് മടങ്ങുക.",
+        "did-you-know-h4": "നിങ്ങൾക്കറിയാമോ?",
+        "did-you-know-p": "നിങ്ങളുടെ സഹപാഠികളുമായി തത്സമയം സങ്കീർണ്ണമായ പ്രശ്നങ്ങളിൽ സഹകരിക്കാൻ നിങ്ങൾക്ക് വെള്ള ബോർഡ് സവിശേഷത ഉപയോഗിക്കാം!",
+        "leaderboard": "ലീഡർബോർഡ്",
+        "ppt": "പി.പി.ടി.",
+        "todo-h4": "നിങ്ങളുടെ ചെയ്യേണ്ട കാര്യങ്ങളുടെ പട്ടിക",
+        "progress-h4": "എന്റെ പുരോഗതി",
+        "progress-p": "മൊത്തത്തിലുള്ള കോഴ്സ് പൂർത്തീകരണം",
+        "ribot-title": "റിബോട്ട് ക്രമീകരണങ്ങൾ",
+        "ribot-intro-text": "ഹായ്, ഞാൻ റിബോട്ടാണ്. ഇന്ന് ഞാൻ നിങ്ങളെ എങ്ങനെ സഹായിക്കും? ദയവായി താഴെ ഒരു ഓപ്ഷൻ തിരഞ്ഞെടുക്കുക.",
+        "ribot-help": "റിസിങ്ക് എന്താണ്?",
+        "ribot-features": "പ്രധാന സവിശേഷതകൾ എന്തൊക്കെയാണ്?",
+        "ribot-contact": "ഞാൻ എങ്ങനെ പിന്തുണയുമായി ബന്ധപ്പെടും?",
+        "ribot-voice": "ഏതൊക്കെ വോയിസ് കമാൻഡുകൾ ലഭ്യമാണ്?",
+        "add-task-placeholder": "ഒരു പുതിയ ടാസ്ക് ചേർക്കുക...",
+        "chatbot-welcome": "ഹലോ, ഉപയോക്താവേ! റിസിങ്ക് ഉപയോഗിച്ചുള്ള അത്ഭുതകരമായ യാത്രയിലേക്ക് സ്വാഗതം.",
+        "chatbot-assistance": "നിങ്ങൾ തിരയുന്നത് കണ്ടെത്താൻ ഞാൻ നിങ്ങളെ സഹായിക്കണോ?",
+        "yes-please": "അതെ, ദയവായി",
+        "no-thanks": "വേണ്ട, നന്ദി",
+        "ribot-responses": {
+          "help": "നിങ്ങളുടെ പഠനങ്ങളെ സംഘടിപ്പിക്കാനും മറ്റുള്ളവരുമായി സഹകരിക്കാനും സഹായിക്കുന്ന ഒരു ഓൾ-ഇൻ-വൺ വിദ്യാഭ്യാസ പ്ലാറ്റ്ഫോമാണ് റിസിങ്ക്. ഇതിൽ ചാറ്റ്, കലണ്ടർ, സെർച്ച് എഞ്ചിൻ, ഒരു വെർച്വൽ വെള്ള ബോർഡ് തുടങ്ങിയ സവിശേഷതകൾ ഉൾപ്പെടുന്നു.",
+          "features": "സഹകരണത്തിനായി റിസിങ്ക് ചാറ്റ്, മീറ്റിംഗുകൾക്കായി ഒരു ഷെഡ്യൂളിംഗ് ടൂൾ, തത്സമയ പ്രശ്ന പരിഹാരത്തിനായി ഒരു വെള്ള ബോർഡ്, ഹാൻഡ്സ്-ഫ്രീ നാവിഗേഷനായി വോയിസ് കമാൻഡുകൾ എന്നിവ പ്രധാന സവിശേഷതകളിൽ ഉൾപ്പെടുന്നു.",
+          "contact": "support@risync.com എന്ന വിലാസത്തിൽ ഇമെയിൽ അയച്ചോ അല്ലെങ്കിൽ ഉടൻ ചേർക്കുന്ന ഞങ്ങളുടെ 'സഹായം' വിഭാഗം സന്ദർശിച്ചോ നിങ്ങൾക്ക് പിന്തുണയുമായി ബന്ധപ്പെടാം!",
+          "voice": "സൈഡ്ബാറിൽ ലിസ്റ്റ് ചെയ്തിട്ടുള്ള ഏതെങ്കിലും വിഭാഗത്തിലേക്ക് നാവിഗേറ്റ് ചെയ്യാൻ നിങ്ങൾക്ക് വോയിസ് കമാൻഡുകൾ ഉപയോഗിക്കാം. ഉദാഹരണത്തിന്, 'എൻ.സി.ഇ.ആർ.ടി.-യിലേക്ക് പോകുക' അല്ലെങ്കിൽ 'സെർച്ച് എഞ്ചിൻ തുറക്കുക' എന്ന് നിങ്ങൾക്ക് പറയാം.",
+          "default": "ക്ഷമിക്കണം, എനിക്ക് ആ ഓപ്ഷൻ മനസ്സിലായില്ല. ദയവായി ഒരു ബട്ടൺ തിരഞ്ഞെടുക്കുക."
+        }
+      },
+      mni: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "রি সিংক চাত",
+        profile: "প্রোফাইল",
+        schedule: "মীটিং থবক হোন্দোক",
+        calendar: "ক্যালেন্ডর",
+        database: "দেতা বেস",
+        chatbot: "চাত বোত",
+        search: "সার্চ ইঞ্চিন",
+        subjects: "পোত্থক",
+        "white-board": "অনাকপ সাদা বোর্দ",
+        ncert: "এনসিইআরটি",
+        calculator: "ক্যালকুলেটর",
+        welcome: "রি সিংকতা খুদকচার",
+        instruction: "হৌদোকপা নক্তা মেনুদগী অপশন অমা খনবীরো।",
+        "quick-actions-h4": "খোংথাং খরা",
+        "quick-actions-p": "লৈবা অহানবা পাম্বৈদা হল্লকউ।",
+        "did-you-know-h4": "নঙনা খঙব্রা?",
+        "did-you-know-p": "নঙনা নঙগী মিতম্বি মচাকশিংগা অমখক হোংলো হোংলো থোঙলগা খঙল্লো! অনাকপ সাদা বোর্দ অমখক হোংলো!",
+        "leaderboard": "লীদর্বোর্ড",
+        "ppt": "পি পি টি",
+        "todo-h4": "নঙগী থবক পাম্বৈ",
+        "progress-h4": "ঐগী প্রোগ্রেস",
+        "progress-p": "মচা থবক পাম্বৈ",
+        "ribot-title": "রি বোত সেটিং",
+        "ribot-intro-text": "হাই, ঐনা রি বোত। ঙসিগী ঐনা নঙবু করমনা মতেং পীনিংগনি? মচা অমা অপশন অমা খনবীরো।",
+        "ribot-help": "রি সিংক করিগী?",
+        "ribot-features": "মচা থবক পাম্বৈ করিগী?",
+        "ribot-contact": "ঐনা সপোর্টগা করমনা কন্ননীংগনি?",
+        "ribot-voice": "করি ভোকল কম্মান্ড লৈ?",
+        "add-task-placeholder": "মচা থবক অমা যোগ করো...",
+        "chatbot-welcome": "হাই, য়ুসর! রি সিংকনা মচা অমা খুদকচার。",
+        "chatbot-assistance": "নঙনা ফংনিংবা অমা ঐনা নঙবু মতেং পীনিংগনি?",
+        "yes-please": "হৈ, দয়বই",
+        "no-thanks": "নৈ, থাগৎচরি",
+        "ribot-responses": {
+          "help": "রি সিংক অমা অমা অল-ইন-ওন এদুকেশনাল প্লাটফোর্মা অমা য়োক্লবা নঙগী পোত্থক অমা হোংলো-হোংলোবা য়োক্নবা অমখক। ঐনা নঙবু সাৎ, ক্যালেন্ডর, সার্চ ইঞ্চিন, অমখক ভার্চুৱাল হোয়ট বোর্দ অমা য়োক্নবা।",
+          "features": "মচা থবক পাম্বৈশিংগী, রি সিংক চাত, মীটিং শেনগাইবা, রিয়েল টাইম প্রোব্লেম-সলভিংগী হোয়ট বোর্দ অমখক ভয়েস কম্মান্ডা অমখক।",
+          "contact": "নঙনা support@risync.comদা ইমেল থোরবা নঙনা 'হেল্প' সেকশন অমা য়োক্নবা, অমখক খুদকচার。",
+          "voice": "নঙনা ভয়েস কম্মান্ডশিংগী অমা মেন্যু অমগা, 'গো টু এনসিইআরটি' অমখক 'ওপেন সার্চ ইঞ্চিন' অমখক।",
+          "default": "নৈ, ঐনা অমা অপশন অমা হৈনা। দয়া করবা, অমা বোত্তন অমা খনবীরো।"
+        }
+      },
+      mr: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रीसिंक गप्पा",
+        profile: "प्रोफाइल",
+        schedule: "मीटिंगची वेळ ठरवा",
+        calendar: "कॅलेंडर",
+        database: "डेटाबेस",
+        chatbot: "चॅट बॉट",
+        search: "सर्च इंजिन",
+        subjects: "विषय",
+        "white-board": "व्हाईट बोर्ड",
+        ncert: "एनसीईआरटी",
+        calculator: "कॅल्क्युलेटर",
+        welcome: "रीसिंकमध्ये आपले स्वागत आहे",
+        instruction: "सुरुवात करण्यासाठी डाव्या मेनूमधून एक पर्याय निवडा.",
+        "quick-actions-h4": "त्वरित क्रिया",
+        "quick-actions-p": "तुमच्या शिकण्याच्या प्रवासात परत या.",
+        "did-you-know-h4": "तुम्हाला माहीत आहे?",
+        "did-you-know-p": "तुम्ही तुमच्या सहकाऱ्यांसोबत रिअल-टाइममध्ये गुंतागुंतीच्या समस्यांवर काम करण्यासाठी व्हाईट बोर्डचा वापर करू शकता!",
+        "leaderboard": "लीडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "तुमची करण्यासारख्या गोष्टींची यादी",
+        "progress-h4": "माझी प्रगती",
+        "progress-p": "एकूण कोर्स पूर्ण झाला",
+        "ribot-title": "रीबॉट सेटिंग्स",
+        "ribot-intro-text": "हाय, मी रीबॉट आहे. आज मी तुम्हाला कशी मदत करू शकेन? कृपया खालीलपैकी एक पर्याय निवडा.",
+        "ribot-help": "रीसिंक काय आहे?",
+        "ribot-features": "मुख्य वैशिष्ट्ये काय आहेत?",
+        "ribot-contact": "मी सपोर्टशी कसा संपर्क साधू शकेन?",
+        "ribot-voice": "कोणते व्हॉइस कमांड्स उपलब्ध आहेत?",
+        "add-task-placeholder": "एक नवीन कार्य जोडा...",
+        "chatbot-welcome": "नमस्कार, वापरकर्ता! रीसिंकसोबतच्या अद्भुत प्रवासात आपले स्वागत आहे.",
+        "chatbot-assistance": "तुम्ही जे शोधत आहात ते शोधण्यासाठी मी तुम्हाला मदत करू का?",
+        "yes-please": "होय, कृपया",
+        "no-thanks": "नाही, धन्यवाद",
+        "ribot-responses": {
+          "help": "रीसिंक हे एक सर्व-इन-वन शैक्षणिक प्लॅटफॉर्म आहे जे तुम्हाला तुमचे अभ्यास आयोजित करण्यास आणि इतरांसोबत सहकार्य करण्यास मदत करण्यासाठी डिझाइन केलेले आहे. यात चॅट, कॅलेंडर, सर्च इंजिन आणि व्हर्च्युअल व्हाईट बोर्ड यांसारखी वैशिष्ट्ये आहेत.",
+          "features": "मुख्य वैशिष्ट्यांमध्ये सहकार्यासाठी रीसिंक चॅट, मीटिंगसाठी एक शेड्युलिंग टूल, रिअल-टाइम समस्या सोडवण्यासाठी एक व्हाईट बोर्ड आणि हँड्स-फ्री नेव्हिगेशनसाठी व्हॉइस कमांड्स यांचा समावेश आहे.",
+          "contact": "तुम्ही support@risync.com या ईमेलवर ईमेल करून किंवा लवकरच जोडल्या जाणाऱ्या आमच्या 'मदत' विभागाला भेट देऊन सपोर्टशी संपर्क साधू शकता!",
+          "voice": "तुम्ही साइडबारमध्ये सूचीबद्ध असलेल्या कोणत्याही विभागामध्ये नेव्हिगेट करण्यासाठी व्हॉइस कमांड्सचा वापर करू शकता. उदाहरणार्थ, तुम्ही 'एनसीईआरटीवर जा' किंवा 'सर्च इंजिन उघडा' असे म्हणू शकता.",
+          "default": "माफ करा, मला तो पर्याय समजला नाही. कृपया एक बटन निवडा."
+        }
+      },
+      ne: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रिसिंक च्याट",
+        profile: "प्रोफाइल",
+        schedule: "मीटिंगको समय तालिका बनाउनुहोस्",
+        calendar: "पात्रो",
+        database: "डाटाबेस",
+        chatbot: "च्याट बोट",
+        search: "खोज इन्जिन",
+        subjects: "विषयहरू",
+        "white-board": "सेतो बोर्ड",
+        ncert: "एनसीईआरटी",
+        calculator: "क्याल्कुलेटर",
+        welcome: "रिसिंकमा तपाईंलाई स्वागत छ",
+        instruction: "सुरु गर्न बायाँपट्टिको मेनुबाट एउटा विकल्प छान्नुहोस्।",
+        "quick-actions-h4": "द्रुत कार्यहरू",
+        "quick-actions-p": "आफ्नो सिक्ने यात्रामा तुरुन्तै फर्कनुहोस्।",
+        "did-you-know-h4": "के तपाईंलाई थाहा छ?",
+        "did-you-know-p": "तपाईं आफ्नो साथीहरूसँग वास्तविक समयमा जटिल समस्याहरूमा सहयोग गर्न सेतो बोर्ड सुविधा प्रयोग गर्न सक्नुहुन्छ!",
+        "leaderboard": "लिडरबोर्ड",
+        "ppt": "पीपीटी",
+        "todo-h4": "तपाईंको गर्नुपर्ने कामहरूको सूची",
+        "progress-h4": "मेरो प्रगति",
+        "progress-p": "समग्र कोर्स पूरा भयो",
+        "ribot-title": "रिबोट सेटिंग्स",
+        "ribot-intro-text": "नमस्ते, म रिबोट हुँ। आज म तपाईंलाई कसरी मद्दत गर्न सक्छु? कृपया तल एउटा विकल्प छान्नुहोस्।",
+        "ribot-help": "रिसिंक के हो?",
+        "ribot-features": "मुख्य विशेषताहरू के हुन्?",
+        "ribot-contact": "म कसरी समर्थनसँग सम्पर्क गर्न सक्छु?",
+        "ribot-voice": "कुन आवाज आदेशहरू उपलब्ध छन्?",
+        "add-task-placeholder": "नयाँ काम थप्नुहोस्...",
+        "chatbot-welcome": "नमस्ते, प्रयोगकर्ता! रिसिंकसँगको अद्भुत यात्रामा तपाईंलाई स्वागत छ।",
+        "chatbot-assistance": "तपाईंले खोजिरहनुभएको कुरा फेला पार्न म तपाईंलाई मद्दत गरूँ?",
+        "yes-please": "हुन्छ, कृपया",
+        "no-thanks": "होइन, धन्यवाद",
+        "ribot-responses": {
+          "help": "रिसिंक एउटा सबै-इन-वन शैक्षिक प्लेटफर्म हो जुन तपाईंको अध्ययनहरू व्यवस्थित गर्न र अरूसँग सहकार्य गर्न मद्दत गर्न डिजाइन गरिएको छ। यसमा च्याट, पात्रो, खोज इन्जिन, र भर्चुअल सेतो बोर्ड जस्ता सुविधाहरू समावेश छन्।",
+          "features": "मुख्य विशेषताहरूमा सहकार्यका लागि रिसिंक च्याट, बैठकहरूका लागि समय तालिका उपकरण, वास्तविक समयमा समस्या समाधानका लागि सेतो बोर्ड र ह्यान्ड्स-फ्री नेभिगेसनका लागि आवाज आदेशहरू समावेश छन्।",
+          "contact": "तपाईं support@risync.com मा इमेल गरेर वा चाँडै नै थपिने हाम्रो 'मद्दत' खण्डमा गएर समर्थनसँग सम्पर्क गर्न सक्नुहुन्छ!",
+          "voice": "तपाईं साइडबारमा सूचीबद्ध कुनै पनि खण्डमा नेभिगेट गर्न आवाज आदेशहरू प्रयोग गर्न सक्नुहुन्छ। उदाहरणका लागि, तपाईं 'एनसीईआरटीमा जानुहोस्' वा 'खोज इन्जिन खोल्नुहोस्' भन्न सक्नुहुन्छ।",
+          "default": "माफ गर्नुहोस्, मैले त्यो विकल्प बुझिन। कृपया एउटा बटन छान्नुहोस्।"
+        }
+      },
+      or: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ରିସିଙ୍କ ଚାଟ୍",
+        profile: "ପ୍ରୋଫାଇଲ୍",
+        schedule: "ମିଟିଂ ସିଡ୍ୟୁଲ୍ କରନ୍ତୁ",
+        calendar: "କ୍ୟାଲେଣ୍ଡର",
+        database: "ଡାଟାବେସ୍",
+        chatbot: "ଚାଟ୍ ବଟ୍",
+        search: "ସର୍ଚ୍ଚ ଇଞ୍ଜିନ",
+        subjects: "ବିଷୟଗୁଡ଼ିକ",
+        "white-board": "ଧଳା ବୋର୍ଡ",
+        ncert: "ଏନ୍.ସି.ଇ.ଆର୍.ଟି.",
+        calculator: "କ୍ୟାଲକୁଲେଟର୍",
+        welcome: "ରିସିଙ୍କ୍‌କୁ ଆପଣଙ୍କୁ ସ୍ଵାଗତ",
+        instruction: "ଆରମ୍ଭ କରିବା ପାଇଁ ବାମ ପାର୍ଶ୍ୱର ମେନୁରୁ ଏକ ବିକଳ୍ପ ବାଛନ୍ତୁ।",
+        "quick-actions-h4": "ଶୀଘ୍ର କାର୍ଯ୍ୟ",
+        "quick-actions-p": "ଆପଣଙ୍କ ଶିକ୍ଷା ଯାତ୍ରାକୁ ପୁଣି ଫେରି ଆସନ୍ତୁ।",
+        "did-you-know-h4": "ଆପଣ ଜାଣିଛନ୍ତି କି?",
+        "did-you-know-p": "ଆପଣ ରିଅଲ୍-ଟାଇମ୍‌ରେ ଆପଣଙ୍କ ସହପାଠୀମାନଙ୍କ ସହିତ ଜଟିଳ ସମସ୍ୟା ଉପରେ କାମ କରିବା ପାଇଁ ଧଳା ବୋର୍ଡ ସୁବିଧା ବ୍ୟବହାର କରିପାରିବେ!",
+        "leaderboard": "ଲିଡରବୋର୍ଡ",
+        "ppt": "ପି.ପି.ଟି.",
+        "todo-h4": "ଆପଣଙ୍କ କରିବାକୁ ଥିବା କାର୍ଯ୍ୟର ତାଲିକା",
+        "progress-h4": "ମୋର ଅଗ୍ରଗତି",
+        "progress-p": "ସାମଗ୍ରିକ ପାଠ୍ୟକ୍ରମ ସମାପ୍ତି",
+        "ribot-title": "ରିବୋଟ୍ ସେଟିଙ୍ଗସ୍",
+        "ribot-intro-text": "ହାଇ, ମୁଁ ରିବୋଟ୍। ଆଜି ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିବି? ଦୟାକରି ତଳୁ ଏକ ବିକଳ୍ପ ବାଛନ୍ତୁ।",
+        "ribot-help": "ରିସିଙ୍କ୍ କଣ?",
+        "ribot-features": "ମୁଖ୍ୟ ବୈଶିଷ୍ଟ୍ୟଗୁଡିକ କଣ?",
+        "ribot-contact": "ମୁଁ ସମର୍ଥନ ସହିତ କିପରି ଯୋଗାଯୋଗ କରିପାରିବି?",
+        "ribot-voice": "କେଉଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ ଉପଲବ୍ଧ ଅଛି?",
+        "add-task-placeholder": "ଏକ ନୂଆ କାର୍ଯ୍ୟ ଯୋଡନ୍ତୁ...",
+        "chatbot-welcome": "ହେଲୋ, ଉପଭୋକ୍ତା! ରିସିଙ୍କ୍ ସହିତ ଅଦ୍ଭୁତ ଯାତ୍ରାକୁ ସ୍ୱାଗତ।",
+        "chatbot-assistance": "ମୁଁ ଆପଣଙ୍କୁ ଯାହା ଖୋଜୁଛନ୍ତି ତାହା ଖୋଜିବାରେ ସାହାଯ୍ୟ କରିବି କି?",
+        "yes-please": "ହଁ, ଦୟାକରି",
+        "no-thanks": "ନା, ଧନ୍ୟବାଦ",
+        "ribot-responses": {
+          "help": "ରିସିଙ୍କ୍ ହେଉଛି ଏକ ଅଲ୍-ଇନ୍-ୱାନ୍ ଶିକ୍ଷାଗତ ପ୍ଲାଟଫର୍ମ ଯାହା ଆପଣଙ୍କ ଅଧ୍ୟୟନକୁ ସଂଗଠିତ କରିବା ଏବଂ ଅନ୍ୟମାନଙ୍କ ସହିତ ସହଯୋଗ କରିବାରେ ସାହାଯ୍ୟ କରିବା ପାଇଁ ଡିଜାଇନ୍ କରାଯାଇଛି। ଏଥିରେ ଚାଟ୍, କ୍ୟାଲେଣ୍ଡର, ସର୍ଚ୍ଚ ଇଞ୍ଜିନ, ଏବଂ ଏକ ଭର୍ଚୁଆଲ୍ ଧଳା ବୋର୍ଡ ପରି ବୈଶିଷ୍ଟ୍ୟଗୁଡ଼ିକ ଅନ୍ତର୍ଭୁକ୍ତ।",
+          "features": "ମୁଖ୍ୟ ବୈଶିଷ୍ଟ୍ୟଗୁଡ଼ିକ ହେଉଛି ସହଯୋଗ ପାଇଁ ରିସିଙ୍କ୍ ଚାଟ୍, ମିଟିଂ ପାଇଁ ଏକ ସିଡ୍ୟୁଲିଂ ଟୁଲ୍, ରିଅଲ୍-ଟାଇମ୍ ସମସ୍ୟା ସମାଧାନ ପାଇଁ ଏକ ଧଳା ବୋର୍ଡ ଏବଂ ହାତ-ମୁକ୍ତ ନେଭିଗେସନ୍ ପାଇଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ।",
+          "contact": "ଆପଣ support@risync.com କୁ ଇମେଲ୍ କରି କିମ୍ବା ଆମର 'ସାହାଯ୍ୟ' ବିଭାଗକୁ ଯାଇ ସମର୍ଥନ ସହିତ ଯୋଗାଯୋଗ କରିପାରିବେ ଯାହା ଖୁବ୍ ଶୀଘ୍ର ଯୋଗ କରାଯିବ!",
+          "voice": "ଆପଣ ସାଇଡବାରରେ ତାଲିକାଭୁକ୍ତ କୌଣସି ବିଭାଗକୁ ନେଭିଗେଟ୍ କରିବା ପାଇଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ ବ୍ୟବହାର କରିପାରିବେ। ଉଦାହରଣ ସ୍ୱରୂପ, ଆପଣ 'ଏନ୍.ସି.ଇ.ଆର୍.ଟି.କୁ ଯାଅ' କିମ୍ବା 'ସର୍ଚ୍ଚ ଇଞ୍ଜିନ ଖୋଲ' କହିପାରିବେ।",
+          "default": "କ୍ଷମା କରନ୍ତୁ, ମୁଁ ସେହି ବିକଳ୍ପକୁ ବୁଝିପାରିଲି ନାହିଁ। ଦୟାକରି ଏକ ବଟନ ବାଛନ୍ତୁ।"
+        }
+      },
+      pa: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ਰਾਇਸਿੰਕ ਚੈਟ",
+        profile: "ਪ੍ਰੋਫਾਈਲ",
+        schedule: "ਮੀਟਿੰਗ ਦਾ ਸਮਾਂ ਤੈਅ ਕਰੋ",
+        calendar: "ਕੈਲੰਡਰ",
+        database: "ਡੇਟਾਬੇਸ",
+        chatbot: "ਚੈਟ ਬੋਟ",
+        search: "ਸਰਚ ਇੰਜਣ",
+        subjects: "ਵਿਸ਼ੇ",
+        "white-board": "ਵਾਈਟ ਬੋਰਡ",
+        ncert: "ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ",
+        calculator: "ਕੈਲਕੁਲੇਟਰ",
+        welcome: "ਰਾਇਸਿੰਕ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ",
+        instruction: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਖੱਬੇ ਪਾਸੇ ਦੇ ਮੀਨੂ ਤੋਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।",
+        "quick-actions-h4": "ਤੁਰੰਤ ਕਾਰਵਾਈਆਂ",
+        "quick-actions-p": "ਆਪਣੀ ਸਿੱਖਣ ਦੀ ਯਾਤਰਾ ਵਿੱਚ ਵਾਪਸ ਆਓ।",
+        "did-you-know-h4": "ਕੀ ਤੁਸੀਂ ਜਾਣਦੇ ਹੋ?",
+        "did-you-know-p": "ਤੁਸੀਂ ਆਪਣੇ ਸਾਥੀਆਂ ਨਾਲ ਅਸਲ ਸਮੇਂ ਵਿੱਚ ਗੁੰਝਲਦਾਰ ਸਮੱਸਿਆਵਾਂ 'ਤੇ ਸਹਿਯੋਗ ਕਰਨ ਲਈ ਵਾਈਟ ਬੋਰਡ ਵਿਸ਼ੇਸ਼ਤਾ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ!",
+        "leaderboard": "ਲੀਡਰਬੋਰਡ",
+        "ppt": "ਪੀਪੀਟੀ",
+        "todo-h4": "ਤੁਹਾਡੀ ਕਰਨ ਦੀ ਸੂਚੀ",
+        "progress-h4": "ਮੇਰੀ ਤਰੱਕੀ",
+        "progress-p": "ਕੁੱਲ ਕੋਰਸ ਪੂਰਾ ਹੋਣਾ",
+        "ribot-title": "ਰਾਇਬੋਟ ਸੈਟਿੰਗਜ਼",
+        "ribot-intro-text": "ਹੈਲੋ, ਮੈਂ ਰਾਇਬੋਟ ਹਾਂ। ਅੱਜ ਮੈਂ ਤੁਹਾਡੀ ਕਿਵੇਂ ਮਦਦ ਕਰ ਸਕਦਾ ਹਾਂ? ਕਿਰਪਾ ਕਰਕੇ ਹੇਠਾਂ ਇੱਕ ਵਿਕਲਪ ਚੁਣੋ।",
+        "ribot-help": "ਰਾਇਸਿੰਕ ਕੀ ਹੈ?",
+        "ribot-features": "ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਕੀ ਹਨ?",
+        "ribot-contact": "ਮੈਂ ਸਪੋਰਟ ਨਾਲ ਕਿਵੇਂ ਸੰਪਰਕ ਕਰ ਸਕਦਾ ਹਾਂ?",
+        "ribot-voice": "ਕਿਹੜੀਆਂ ਵੌਇਸ ਕਮਾਂਡਾਂ ਉਪਲਬਧ ਹਨ?",
+        "add-task-placeholder": "ਇੱਕ ਨਵਾਂ ਕੰਮ ਜੋੜੋ...",
+        "chatbot-welcome": "ਹੈਲੋ, ਉਪਭੋਗਤਾ! ਰਾਇਸਿੰਕ ਨਾਲ ਅਦਭੁਤ ਯਾਤਰਾ ਵਿੱਚ ਤੁਹਾਡਾ ਸੁਆਗਤ ਹੈ।",
+        "chatbot-assistance": "ਕੀ ਮੈਂ ਤੁਹਾਨੂੰ ਉਹ ਲੱਭਣ ਵਿੱਚ ਮਦਦ ਕਰਾਂ ਜੋ ਤੁਸੀਂ ਲੱਭ ਰਹੇ ਹੋ?",
+        "yes-please": "ਹਾਂ, ਕਿਰਪਾ ਕਰਕੇ",
+        "no-thanks": "ਨਹੀਂ, ਧੰਨਵਾਦ",
+        "ribot-responses": {
+          "help": "ਰਾਇਸਿੰਕ ਇੱਕ ਆਲ-ਇਨ-ਵਨ ਵਿਦਿਅਕ ਪਲੇਟਫਾਰਮ ਹੈ ਜੋ ਤੁਹਾਡੀ ਪੜ੍ਹਾਈ ਨੂੰ ਵਿਵਸਥਿਤ ਕਰਨ ਅਤੇ ਦੂਜਿਆਂ ਨਾਲ ਸਹਿਯੋਗ ਕਰਨ ਵਿੱਚ ਮਦਦ ਕਰਨ ਲਈ ਤਿਆਰ ਕੀਤਾ ਗਿਆ ਹੈ। ਇਸ ਵਿੱਚ ਚੈਟ, ਕੈਲੰਡਰ, ਸਰਚ ਇੰਜਣ ਅਤੇ ਇੱਕ ਵਰਚੁਅਲ ਵਾਈਟ ਬੋਰਡ ਵਰਗੀਆਂ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਸ਼ਾਮਲ ਹਨ।",
+          "features": "ਮੁੱਖ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਵਿੱਚ ਸਹਿਯੋਗ ਲਈ ਰਾਇਸਿੰਕ ਚੈਟ, ਮੀਟਿੰਗਾਂ ਲਈ ਇੱਕ ਸਮਾਂ-ਸਾਰਣੀ ਟੂਲ, ਰੀਅਲ-ਟਾਈਮ ਸਮੱਸਿਆ ਹੱਲ ਕਰਨ ਲਈ ਇੱਕ ਵਾਈਟ ਬੋਰਡ, ਅਤੇ ਹੈਂਡਸ-ਫ੍ਰੀ ਨੈਵੀਗੇਸ਼ਨ ਲਈ ਵੌਇਸ ਕਮਾਂਡ ਸ਼ਾਮਲ ਹਨ।",
+          "contact": "ਤੁਸੀਂ support@risync.com 'ਤੇ ਈਮੇਲ ਕਰਕੇ ਜਾਂ ਸਾਡੇ 'ਮਦਦ' ਸੈਕਸ਼ਨ 'ਤੇ ਜਾ ਕੇ ਸਪੋਰਟ ਨਾਲ ਸੰਪਰਕ ਕਰ ਸਕਦੇ ਹੋ ਜੋ ਜਲਦੀ ਹੀ ਜੋੜਿਆ ਜਾਵੇਗਾ!",
+          "voice": "ਤੁਸੀਂ ਸਾਈਡਬਾਰ ਵਿੱਚ ਸੂਚੀਬੱਧ ਕਿਸੇ ਵੀ ਸੈਕਸ਼ਨ ਵਿੱਚ ਨੈਵੀਗੇਟ ਕਰਨ ਲਈ ਵੌਇਸ ਕਮਾਂਡਾਂ ਦੀ ਵਰਤੋਂ ਕਰ ਸਕਦੇ ਹੋ। ਉਦਾਹਰਨ ਲਈ, ਤੁਸੀਂ 'ਐਨ.ਸੀ.ਈ.ਆਰ.ਟੀ. 'ਤੇ ਜਾਓ' ਜਾਂ 'ਸਰਚ ਇੰਜਣ ਖੋਲ੍ਹੋ' ਕਹਿ ਸਕਦੇ ਹੋ।",
+          "default": "ਮੁਆਫ ਕਰਨਾ, ਮੈਂ ਉਹ ਵਿਕਲਪ ਨਹੀਂ ਸਮਝਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਬਟਨ ਚੁਣੋ।"
+        }
+      },
+      sa: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "रीसिंक वार्तालापः",
+        profile: "प्रोफाइल",
+        schedule: "गोष्ठी-नियोजनं",
+        calendar: "कैलेंडर",
+        database: "डाटाबेस",
+        chatbot: "चैट बॉट",
+        search: "अन्वेषण-यन्त्रं",
+        subjects: "विषयाः",
+        "white-board": "श्वेत-फलकम्",
+        ncert: "एनसीईआरटी",
+        calculator: "गणकयन्त्रम्",
+        welcome: "रीसिंक इत्यत्र भवतां स्वागतम्",
+        instruction: "आरम्भार्थं वामपार्श्वे मेनूतः एकं विकल्पं चिनोतु।",
+        "quick-actions-h4": "शीघ्र-क्रियाः",
+        "quick-actions-p": "भवान् स्वस्य अध्ययनयात्रायां शीघ्रं प्रत्यागच्छतु।",
+        "did-you-know-h4": "किं भवान् जानाति?",
+        "did-you-know-p": "भवान् स्वमित्रैः सह जटिलसमस्यानां समाधानार्थं श्वेत-फलकस्य उपयोगं कर्तुं शक्नोति!",
+        "leaderboard": "अग्रणि-फलकम्",
+        "ppt": "पीपीटी",
+        "todo-h4": "भवतः करणीय-सूची",
+        "progress-h4": "मम प्रगतिः",
+        "progress-p": "सकल-पाठ्यक्रम-समाप्तिः",
+        "ribot-title": "रीबोट-विन्यासाः",
+        "ribot-intro-text": "नमस्ते, अहं रीबोट। अद्य अहं भवतः कथं साहाय्यं कर्तुं शक्नोमि? कृपया अधः एकं विकल्पं चिनोतु।",
+        "ribot-help": "रीसिंक किं अस्ति?",
+        "ribot-features": "मुख्य-विशेषताः काः सन्ति?",
+        "ribot-contact": "अहं सपोर्ट-सम्पर्कं कथं कर्तुं शक्नोमि?",
+        "ribot-voice": "काः ध्वनि-आज्ञाः उपलब्धाः सन्ति?",
+        "add-task-placeholder": "एकं नूतनं कार्यं योजयतु...",
+        "chatbot-welcome": "नमस्ते, उपयोक्ता! रीसिंक इत्यनेन अद्भुतयात्रायां भवतां स्वागतम्।",
+        "chatbot-assistance": "किं अहं भवन्तं यत् अन्वेषयति तत् अन्वेष्टुं साहाय्यं करवाणि?",
+        "yes-please": "आम्, कृपया",
+        "no-thanks": "नहि, धन्यवादः",
+        "ribot-responses": {
+          "help": "रीसिंक एकः सर्व-इन-वन-शैक्षणिक-मञ्चः अस्ति यः भवतः अध्ययनं सुव्यवस्थितं कर्तुं तथा अन्यैः सह सहयोगं कर्तुं साहाय्यं करोति। अस्मिन् वार्तालापः, कैलेंडर, अन्वेषण-यन्त्रं, तथा च एकः आभास-श्वेत-फलकः इत्यादीनां विशेषताः सन्ति।",
+          "features": "मुख्य-विशेषतासु सहकारार्थं रीसिंक-वार्तालापः, गोष्ठीनां कृते नियोजन-साधनम्, वास्तविक-समये समस्या-समाधानार्थं श्वेत-फलकः, तथा च हस्त-मुक्त-नेविगेशनार्थं ध्वनि-आज्ञाः च सन्ति।",
+          "contact": "भवान् support@risync.com इत्यत्र ईमेलं प्रेषयित्वा वा अस्माकं 'साहाय्य'-विभागस्य दर्शनं कृत्वा सपोर्ट-सम्पर्कं कर्तुं शक्नोति, यः शीघ्रमेव योजितः भविष्यति।",
+          "voice": "भवान् साइडबारमध्ये सूचितानां केषाञ्चिदपि विभागानां नेविगेशनार्थं ध्वनि-आज्ञानाम् उपयोगं कर्तुं शक्नोति। यथा, भवान् 'एनसीईआरटीं गच्छतु' इति वा 'अन्वेषण-यन्त्रं उद्घाटयतु' इति वक्तुं शक्नोति।",
+          "default": "क्षम्यताम्, अहं तं विकल्पं न अवगच्छामि। कृपया एकं बटनं चिनोतु।"
+        }
+      },
+      sat: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ରିସିଙ୍କ ଚାଟ୍",
+        profile: "ପ୍ରୋଫାଇଲ୍",
+        schedule: "ମିଟିଂ ସିଡ୍ୟୁଲ୍ କରନ୍ତୁ",
+        calendar: "କ୍ୟାଲେଣ୍ଡର",
+        database: "ଡାଟାବେସ୍",
+        chatbot: "ଚାଟ୍ ବଟ୍",
+        search: "ସର୍ଚ୍ଚ ଇଞ୍ଜିନ",
+        subjects: "ବିଷୟଗୁଡ଼ିକ",
+        "white-board": "ଧଳା ବୋର୍ଡ",
+        ncert: "ଏନ୍.ସି.ଇ.ଆର୍.ଟି.",
+        calculator: "କ୍ୟାଲକୁଲେଟର୍",
+        welcome: "ରିସିଙ୍କ୍‌କୁ ଆପଣଙ୍କୁ ସ୍ଵାଗତ",
+        instruction: "ଆରମ୍ଭ କରିବା ପାଇଁ ବାମ ପାର୍ଶ୍ୱର ମେନୁରୁ ଏକ ବିକଳ୍ପ ବାଛନ୍ତୁ।",
+        "quick-actions-h4": "ଶୀଘ୍ର କାର୍ଯ୍ୟ",
+        "quick-actions-p": "ଆପଣଙ୍କ ଶିକ୍ଷା ଯାତ୍ରାକୁ ପୁଣି ଫେରି ଆସନ୍ତୁ।",
+        "did-you-know-h4": "ଆପଣ ଜାଣିଛନ୍ତି କି?",
+        "did-you-know-p": "ଆପଣ ରିଅଲ୍-ଟାଇମ୍‌ରେ ଆପଣଙ୍କ ସହପାଠୀମାନଙ୍କ ସହିତ ଜଟିଳ ସମସ୍ୟା ଉପରେ କାମ କରିବା ପାଇଁ ଧଳା ବୋର୍ଡ ସୁବିଧା ବ୍ୟବହାର କରିପାରିବେ!",
+        "leaderboard": "ଲିଡରବୋର୍ଡ",
+        "ppt": "ପି.ପି.ଟି.",
+        "todo-h4": "ଆପଣଙ୍କ କରିବାକୁ ଥିବା କାର୍ଯ୍ୟର ତାଲିକା",
+        "progress-h4": "ମୋର ଅଗ୍ରଗତି",
+        "progress-p": "ସାମଗ୍ରିକ ପାଠ୍ୟକ୍ରମ ସମାପ୍ତି",
+        "ribot-title": "ରିବୋଟ୍ ସେଟିଙ୍ଗସ୍",
+        "ribot-intro-text": "ହାଇ, ମୁଁ ରିବୋଟ୍। ଆଜି ମୁଁ ଆପଣଙ୍କୁ କିପରି ସାହାଯ୍ୟ କରିବି? ଦୟାକରି ତଳୁ ଏକ ବିକଳ୍ପ ବାଛନ୍ତୁ।",
+        "ribot-help": "ରିସିଙ୍କ୍ କଣ?",
+        "ribot-features": "ମୁଖ୍ୟ ବୈଶିଷ୍ଟ୍ୟଗୁଡିକ କଣ?",
+        "ribot-contact": "ମୁଁ ସମର୍ଥନ ସହିତ କିପରି ଯୋଗାଯୋଗ କରିପାରିବି?",
+        "ribot-voice": "କେଉଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ ଉପଲବ୍ଧ ଅଛି?",
+        "add-task-placeholder": "ଏକ ନୂଆ କାର୍ଯ୍ୟ ଯୋଡନ୍ତୁ...",
+        "chatbot-welcome": "ହେଲୋ, ଉପଭୋକ୍ତା! ରିସିଙ୍କ୍ ସହିତ ଅଦ୍ଭୁତ ଯାତ୍ରାକୁ ସ୍ୱାଗତ।",
+        "chatbot-assistance": "ମୁଁ ଆପଣଙ୍କୁ ଯାହା ଖୋଜୁଛନ୍ତି ତାହା ଖୋଜିବାରେ ସାହାଯ୍ୟ କରିବି କି?",
+        "yes-please": "ହଁ, ଦୟାକରି",
+        "no-thanks": "ନା, ଧନ୍ୟବାଦ",
+        "ribot-responses": {
+          "help": "ରିସିଙ୍କ୍ ହେଉଛି ଏକ ଅଲ୍-ଇନ୍-ୱାନ୍ ଶିକ୍ଷାଗତ ପ୍ଲାଟଫର୍ମ ଯାହା ଆପଣଙ୍କ ଅଧ୍ୟୟନକୁ ସଂଗଠିତ କରିବା ଏବଂ ଅନ୍ୟମାନଙ୍କ ସହିତ ସହଯୋଗ କରିବାରେ ସାହାଯ୍ୟ କରିବା ପାଇଁ ଡିଜାଇନ୍ କରାଯାଇଛି। ଏଥିରେ ଚାଟ୍, କ୍ୟାଲେଣ୍ଡର, ସର୍ଚ୍ଚ ଇଞ୍ଜିନ, ଏବଂ ଏକ ଭର୍ଚୁଆଲ୍ ଧଳା ବୋର୍ଡ ପରି ବୈଶିଷ୍ଟ୍ୟଗୁଡ଼ିକ ଅନ୍ତର୍ଭୁକ୍ତ।",
+          "features": "ମୁଖ୍ୟ ବୈଶିଷ୍ଟ୍ୟଗୁଡ଼ିକ ହେଉଛି ସହଯୋଗ ପାଇଁ ରିସିଙ୍କ୍ ଚାଟ୍, ମିଟିଂ ପାଇଁ ଏକ ସିଡ୍ୟୁଲିଂ ଟୁଲ୍, ରିଅଲ୍-ଟାଇମ୍ ସମସ୍ୟା ସମାଧାନ ପାଇଁ ଏକ ଧଳା ବୋର୍ଡ ଏବଂ ହାତ-ମୁକ୍ତ ନେଭିଗେସନ୍ ପାଇଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ।",
+          "contact": "ଆପଣ support@risync.com କୁ ଇମେଲ୍ କରି କିମ୍ବା ଆମର 'ସାହାଯ୍ୟ' ବିଭାଗକୁ ଯାଇ ସମର୍ଥନ ସହିତ ଯୋଗାଯୋଗ କରିପାରିବେ ଯାହା ଖୁବ୍ ଶୀଘ୍ର ଯୋଗ କରାଯିବ!",
+          "voice": "ଆପଣ ସାଇଡବାରରେ ତାଲିକାଭୁକ୍ତ କୌଣସି ବିଭାଗକୁ ନେଭିଗେଟ୍ କରିବା ପାଇଁ ଭଏସ୍ କମାଣ୍ଡ୍ସ ବ୍ୟବହାର କରିପାରିବେ। ଉଦାହରଣ ସ୍ୱରୂପ, ଆପଣ 'ଏନ୍.ସି.ଇ.ଆର୍.ଟି.କୁ ଯାଅ' କିମ୍ବା 'ସର୍ଚ୍ଚ ଇଞ୍ଜିନ ଖୋଲ' କହିପାରିବେ।",
+          "default": "କ୍ଷମା କରନ୍ତୁ, ମୁଁ ସେହି ବିକଳ୍ପକୁ ବୁଝିପାରିଲି ନାହିଁ। ଦୟାକରି ଏକ ବଟନ ବାଛନ୍ତୁ।"
+        }
+      },
+      sd: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ري سِنٛک چيٽ",
+        profile: "پروفائيل",
+        schedule: "ملڻ جو وقت مقرر ڪريو",
+        calendar: "ڪيلينڊر",
+        database: "ڊيٽابيس",
+        chatbot: "چيٽ بوٽ",
+        search: "سرچ انجڻ",
+        subjects: "موضوعات",
+        "white-board": "وائيٽ بورڊ",
+        ncert: "اين.سي.آر.ٽي.",
+        calculator: "ڪئلڪيوليٽر",
+        welcome: "ري سِنٛک ۾ ڀليڪار",
+        instruction: "شروع ڪرڻ لاءِ کاٻي پاسي جي مينيو مان هڪ آپشن چونڊيو.",
+        "quick-actions-h4": "تيز عمل",
+        "quick-actions-p": "توهان جي سکڻ واري سفر ۾ واپس اچو.",
+        "did-you-know-h4": "ڇا توهان ڄاڻو ٿا؟",
+        "did-you-know-p": "توهان پنهنجن دوستن سان گڏيل مسئلن کي حل ڪرڻ لاءِ وائيٽ بورڊ استعمال ڪري سگهو ٿا!",
+        "leaderboard": "ليڊر بورڊ",
+        "ppt": "پي پي ٽي",
+        "todo-h4": "توهان جي ڪرڻ جي فهرست",
+        "progress-h4": "منهنجي ترقي",
+        "progress-p": "سڄي ڪورس جي پوري ٿيڻ",
+        "ribot-title": "ريبوٽ سيٽنگس",
+        "ribot-intro-text": "هاءِ، مان ريبوٽ آهيان. اڄ مان توهان جي ڪيئن مدد ڪري سگهان ٿو؟ مهرباني ڪري هيٺ ڏنل هڪ آپشن چونڊيو.",
+        "ribot-help": "ري سِنٛک ڇا آهي؟",
+        "ribot-features": "مکيه خصوصيتون ڇا آهن؟",
+        "ribot-contact": "مان سپورٽ سان ڪيئن رابطو ڪري سگهان ٿو؟",
+        "ribot-voice": "ڪهڙا وائس ڪمانڊ موجود آهن؟",
+        "add-task-placeholder": "هڪ نئون ڪم شامل ڪريو...",
+        "chatbot-welcome": "هاءِ، يوزر! ري سِنٛک سان گڏيل سفر ۾ ڀليڪار.",
+        "chatbot-assistance": "ڇا توهان جيڪو ڳولي رهيا آهيو، اهو ڳولڻ ۾ مان توهان جي مدد ڪريان؟",
+        "yes-please": "ها، مهرباني ڪري",
+        "no-thanks": "نه، مهرباني",
+        "ribot-responses": {
+          "help": "ري سِنٛک هڪ آل-ان-ون تعليمي پليٽ فارم آهي، جنهن جو مقصد توهان جي مطالعي کي منظم ڪرڻ ۽ ٻين سان تعاون ڪرڻ آهي. ان ۾ چيٽ، ڪيلينڊر، سرچ انجڻ، ۽ هڪ ورچوئل وائيٽ بورڊ جهڙيون خصوصيتون شامل آهن.",
+          "features": "مکيه خصوصيتن ۾ تعاون لاءِ ري سِنٛک چيٽ، ملاقاتن لاءِ هڪ شيڊيولنگ ٽول، حقيقي وقت ۾ مسئلن کي حل ڪرڻ لاءِ هڪ وائيٽ بورڊ، ۽ هينڊز-فري نيويگيشن لاءِ وائس ڪمانڊ شامل آهن.",
+          "contact": "توهان support@risync.com تي اي ميل ڪري يا اسان جي 'مدد' واري سيڪشن تي وڃي سپورٽ سان رابطو ڪري سگهو ٿا، جنهن کي جلد ئي شامل ڪيو ويندو!",
+          "voice": "توهان سائڊبار ۾ ڏنل ڪنهن به سيڪشن تي وائس ڪمانڊ استعمال ڪري نيويگيٽ ڪري سگهو ٿا. مثال طور، توهان چئي سگهو ٿا 'اين.سي.آر.ٽي. تي وڃو' يا 'سرچ انجڻ کوليو'.",
+          "default": "معاف ڪجو، مان اهو آپشن نه سمجهي سگهيو. مهرباني ڪري هڪ بٽڻ چونڊيو."
+        }
+      },
+      te: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "రీసింక్ చాట్",
+        profile: "ప్రొఫైల్",
+        schedule: "మీటింగ్ షెడ్యూల్ చేయండి",
+        calendar: "క్యాలెండర్",
+        database: "డేటాబేస్",
+        chatbot: "చాట్ బాట్",
+        search: "శోధన ఇంజిన్",
+        subjects: "సబ్జెక్టులు",
+        "white-board": "తెల్లబల్ల",
+        ncert: "ఎన్‌సిఇఆర్‌టి",
+        calculator: "కాలిక్యులేటర్",
+        welcome: "రీసింక్‌కు స్వాగతం",
+        instruction: "ప్రారంభించడానికి ఎడమ వైపు మెను నుండి ఒక ఆప్షన్ ఎంచుకోండి.",
+        "quick-actions-h4": "త్వరిత చర్యలు",
+        "quick-actions-p": "మీ అభ్యాస ప్రయాణంలో తిరిగి రండి.",
+        "did-you-know-h4": "మీకు తెలుసా?",
+        "did-you-know-p": "మీరు మీ సహచరులతో రియల్ టైంలో క్లిష్ట సమస్యలపై సహకరించుకోవడానికి తెల్లబల్ల ఫీచర్‌ను ఉపయోగించవచ్చు!",
+        "leaderboard": "లీడర్ బోర్డు",
+        "ppt": "పీపీటీ",
+        "todo-h4": "మీ చేయవలసిన పనుల జాబితా",
+        "progress-h4": "నా పురోగతి",
+        "progress-p": "మొత్తం కోర్సు పూర్తయింది",
+        "ribot-title": "రీబోట్ సెట్టింగ్స్",
+        "ribot-intro-text": "హాయ్, నేను రీబోట్. ఈ రోజు నేను మీకు ఎలా సహాయం చేయగలను? దయచేసి కింద ఒక ఆప్షన్ ఎంచుకోండి.",
+        "ribot-help": "రీసింక్ అంటే ఏమిటి?",
+        "ribot-features": "ప్రధాన లక్షణాలు ఏమిటి?",
+        "ribot-contact": "నేను సపోర్ట్‌ను ఎలా సంప్రదించగలను?",
+        "ribot-voice": "ఏ వాయిస్ కమాండ్స్ అందుబాటులో ఉన్నాయి?",
+        "add-task-placeholder": "ఒక కొత్త పనిని జోడించండి...",
+        "chatbot-welcome": "హలో, యూజర్! రీసింక్‌తో అద్భుతమైన ప్రయాణానికి స్వాగతం.",
+        "chatbot-assistance": "మీరు వెతుకుతున్నది కనుగొనడానికి నేను మీకు సహాయం చేయాలా?",
+        "yes-please": "అవును, దయచేసి",
+        "no-thanks": "లేదు, ధన్యవాదాలు",
+        "ribot-responses": {
+          "help": "రీసింక్ అనేది మీ అధ్యయనాలను నిర్వహించడానికి మరియు ఇతరులతో సహకరించడానికి సహాయపడే ఒక ఆల్-ఇన్-వన్ ఎడ్యుకేషనల్ ప్లాట్‌ఫామ్. ఇది చాట్, క్యాలెండర్, శోధన ఇంజిన్ మరియు వర్చువల్ తెల్లబల్ల వంటి ఫీచర్‌లను కలిగి ఉంది.",
+          "features": "సహకారం కోసం రీసింక్ చాట్, మీటింగ్‌ల కోసం షెడ్యూలింగ్ టూల్, రియల్ టైం సమస్య పరిష్కారం కోసం తెల్లబల్ల, మరియు హ్యాండ్స్-ఫ్రీ నావిగేషన్ కోసం వాయిస్ కమాండ్స్ ప్రధాన లక్షణాలు.",
+          "contact": "మీరు support@risync.com కు ఇమెయిల్ చేయడం ద్వారా లేదా త్వరలో చేర్చబడే మా 'సహాయం' విభాగాన్ని సందర్శించడం ద్వారా సపోర్ట్‌ను సంప్రదించవచ్చు!",
+          "voice": "మీరు సైడ్‌బార్‌లో జాబితా చేయబడిన ఏ విభాగంలోనైనా నావిగేట్ చేయడానికి వాయిస్ కమాండ్‌లను ఉపయోగించవచ్చు. ఉదాహరణకు, మీరు 'ఎన్‌సిఇఆర్‌టి కి వెళ్ళు' లేదా 'శోధన ఇంజిన్ తెరువు' అని చెప్పవచ్చు.",
+          "default": "క్షమించండి, ఆ ఆప్షన్ నాకు అర్థం కాలేదు. దయచేసి ఒక బటన్ ఎంచుకోండి."
+        }
+      },
+      ur: {
+        title: "RiSync",
+        tagline: "Let's Re Sync With RiSync",
+        chat: "ری سنک چیٹ",
+        profile: "پروفائل",
+        schedule: "میٹنگ کا شیڈول کریں",
+        calendar: "کیلنڈر",
+        database: "ڈیٹا بیس",
+        chatbot: "چیٹ بوٹ",
+        search: "سرچ انجن",
+        subjects: "موضوعات",
+        "white-board": "وائٹ بورڈ",
+        ncert: "این.سی.ای.آر.ٹی",
+        calculator: "کیلکولیٹر",
+        welcome: "ری سنک میں خوش آمدید",
+        instruction: "شروع کرنے کے لیے بائیں جانب کے مینو سے ایک آپشن منتخب کریں۔",
+        "quick-actions-h4": "فوری اقدامات",
+        "quick-actions-p": "اپنی سیکھنے کی سفر میں واپس جائیں۔",
+        "did-you-know-h4": "کیا آپ جانتے ہیں؟",
+        "did-you-know-p": "آپ اپنے ساتھیوں کے ساتھ ریئل ٹائم میں پیچیدہ مسائل پر تعاون کرنے کے لیے وائٹ بورڈ فیچر کا استعمال کر سکتے ہیں!",
+        "leaderboard": "لیڈر بورڈ",
+        "ppt": "پی پی ٹی",
+        "todo-h4": "آپ کی کرنے کی فہرست",
+        "progress-h4": "میری پیش رفت",
+        "progress-p": "مجموعی کورس مکمل کرنا",
+        "ribot-title": "ری بوٹ سیٹنگز",
+        "ribot-intro-text": "ہائے، میں ری بوٹ ہوں۔ آج میں آپ کی کس طرح مدد کر سکتا ہوں؟ براہ کرم نیچے ایک آپشن منتخب کریں۔",
+        "ribot-help": "ری سنک کیا ہے؟",
+        "ribot-features": "اہم خصوصیات کیا ہیں؟",
+        "ribot-contact": "میں سپورٹ سے کیسے رابطہ کر سکتا ہوں؟",
+        "ribot-voice": "کونسی وائس کمانڈز دستیاب ہیں؟",
+        "add-task-placeholder": "ایک نیا کام شامل کریں...",
+        "chatbot-welcome": "ہیلو، صارف! ری سنک کے ساتھ ایک شاندار سفر میں خوش آمدید۔",
+        "chatbot-assistance": "کیا آپ جو تلاش کر رہے ہیں، اسے تلاش کرنے میں میں آپ کی مدد کروں؟",
+        "yes-please": "جی ہاں، براہ کرم",
+        "no-thanks": "نہیں، شکریہ",
+        "ribot-responses": {
+          "help": "ری سنک ایک آل-ان-ون تعلیمی پلیٹ فارم ہے جو آپ کے مطالعہ کو منظم کرنے اور دوسروں کے ساتھ تعاون کرنے میں مدد کرنے کے لیے ڈیزائن کیا گیا ہے۔ اس میں چیٹ، کیلنڈر، سرچ انجن اور ایک ورچوئل وائٹ بورڈ جیسی خصوصیات شامل ہیں۔",
+          "features": "اہم خصوصیات میں تعاون کے لیے ری سنک چیٹ، میٹنگز کے لیے ایک شیڈولنگ ٹول، ریئل ٹائم میں مسائل کے حل کے لیے ایک وائٹ بورڈ اور ہینڈز-فری نیویگیشن کے لیے وائس کمانڈز شامل ہیں۔",
+          "contact": "آپ support@risync.com پر ای میل بھیج کر یا ہماری 'مدد' سیکشن کا دورہ کر کے سپورٹ سے رابطہ کر سکتے ہیں جو جلد ہی شامل کیا جائے گا!",
+          "voice": "آپ سائیڈبار میں درج کسی بھی سیکشن میں نیویگیٹ کرنے کے لیے وائس کمانڈز کا استعمال کر سکتے ہیں۔ مثال کے طور پر، آپ 'این.سی.ای.آر.ٹی پر جائیں' یا 'سرچ انجن کھولیں' کہہ سکتے ہیں۔",
+          "default": "معاف کیجئے گا، میں وہ آپشن نہیں سمجھا۔ براہ کرم ایک بٹن منتخب کریں۔"
+        }
+      },
+      // Keep other languages
+      // ...
     };
     
-    const savedLang = localStorage.getItem("preferredLanguage") || 'en';
+    // --- LANGUAGE SWITCHING LOGIC ---
+    const languageData = {
+      en: { name: 'English', flag: '🇬🇧' },
+      hi: { name: 'हिंदी', flag: '🇮🇳' },
+      ta: { name: 'தமிழ்', flag: '🇮🇳' },
+      zh: { name: '中文', flag: '🇨🇳' },
+      es: { name: 'Español', flag: '🇪🇸' },
+      fr: { name: 'Français', flag: '🇫🇷' },
+      ar: { name: 'العربية', flag: '🇸🇦' },
+      as: { name: 'অসমীয়া', flag: '🇮🇳' },
+      bn: { name: 'বাংলা', flag: '🇮🇳' },
+      brx: { name: 'बड़ो', flag: '🇮🇳' },
+      dgo: { name: 'डोगरी', flag: '🇮🇳' },
+      gu: { name: 'ગુજરાતી', flag: '🇮🇳' },
+      kn: { name: 'ಕನ್ನಡ', flag: '🇮🇳' },
+      ks: { name: 'کٲشُر', flag: '🇮🇳' },
+      kok: { name: 'कोंकणी', flag: '🇮🇳' },
+      mai: { name: 'मैथिली', flag: '🇮🇳' },
+      ml: { name: 'മലയാളം', flag: '🇮🇳' },
+      mni: { name: 'মৈতৈলোন', flag: '🇮🇳' },
+      mr: { name: 'मराठी', flag: '🇮🇳' },
+      ne: { name: 'नेपाली', flag: '🇮🇳' },
+      or: { name: 'ଓଡ଼ିଆ', flag: '🇮🇳' },
+      pa: { name: 'ਪੰਜਾਬੀ', flag: '🇮🇳' },
+      sa: { name: 'संस्कृतम्', flag: '🇮🇳' },
+      sat: { name: 'संथाली', flag: '🇮🇳' },
+      sd: { name: 'سنڌي', flag: '🇮🇳' },
+      te: { name: 'తెలుగు', flag: '🇮🇳' },
+      ur: { name: 'اُردو', flag: '🇮🇳' }
+    };
     
-    for (const [code, langData] of Object.entries(availableLangs)) {
-        const li = document.createElement("li");
-        
-        // Display both English and native name in the dropdown list
-        if (langData.name !== langData.native) {
-            li.textContent = `${langData.name} (${langData.native})`;
-        } else {
-            li.textContent = langData.name;
-        }
+    const elementsToTranslate = document.querySelectorAll('[data-i18n]');
+    const languageDropdownContainer = document.getElementById('language-dropdown-container');
+    const selectedLanguageSpan = document.querySelector('#selected-language span');
+    const languageDropdownList = document.getElementById('language-dropdown-list');
 
-        li.setAttribute('data-lang-code', code);
-        dropdownList.appendChild(li);
+    function applyTranslations(lang) {
+      if (!translations[lang]) return;
 
-        if (code === savedLang) {
-            selectedLanguageSpan.textContent = langData.native;
+      elementsToTranslate.forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang][key]) {
+          el.textContent = translations[lang][key];
         }
+      });
+      document.querySelectorAll('[data-i18n-name]').forEach(el => {
+        const langCode = el.getAttribute('data-i18n-name');
+        if (languageData[langCode]) {
+          el.textContent = languageData[langCode].name;
+        }
+      });
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        if (translations[lang][key]) {
+          el.placeholder = translations[lang][key];
+        }
+      });
     }
+
+    function createLanguageList() {
+      for (const langCode in languageData) {
+        const li = document.createElement('li');
+        li.textContent = `${languageData[langCode].name} ${languageData[langCode].flag}`;
+        li.dataset.lang = langCode;
+        li.addEventListener('click', () => {
+          localStorage.setItem('lang', langCode);
+          applyTranslations(langCode);
+          selectedLanguageSpan.textContent = languageData[langCode].name;
+          languageDropdownContainer.classList.remove('active');
+        });
+        languageDropdownList.appendChild(li);
+      }
+    }
+
+    function initializeLanguage() {
+      const storedLang = localStorage.getItem('lang') || 'en';
+      if (languageData[storedLang]) {
+        applyTranslations(storedLang);
+        selectedLanguageSpan.textContent = languageData[storedLang].name;
+      }
+    }
+
+    languageDropdownContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      languageDropdownContainer.classList.toggle('active');
+      languageDropdownList.classList.toggle('active');
+    });
+
+    document.addEventListener('click', () => {
+      languageDropdownContainer.classList.remove('active');
+      languageDropdownList.classList.remove('active');
+    });
     
-    applyLanguage(savedLang);
+    // --- SIDEBAR MENU LOGIC ---
+    const menuToggle = document.querySelector('.menu-toggle');
+    const sidebar = document.getElementById('sidebar');
+    const mainWrapper = document.querySelector('.main-wrapper');
 
-    dropdownContainer.addEventListener("click", (event) => {
-        event.stopPropagation();
-        dropdownContainer.classList.toggle('active');
-        dropdownList.classList.toggle('active');
-    });
-
-    dropdownList.addEventListener("click", (event) => {
-        if (event.target.tagName === 'LI') {
-            const selected = event.target.getAttribute('data-lang-code');
-            const selectedLangData = availableLangs[selected];
-            
-            localStorage.setItem("preferredLanguage", selected);
-            selectedLanguageSpan.textContent = selectedLangData.native;
-            applyLanguage(selected);
-            
-            dropdownContainer.classList.remove('active');
-            dropdownList.classList.remove('active');
-        }
-    });
-
-    document.addEventListener("click", () => {
-        dropdownContainer.classList.remove('active');
-        dropdownList.classList.remove('active');
-    });
-});
-
-
-// --- FLOATING BUTTONS (MUSIC & MIC) --- //
-const audio = document.getElementById('bg-music');
-const musicButton = document.getElementById('music-btn');
-const musicIcon = document.getElementById('music-icon');
-const micButton = document.getElementById('mic-btn');
-const micIcon = document.getElementById('mic-icon');
-
-let hasInteracted = false;
-let isMicActive = false;
-
-function toggleMusic() {
-  if (!hasInteracted) {
-    audio.volume = 0.5;
-    audio.play().then(() => {
-      hasInteracted = true;
-      updateMusicIcon();
-    }).catch(err => console.warn("Autoplay blocked:", err));
-  } else {
-    audio.paused ? audio.play() : audio.pause();
-    updateMusicIcon();
-  }
-}
-
-function updateMusicIcon() {
-  if (!musicIcon) return;
-  if (audio.paused) {
-    musicIcon.classList.remove('fa-volume-up');
-    musicIcon.classList.add('fa-volume-mute');
-  } else {
-    musicIcon.classList.remove('fa-volume-mute');
-    musicIcon.classList.add('fa-volume-up');
-  }
-}
-
-audio.onplay = updateMusicIcon;
-audio.onpause = updateMusicIcon;
-
-document.addEventListener('DOMContentLoaded', () => {
-  updateMusicIcon();
-  if (musicButton) {
-    musicButton.addEventListener('click', toggleMusic);
-  }
-});
-(function() {
-    document.addEventListener('DOMContentLoaded', function() {
-        try {
-            const username = localStorage.getItem('username');
-            if (username) {
-                document.getElementById('welcome-message').textContent = `Welcome to RiSync, ${username}`;
-            }
-        } catch (e) {
-            console.error('Error retrieving username:', e);
-        }
-    });
-})();
-
-document.addEventListener('DOMContentLoaded', function() {
-    const username = localStorage.getItem('username');
-    if (username) {
-        document.getElementById('welcome-message').textContent = `Welcome to RiSync, ${username}`;
+    function toggleMenu() {
+      sidebar.classList.toggle('open');
+      mainWrapper.classList.toggle('sidebar-open');
     }
-});
 
-// --- CHATBOT POPUP & ASSISTANCE --- //
-const chatbotPopup = document.getElementById('chatbot-popup');
-const chatbotWelcomeMessage = document.getElementById('chatbot-welcome-message');
+    menuToggle.addEventListener('click', toggleMenu);
 
-// Function to handle the voice-over and chatbot popup
-function handleInitialUserJourney() {
-  // Check if this is the first time the user is visiting the dashboard
-  // For this example, we'll use a simple flag in localStorage. In a real app, this would
-  // be tied to the signup process.
-  const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
-  const username = localStorage.getItem('username') || 'User';
-  
-  if (!hasSeenWelcome) {
-    setTimeout(() => {
-      // First, show the chatbot popup after a short delay
-      chatbotPopup.classList.add('active');
-      chatbotWelcomeMessage.textContent = `Hello, ${username}! Welcome to the wonderful journey with RiSync.`;
-      
-      // Attempt to use Web Speech API for voice-over
-      if ('speechSynthesis' in window) {
-        const synth = window.speechSynthesis;
-        const welcomeText = chatbotWelcomeMessage.textContent + " " + "Do you want me to assist you to find what you are looking for?";
-        const utterance = new SpeechSynthesisUtterance(welcomeText);
-        
-        // Find a suitable voice. This can be tricky and may vary by browser.
-        utterance.onvoiceschanged = () => {
-          const voices = synth.getVoices();
-          const selectedVoice = voices.find(voice => voice.name.includes('Google') || voice.lang.includes('en'));
-          if (selectedVoice) {
-            utterance.voice = selectedVoice;
-          }
-          synth.speak(utterance);
+    // --- SETTINGS MENU LOGIC ---
+    const settingsIcon = document.querySelector('.settings-icon');
+    const settingsMenu = document.getElementById('settingsMenu');
+
+    settingsIcon.addEventListener('click', (e) => {
+      e.stopPropagation();
+      settingsMenu.classList.toggle('active');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!settingsMenu.contains(e.target) && e.target !== settingsIcon) {
+        settingsMenu.classList.remove('active');
+      }
+    });
+
+    // --- PROFILE IMAGE LOGIC ---
+    const profileIcon = document.getElementById('profileIcon');
+    const profileUpload = document.getElementById('profileUpload');
+
+    function loadProfileImage() {
+      const storedImage = localStorage.getItem('profileImage');
+      if (storedImage) {
+        profileIcon.src = storedImage;
+      }
+    }
+
+    profileIcon.addEventListener('click', () => {
+      profileUpload.click();
+    });
+
+    profileUpload.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          profileIcon.src = e.target.result;
+          localStorage.setItem('profileImage', e.target.result);
         };
-        
-        // If voices are already loaded, just speak
-        const voices = synth.getVoices();
-        if (voices.length > 0) {
-          const selectedVoice = voices.find(voice => voice.name.includes('Google') || voice.lang.includes('en'));
-          if (selectedVoice) {
-            utterance.voice = selectedVoice;
-          }
-          synth.speak(utterance);
-        }
+        reader.readAsDataURL(file);
+      }
+    });
 
+    // --- NAVIGATION LOGIC ---
+    const navButtons = document.querySelectorAll('.nav-button');
+    const welcomeMessage = document.getElementById('welcome-message');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const url = button.getAttribute('data-url');
+            if (url) {
+                const navText = button.querySelector('i').nextSibling.textContent.trim();
+                const welcomeMsg = `You are on the ${navText} page`;
+                welcomeMessage.textContent = welcomeMsg;
+                // For demonstration, navigate to the URL
+                // window.location.href = url;
+            }
+        });
+    });
+
+    // --- AUDIO LOGIC ---
+    const musicBtn = document.getElementById('music-btn');
+    const musicIcon = document.getElementById('music-icon');
+    const bgMusic = document.getElementById('bg-music');
+    let isPlaying = false;
+
+    musicBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        bgMusic.pause();
+        musicIcon.classList.remove('fa-volume-mute');
+        musicIcon.classList.add('fa-volume-up');
+        musicIcon.classList.remove('icon-pulse');
       } else {
-        console.warn("Web Speech API is not supported in this browser.");
+        bgMusic.play().catch(error => {
+          console.log("Autoplay was prevented. User will need to interact with the page first.");
+        });
+        musicIcon.classList.remove('fa-volume-up');
+        musicIcon.classList.add('fa-volume-mute');
+        musicIcon.classList.add('icon-pulse');
+      }
+      isPlaying = !isPlaying;
+    });
+
+    // --- TO-DO LIST & PROGRESS LOGIC ---
+    const todoInput = document.getElementById('todo-input');
+    const addTodoBtn = document.getElementById('add-todo-btn');
+    const todoList = document.getElementById('todo-list');
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+
+    function saveTodos() {
+      const todos = [];
+      todoList.querySelectorAll('li').forEach(li => {
+        todos.push({
+          text: li.querySelector('span').textContent,
+          completed: li.classList.contains('completed')
+        });
+      });
+      localStorage.setItem('todos', JSON.stringify(todos));
+      updateProgress();
+    }
+
+    function loadTodos() {
+      const todos = JSON.parse(localStorage.getItem('todos')) || [];
+      todos.forEach(todo => addTodoToDOM(todo.text, todo.completed));
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const totalTasks = todoList.children.length;
+      const completedTasks = todoList.querySelectorAll('.completed').length;
+      const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+      
+      progressBar.style.width = `${progress}%`;
+      progressText.textContent = `${progress}% Complete`;
+      
+      localStorage.setItem('progress', progress);
+    }
+    
+    function addTodoToDOM(task, isCompleted = false) {
+      const li = document.createElement('li');
+      const span = document.createElement('span');
+      span.textContent = task;
+      li.appendChild(span);
+
+      const removeBtn = document.createElement('button');
+      removeBtn.classList.add('remove-btn');
+      removeBtn.innerHTML = '&times;';
+      removeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        li.remove();
+        saveTodos();
+      });
+
+      li.appendChild(removeBtn);
+
+      if (isCompleted) {
+        li.classList.add('completed');
       }
 
-      // Set the flag so it doesn't show again on reload
-      localStorage.setItem('hasSeenWelcome', 'true');
-    }, 2000); // 2-second delay
-  }
-}
+      li.addEventListener('click', () => {
+        li.classList.toggle('completed');
+        saveTodos();
+      });
 
-function startAssistance() {
-  hideChatbotPopup();
-  // Call the voice command function when user accepts assistance
-  startVoiceCommand();
-}
-
-function hideChatbotPopup() {
-  chatbotPopup.classList.remove('active');
-}
-
-// --- VOICE COMMAND FUNCTIONALITY --- //
-let recognition; // Declare a variable to hold the recognition object
-
-function startVoiceCommand() {
-  // Check for Web Speech API support
-  if ('webkitSpeechRecognition' in window) {
-    // If the mic is already active, stop it
-    if (isMicActive) {
-      recognition.stop();
-      return;
+      todoList.appendChild(li);
+      saveTodos();
     }
     
-    // Create a new recognition object
-    recognition = new webkitSpeechRecognition();
-    recognition.lang = 'en-IN'; // Set language to Indian English for better recognition
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-    recognition.continuous = false; // Set to false to stop listening after a single command
+    // --- CHATBOT POP-UP LOGIC ---
+    const micBtn = document.getElementById('mic-btn');
+    const chatbotPopup = document.getElementById('chatbot-popup');
+    const startAssistanceBtn = document.getElementById('startAssistanceBtn');
+    const hideChatbotBtn = document.getElementById('hideChatbotBtn');
 
-    // UI state change
-    micButton.classList.add('active');
-    isMicActive = true;
+    function showChatbotPopup() {
+      chatbotPopup.classList.add('active');
+    }
+
+    function hideChatbotPopup() {
+      chatbotPopup.classList.remove('active');
+    }
     
-    // Start listening
-    recognition.start();
+    micBtn.addEventListener('click', () => {
+      showChatbotPopup();
+    });
+
+    startAssistanceBtn.addEventListener('click', () => {
+      startAssistance();
+    });
+
+    hideChatbotBtn.addEventListener('click', hideChatbotPopup);
+
+    // --- RiBot SETTINGS POP-UP LOGIC ---
+    const ribotSettingsBtn = document.getElementById('ribotSettingsBtn');
+    const ribotSettingsPopup = document.getElementById('ribot-settings-popup');
+    const closeRibotSettingsBtn = document.getElementById('closeRibotSettingsBtn');
+    const ribotOptionBtns = document.querySelectorAll('.ribot-option-btn');
+    const ribotResponseArea = document.getElementById('ribot-response-area');
+    const ribotResponseText = document.getElementById('ribot-response-text');
     
-    // Event listener for when speech is recognized
-    recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      console.log('Voice Command:', transcript);
-      
-      // Process the command
-      const navButtons = document.querySelectorAll('.nav-menu .nav-button');
-      navButtons.forEach(button => {
-          const buttonText = button.textContent.trim().toLowerCase();
-          // Check if the transcript contains the button's text
-          if (transcript.toLowerCase().includes(buttonText)) {
-              console.log(`Navigating to: ${buttonText}`);
-              button.click(); // Simulate a click on the button
-              // Optional: Provide voice feedback
-              if ('speechSynthesis' in window) {
-                  const synth = window.speechSynthesis;
-                  const utterance = new SpeechSynthesisUtterance(`Navigating to ${buttonText}`);
-                  synth.speak(utterance);
-              }
+    function showRibotSettings() {
+      ribotSettingsPopup.classList.add('active');
+    }
+
+    function hideRibotSettings() {
+      ribotSettingsPopup.classList.remove('active');
+    }
+
+    ribotSettingsBtn.addEventListener('click', () => {
+      settingsMenu.classList.remove('active');
+      showRibotSettings();
+    });
+    
+    closeRibotSettingsBtn.addEventListener('click', hideRibotSettings);
+    
+    ribotOptionBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const option = btn.getAttribute('data-option');
+        const lang = localStorage.getItem('lang') || 'en';
+        const response = translations[lang]['ribot-responses'][option] || translations[lang]['ribot-responses']['default'];
+        ribotResponseText.textContent = response;
+        ribotResponseArea.style.display = 'block';
+      });
+    });
+
+    // --- VOICE COMMANDS LOGIC ---
+    let speechRecognition;
+    let recognitionActive = false;
+
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      speechRecognition.lang = 'en-US';
+      speechRecognition.continuous = false;
+      speechRecognition.interimResults = false;
+
+      speechRecognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        console.log("Transcript: " + transcript);
+        handleVoiceCommand(transcript);
+      };
+
+      speechRecognition.onend = () => {
+        console.log("Speech recognition ended.");
+        recognitionActive = false;
+        micBtn.classList.remove('active');
+      };
+
+      speechRecognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        recognitionActive = false;
+        micBtn.classList.remove('active');
+      };
+    } else {
+      console.log("Speech recognition not supported in this browser.");
+      micBtn.style.display = 'none';
+    }
+
+    function startSpeechRecognition() {
+      if (!recognitionActive) {
+        recognitionActive = true;
+        micBtn.classList.add('active');
+        speechRecognition.start();
+        console.log("Speech recognition started.");
+      }
+    }
+    
+    // --- MAIN INITIALIZATION LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeLanguage();
+      createLanguageList();
+      loadProfileImage();
+      loadTodos();
+
+      // Ensure the audio element is loaded before trying to play it
+      bgMusic.load();
+
+      // To-Do List Listeners
+      addTodoBtn.addEventListener('click', () => {
+          const task = todoInput.value.trim();
+          if (task) {
+              addTodoToDOM(task);
+              todoInput.value = '';
+              saveTodos();
           }
       });
-    };
+      todoInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+              addTodoBtn.click();
+          }
+      });
+      
+    });
     
-    // Event listener for when the speech recognition ends
-    recognition.onend = () => {
-        console.log('Speech recognition ended.');
-        micButton.classList.remove('active');
-        isMicActive = false;
-    };
-
-    // Event listener for errors
-    recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        micButton.classList.remove('active');
-        isMicActive = false;
-        // Optional: Provide voice feedback for errors
-        if ('speechSynthesis' in window) {
-            const synth = window.speechSynthesis;
-            const utterance = new SpeechSynthesisUtterance("Sorry, I didn't catch that. Please try again.");
-            synth.speak(utterance);
-        }
-    };
-
-  } else {
-    // Fallback for browsers that don't support the API
-    alert('Web Speech API is not supported in this browser. Please use Google Chrome or a compatible browser.');
-  }
-}
-
-// Attach the voice command function to the microphone button
-document.addEventListener('DOMContentLoaded', () => {
-    handleInitialUserJourney();
-    if (micButton) {
-        micButton.addEventListener('click', startVoiceCommand);
-    }
-});
-
-
-// --- RiBot Settings Functionality --- //
-function openRiBotSettings() {
-    closeRiBotSettings(); // Ensure it's closed before opening
-    document.getElementById('ribot-settings-popup').classList.add('active');
-    document.getElementById("settingsMenu").classList.remove('active'); // Close the settings menu
-}
-
-function closeRiBotSettings() {
-    document.getElementById('ribot-settings-popup').classList.remove('active');
-    document.getElementById('ribot-response-area').style.display = 'none';
-}
-
-function handleRiBotOption(option) {
-    const lang = localStorage.getItem("preferredLanguage") || 'en';
-    const dict = translations[lang] || translations['en'];
-    let response = dict['ribot-responses'][option] || dict['ribot-responses']['default'];
-    
-    // Display the response
-    const responseArea = document.getElementById('ribot-response-area');
-    const responseText = document.getElementById('ribot-response-text');
-    responseText.textContent = response;
-    responseArea.style.display = 'block';
-    
-    // Optional: Add a simple voice feedback
-    if ('speechSynthesis' in window) {
+    function startAssistance() {
+        showRibotSettings();
+        hideChatbotPopup();
         const synth = window.speechSynthesis;
-        const utterance = new SpeechSynthesisUtterance(response);
-        // Find a suitable voice for the selected language
-        utterance.onvoiceschanged = () => {
-          const voices = synth.getVoices();
-          const selectedVoice = voices.find(voice => voice.lang.startsWith(lang));
-          if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            utterance.lang = lang; // Set the language for the utterance
-          }
-          synth.speak(utterance);
-        };
-        const voices = synth.getVoices();
-        if (voices.length > 0) {
-          const selectedVoice = voices.find(voice => voice.lang.startsWith(lang));
-          if (selectedVoice) {
-            utterance.voice = selectedVoice;
-            utterance.lang = lang;
-          }
-          synth.speak(utterance);
-        } else {
-          synth.speak(utterance);
-        }
+        const utterance = new SpeechSynthesisUtterance("Welcome, I am RiBot, I am happy to assist you, please choose an option from the menu.");
+        synth.speak(utterance);
     }
-}
+  </script>
+<script>
+(function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            const username = localStorage.getItem('username');
+            if (username) {
+                document.getElementById('welcome-message').textContent = `Welcome to RiSync, ${username}`;
+            }
+        } catch (e) {
+            console.error("Could not retrieve username from localStorage:", e);
+        }
+    });
+})();
 </script>
 </body>
 </html>

@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>RiSync Chat</title>
-    <link href="[https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap](https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap)" rel="stylesheet">
-    <style>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <script src="/socket.io/socket.io.js"></script>
+	<style>
         :root {
             /* Default Light Theme */
             --primary-color: #007bff;
@@ -508,6 +509,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .edit-buttons-container {
+            display: none;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -551,7 +556,7 @@
             <div style="display: flex; justify-content: flex-end; width: 100%;">
                 <button class="icon-button" id="boldBtn"><b>B</b></button>
                 <button class="icon-button" id="italicBtn"><i>I</i></button>
-                <button class="icon-button" onclick="sendMessage()">➤</button>
+                <button class="icon-button" id="sendBtn">➤</button>
                 <button class="icon-button" id="microphoneBtn">🎤</button>
             </div>
         </div>
@@ -642,12 +647,15 @@
         const typingIndicator = document.getElementById("typing-indicator");
         const deletionCounter = document.getElementById("deletion-counter");
         const messagesContainer = document.getElementById("messages");
-
+        const sendBtn = document.getElementById("sendBtn");
+        
         document.getElementById("header-title").innerText = "RiSync Chat";
         document.getElementById("status").innerText = `Class ${userClass} | Online`;
         
         let repliedToMessage = null;
-
+        let editingMessageIndex = null;
+        let isEditing = false;
+        
         // Load messages and scheduled messages from LocalStorage
         let messages = JSON.parse(localStorage.getItem("chatMessages")) || [];
         let scheduledMessages = JSON.parse(localStorage.getItem("scheduledMessages")) || [];
@@ -706,7 +714,14 @@
 
         function sendMessage() {
             const text = messageInput.value.trim();
-            if (text) {
+            if (isEditing) {
+                messages[editingMessageIndex].text = text;
+                localStorage.setItem("chatMessages", JSON.stringify(messages));
+                redrawMessages();
+                isEditing = false;
+                editingMessageIndex = null;
+                sendBtn.innerText = "➤";
+            } else if (text) {
                 const msg = { 
                     user: username, 
                     text: text, 
@@ -717,10 +732,11 @@
                 messages.push(msg);
                 localStorage.setItem("chatMessages", JSON.stringify(messages));
                 appendMessage(msg);
-                messageInput.value = "";
-                clearReply();
             }
+            messageInput.value = "";
+            clearReply();
         }
+        sendBtn.addEventListener("click", sendMessage);
         
         function scheduleMessage() {
             const scheduledTimeInput = document.getElementById("scheduleTimeInput");
@@ -771,7 +787,8 @@
                     </div>
                 `;
             }
-
+            
+            // Render different message types
             if (msg.type === 'image') {
                 messageContentHtml += `<img src="${msg.data}" style="max-width: 100%; height: auto; border-radius: 10px;">`;
             } else if (msg.type === 'file') {
@@ -807,7 +824,10 @@
             const actionButtonsHtml = `
                 <div class="message-actions">
                     <button class="action-button reply-button" onclick="setReply('${msg.user}', '${msg.text.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">↩️</button>
-                    ${msg.user === username ? `<button class="action-button delete-button" onclick="deleteMessage(${messageIndex})">🗑️</button>` : ''}
+                    ${msg.user === username ? `
+                        <button class="action-button edit-button" onclick="editMessage(${messageIndex})">✏️</button>
+                        <button class="action-button delete-button" onclick="deleteMessage(${messageIndex})">🗑️</button>
+                    ` : ''}
                 </div>
             `;
 
@@ -820,6 +840,11 @@
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
 
+        function redrawMessages() {
+            messagesContainer.innerHTML = "";
+            messages.forEach(appendMessage);
+        }
+
         // Deletion Function
         function deleteMessage(index) {
             if (deletionData.count < DELETION_LIMIT) {
@@ -829,8 +854,7 @@
                     deletionData.count++;
                     localStorage.setItem("deletionData", JSON.stringify(deletionData));
                     
-                    messagesContainer.innerHTML = "";
-                    messages.forEach(appendMessage);
+                    redrawMessages();
                     updateDeletionCounter();
                 }
             } else {
@@ -853,6 +877,16 @@
             document.getElementById("reply-preview").style.display = "none";
         }
         document.getElementById("reply-preview-close").addEventListener("click", clearReply);
+
+        // New Edit Functions
+        function editMessage(index) {
+            const messageToEdit = messages[index];
+            messageInput.value = messageToEdit.text;
+            isEditing = true;
+            editingMessageIndex = index;
+            sendBtn.innerText = "✓";
+            messageInput.focus();
+        }
 
         // --- NEW FORMATTING LOGIC ---
         function applyFormatting(tag) {

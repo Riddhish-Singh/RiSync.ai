@@ -136,6 +136,62 @@
       background-color: #e65c00;
       transform: scale(1.05);
     }
+
+    #textInputContainer {
+      position: absolute;
+      z-index: 35;
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #textInputContainer input {
+      border: 1px solid #ccc;
+      padding: 5px;
+      border-radius: 4px;
+      width: 200px;
+    }
+    #textInputContainer button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+        #toolbar {
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            justify-content: flex-start;
+        }
+        #toolbar > * {
+            flex-shrink: 0;
+            margin: 0;
+        }
+        .page-controls {
+            margin-left: 10px;
+        }
+        #canvas-container {
+            padding-top: 10px;
+        }
+        #backButton {
+            bottom: 10px;
+            left: 10px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        #hint {
+            display: none;
+        }
+    }
   </style>
 </head>
 <body>
@@ -244,6 +300,10 @@
   <canvas id="mainCanvas"></canvas>
   <canvas id="previewCanvas"></canvas>
   <canvas id="gridCanvas"></canvas>
+  <div id="textInputContainer">
+    <input type="text" id="textInput" placeholder="Enter text here...">
+    <button id="textInputAddBtn">Add</button>
+  </div>
 </div>
 
 <button id="backButton" onclick="window.location.href='content.html'">← Back</button>
@@ -272,7 +332,6 @@ let selectedCanvasElement = null; // For canvas shapes
 let isDragging = false;
 let dragOffsetX, dragOffsetY;
 
-
 // --- Constants for Canvas Size ---
 const CANVAS_WIDTH = 1600;
 const CANVAS_HEIGHT = 800;
@@ -297,11 +356,16 @@ function initWhiteboard() {
   thickness = parseInt(document.getElementById('thickness').value);
   document.getElementById('bgcolor').value = pages[currentPage].backgroundColor;
 
-  mainCanvas.addEventListener('mousedown', handleMouseDown);
-  mainCanvas.addEventListener('mousemove', handleMouseMove);
-  mainCanvas.addEventListener('mouseup', handleMouseUp);
-  mainCanvas.addEventListener('mouseout', handleMouseUp);
-  
+  // Add touch event listeners
+  mainCanvas.addEventListener('mousedown', handleStart);
+  mainCanvas.addEventListener('mousemove', handleMove);
+  mainCanvas.addEventListener('mouseup', handleEnd);
+  mainCanvas.addEventListener('mouseout', handleEnd);
+
+  mainCanvas.addEventListener('touchstart', handleStart);
+  mainCanvas.addEventListener('touchmove', handleMove);
+  mainCanvas.addEventListener('touchend', handleEnd);
+
   setupToolbarListeners();
 
   loadPage(currentPage);
@@ -323,10 +387,10 @@ function setupToolbarListeners() {
   };
   document.getElementById('thickness').oninput = e => {
     thickness = parseInt(e.target.value);
-    updateSelectedProperties(); // Apply change directly to selected element
+    updateSelectedProperties();
   };
   document.getElementById('fill-shape').onchange = () => {
-    updateSelectedProperties(); // Apply change directly to selected element
+    updateSelectedProperties();
   };
 
   document.getElementById('style').onchange = e => style = e.target.value;
@@ -343,101 +407,158 @@ function setupToolbarListeners() {
   document.getElementById('image-upload').onchange = handleImageUpload;
   document.getElementById('font-family').onchange = updateSelectedText;
   document.getElementById('font-size').onchange = updateSelectedText;
+  
+  // Text Input button listener
+  document.getElementById('textInputAddBtn').onclick = () => {
+      const inputEl = document.getElementById('textInput');
+      const input = inputEl.value;
+      if (input) {
+          const inputContainer = document.getElementById('textInputContainer');
+          const x = parseFloat(inputContainer.style.left);
+          const y = parseFloat(inputContainer.style.top);
+          const newText = {
+            type: 'text', id: `el-${Date.now()}`, content: input, x, y,
+            font: document.getElementById('font-family').value,
+            size: parseInt(document.getElementById('font-size').value),
+            color: document.getElementById('color').value
+          };
+          pages[currentPage].elements.push(newText);
+          redrawPage();
+          inputEl.value = '';
+          inputContainer.style.display = 'none';
+          document.getElementById('tool').value = 'pencil'; // Reset tool
+          tool = 'pencil';
+      }
+  };
 }
 
+// --- Unified Event Handlers (for Mouse and Touch) ---
 
-// --- Event Handlers (MouseDown, MouseMove, MouseUp) ---
+function getEventCoords(e) {
+    const canvasRect = mainCanvas.getBoundingClientRect();
+    let clientX, clientY;
+    
+    if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
+    
+    const x = clientX - canvasRect.left;
+    const y = clientY - canvasRect.top;
+    
+    return { x, y };
+}
 
-function handleMouseDown(e) {
-  const x = e.offsetX, y = e.offsetY;
+function handleStart(e) {
+    if (e.type.startsWith('touch')) e.preventDefault();
+    const { x, y } = getEventCoords(e);
+    
+    document.getElementById('textInputContainer').style.display = 'none';
   
-  if (tool === 'select') {
-    // Priority: DOM elements (text)
-    if (e.target.classList.contains('text-element')) {
-      if (selectedDomElement === e.target) { // If already selected, deselect
+    if (tool === 'select') {
+      // Priority: DOM elements (text)
+      const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+      if (targetElement && targetElement.classList.contains('text-element')) {
+          if (selectedDomElement === targetElement) {
+              deselectAll();
+              redrawPage();
+              return;
+          }
           deselectAll();
-          redrawPage();
+          selectedDomElement = targetElement;
+          selectedDomElement.classList.add('selected');
+          updateToolbarForSelection();
+          // Dragging for DOM elements is handled by specific listeners on span itself
+          isDragging = true;
+          const rect = selectedDomElement.getBoundingClientRect();
+          const containerRect = document.getElementById('canvas-container').getBoundingClientRect();
+          dragOffsetX = x - (rect.left - containerRect.left);
+          dragOffsetY = y - (rect.top - containerRect.top);
+          saveHistoryState();
+          redrawPage(); // Redraw to highlight selection
           return;
       }
-      deselectAll();
-      selectedDomElement = e.target;
-      selectedDomElement.classList.add('selected');
-      // Dragging for DOM elements is handled by specific listeners on span itself
-      updateToolbarForSelection();
-      redrawPage(); // Redraw to highlight selection
-      return; // Stop further processing
-    }
 
-    // Handle canvas element selection/dragging
-    const clickedElement = findClickedElement(x, y);
-    if (selectedCanvasElement && clickedElement && selectedCanvasElement.id === clickedElement.id) {
-        // Start dragging the already selected element
-        isDragging = true;
-        dragOffsetX = x - selectedCanvasElement.x;
-        dragOffsetY = y - selectedCanvasElement.y;
-        saveHistoryState();
-    } else {
-        deselectAll(); // Deselect any existing selection
-        if (clickedElement) {
-            selectedCanvasElement = clickedElement;
-            isDragging = true;
-            dragOffsetX = x - selectedCanvasElement.x;
-            dragOffsetY = y - selectedCanvasElement.y;
-            saveHistoryState(); // Save state before drag starts
-        }
-    }
-    updateToolbarForSelection();
-    redrawPage();
-    return;
-  }
-  
-  saveHistoryState(); // Save state for any new drawing action
-  deselectAll(); // Deselect any element when switching to a drawing tool
-  
-  if (tool === 'pencil' || tool === 'eraser') {
-    drawing = true;
-    path = [{ x, y }];
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    if (tool === 'pencil') {
-      applyStyle(ctx, style, color);
-      ctx.lineWidth = thickness;
-    } else {
-      ctx.strokeStyle = pages[currentPage].backgroundColor;
-      ctx.lineWidth = thickness;
-      ctx.shadowBlur = 0;
-    }
-  } else if (tool === 'text') {
-    const input = prompt('Enter text:');
-    if (input) {
-      const newText = {
-        type: 'text', id: `el-${Date.now()}`, content: input, x, y,
-        font: document.getElementById('font-family').value,
-        size: parseInt(document.getElementById('font-size').value),
-        color: document.getElementById('color').value
-      };
-      pages[currentPage].elements.push(newText);
+      // Handle canvas element selection/dragging
+      const clickedElement = findClickedElement(x, y);
+      if (selectedCanvasElement && clickedElement && selectedCanvasElement.id === clickedElement.id) {
+          isDragging = true;
+          dragOffsetX = x - selectedCanvasElement.x;
+          dragOffsetY = y - selectedCanvasElement.y;
+          saveHistoryState();
+      } else {
+          deselectAll();
+          if (clickedElement) {
+              selectedCanvasElement = clickedElement;
+              isDragging = true;
+              dragOffsetX = x - selectedCanvasElement.x;
+              dragOffsetY = y - selectedCanvasElement.y;
+              saveHistoryState();
+          }
+      }
+      updateToolbarForSelection();
       redrawPage();
+      return;
     }
-  } else if (['rectangle', 'circle', 'line'].includes(tool)) {
-    isDrawingShape = true;
-    startX = x;
-    startY = y;
-  }
+    
+    saveHistoryState();
+    deselectAll();
+    
+    if (tool === 'pencil' || tool === 'eraser') {
+      drawing = true;
+      path = [{ x, y }];
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      if (tool === 'pencil') {
+        applyStyle(ctx, style, color);
+        ctx.lineWidth = thickness;
+      } else {
+        ctx.strokeStyle = pages[currentPage].backgroundColor;
+        ctx.lineWidth = thickness;
+        ctx.shadowBlur = 0;
+      }
+    } else if (tool === 'text') {
+        const textInputContainer = document.getElementById('textInputContainer');
+        const canvasContainerRect = document.getElementById('canvas-container').getBoundingClientRect();
+        
+        textInputContainer.style.left = `${x}px`;
+        textInputContainer.style.top = `${y}px`;
+        textInputContainer.style.display = 'flex';
+        document.getElementById('textInput').focus();
+
+    } else if (['rectangle', 'circle', 'line'].includes(tool)) {
+      isDrawingShape = true;
+      startX = x;
+      startY = y;
+    }
 }
 
-function handleMouseMove(e) {
-  const x = e.offsetX, y = e.offsetY;
+function handleMove(e) {
+  if (e.type.startsWith('touch')) e.preventDefault();
+  const { x, y } = getEventCoords(e);
 
-  if (tool === 'select' && isDragging && selectedCanvasElement) {
-    // Move logic for canvas elements
-    const newX = x - dragOffsetX;
-    const newY = y - dragOffsetY;
-
-    // For circles and rectangles, the position is simply x, y
-    if(selectedCanvasElement.type === 'circle' || selectedCanvasElement.type === 'rectangle' || selectedCanvasElement.type === 'image'){
-       selectedCanvasElement.x = newX;
-       selectedCanvasElement.y = newY;
+  if (tool === 'select' && isDragging) {
+    // Move logic for canvas elements or DOM elements
+    if (selectedCanvasElement) {
+      const newX = x - dragOffsetX;
+      const newY = y - dragOffsetY;
+      if(selectedCanvasElement.type === 'circle' || selectedCanvasElement.type === 'rectangle' || selectedCanvasElement.type === 'image'){
+         selectedCanvasElement.x = newX;
+         selectedCanvasElement.y = newY;
+      }
+    } else if (selectedDomElement) {
+        const newX = x - dragOffsetX;
+        const newY = y - dragOffsetY;
+        selectedDomElement.style.left = `${newX}px`;
+        selectedDomElement.style.top = `${newY}px`;
+        const elementData = pages[currentPage].elements.find(el => el.id === selectedDomElement.id);
+        if (elementData) {
+          elementData.x = newX;
+          elementData.y = newY;
+        }
     }
     redrawPage();
     return;
@@ -472,7 +593,7 @@ function handleMouseMove(e) {
   }
 }
 
-function handleMouseUp(e) {
+function handleEnd(e) {
   if (isDragging) {
     isDragging = false;
   }
@@ -488,11 +609,9 @@ function handleMouseUp(e) {
   } else if (isDrawingShape) {
     isDrawingShape = false;
     previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-    const x = e.offsetX, y = e.offsetY;
-    // START OF FILL SHAPE LOGIC IN HANDLEMOUSEUP
-    const isFilled = document.getElementById('fill-shape').checked; // Correctly get the filled state
-    let shapeData = { id: `el-${Date.now()}`, color, thickness, isFilled: isFilled }; // Ensure isFilled is set
-    // END OF FILL SHAPE LOGIC IN HANDLEMOUSEUP
+    const { x, y } = getEventCoords(e);
+    const isFilled = document.getElementById('fill-shape').checked;
+    let shapeData = { id: `el-${Date.now()}`, color, thickness, isFilled: isFilled };
 
     if (tool === 'rectangle') {
       Object.assign(shapeData, { type: 'rectangle', x: startX, y: startY, width: x - startX, height: y - startY });
@@ -501,7 +620,7 @@ function handleMouseUp(e) {
       const radius = Math.abs(Math.sqrt(dx * dx + dy * dy) / 2);
       Object.assign(shapeData, { type: 'circle', x: startX + dx / 2, y: startY + dy / 2, radius });
     } else if (tool === 'line') {
-      Object.assign(shapeData, { type: 'line', x1: startX, y1: startY, x2: x, y2: y, isFilled: false }); // Lines are never filled
+      Object.assign(shapeData, { type: 'line', x1: startX, y1: startY, x2: x, y2: y, isFilled: false });
     }
     pages[currentPage].elements.push(shapeData);
     redrawPage();
@@ -511,10 +630,9 @@ function handleMouseUp(e) {
 // --- Selection & Modification ---
 
 function findClickedElement(x, y) {
-    // Iterate backwards to check topmost elements first
     for (let i = pages[currentPage].elements.length - 1; i >= 0; i--) {
         const element = pages[currentPage].elements[i];
-        if (element.type === 'stroke' || element.type === 'text') continue; // Strokes not selectable via this method, text handled by DOM
+        if (element.type === 'stroke' || element.type === 'text') continue;
         if (isPointInElement(x, y, element)) {
             return element;
         }
@@ -523,10 +641,9 @@ function findClickedElement(x, y) {
 }
 
 function isPointInElement(x, y, element) {
-    const margin = 5; // Click margin for outlines
+    const margin = 5;
     switch (element.type) {
         case 'rectangle':
-            // Normalize for negative width/height
             const rectX = Math.min(element.x, element.x + element.width);
             const rectY = Math.min(element.y, element.y + element.height);
             const rectW = Math.abs(element.width);
@@ -534,7 +651,6 @@ function isPointInElement(x, y, element) {
             if (element.isFilled) {
                 return x >= rectX && x <= rectX + rectW && y >= rectY && y <= rectY + rectH;
             } else {
-                // Check if click is on the border
                 const onHorizontal = (y >= rectY - margin && y <= rectY + margin) || (y >= rectY + rectH - margin && y <= rectY + rectH + margin);
                 const onVertical = (x >= rectX - margin && x <= rectX + margin) || (x >= rectX + rectW - margin && x <= rectX + rectW + margin);
                 return (onHorizontal && x >= rectX - margin && x <= rectX + rectW + margin) ||
@@ -543,10 +659,8 @@ function isPointInElement(x, y, element) {
         case 'circle':
             const dist = Math.sqrt((x - element.x) ** 2 + (y - element.y) ** 2);
             if (element.isFilled) return dist <= element.radius;
-            // Check if click is on the circumference
             return Math.abs(dist - element.radius) < margin + element.thickness / 2;
         case 'line':
-            // Simple bounding box check for lines. More accurate would be point-to-line distance.
             const minX = Math.min(element.x1, element.x2);
             const maxX = Math.max(element.x1, element.x2);
             const minY = Math.min(element.y1, element.y2);
@@ -566,8 +680,7 @@ function deselectAll() {
     }
     selectedCanvasElement = null;
     isDragging = false;
-    updateToolbarForSelection(); // Update toolbar to reflect no selection
-    // Don't call redraw here to avoid flicker, caller will redraw.
+    updateToolbarForSelection();
 }
 
 function updateToolbarForSelection() {
@@ -580,18 +693,16 @@ function updateToolbarForSelection() {
 
     let target = selectedCanvasElement || (selectedDomElement ? pages[currentPage].elements.find(el => el.id === selectedDomElement.id) : null);
 
-    // Reset all controls to enabled state first
     colorInput.disabled = false;
     thicknessInput.disabled = false;
     fillCheck.disabled = false;
     fontSelect.disabled = false;
     fontSizeInput.disabled = false;
-    fillContainer.style.display = 'none'; // Hide by default
+    fillContainer.style.display = 'none';
 
     if (target) {
         colorInput.value = target.color;
 
-        // Handle text-specific properties
         if (target.type === 'text') {
             fontSelect.value = target.font;
             fontSizeInput.value = target.size;
@@ -599,42 +710,32 @@ function updateToolbarForSelection() {
 
             thicknessInput.disabled = true;
             fillCheck.disabled = true;
-            fillContainer.style.display = 'none'; // Ensure it's hidden for text
-        }
-        // Handle canvas shape/stroke/image properties
-        else {
+        } else {
             thicknessInput.value = target.thickness || 1;
-            colorInput.value = target.color || '#000000'; // Default color if not set for images
+            colorInput.value = target.color || '#000000';
 
             fontSelect.disabled = true;
             fontSizeInput.disabled = true;
 
             if (target.type === 'rectangle' || target.type === 'circle') {
                 fillCheck.checked = target.isFilled || false;
-                fillContainer.style.display = 'flex'; // Show for fillable shapes
+                fillContainer.style.display = 'flex';
             } else {
                 fillCheck.disabled = true;
-                fillContainer.style.display = 'none'; // Hide for non-fillable shapes (stroke, line, image)
             }
-            // Thickness is relevant for strokes, rectangles (outline), circles (outline), lines
             thicknessInput.disabled = !(target.type === 'stroke' || target.type === 'rectangle' || target.type === 'circle' || target.type === 'line');
         }
     } else {
-        // No selection, reset to default tool (pencil) properties
-        // Re-enable all relevant controls if tool is not 'select' or if no element is selected
         const currentTool = document.getElementById('tool').value;
-        document.getElementById('tool').value = tool; // Restore current tool selection
-        document.getElementById('color').value = color; // Restore current color
-        document.getElementById('thickness').value = thickness; // Restore current thickness
-        document.getElementById('fill-shape').checked = false; // Reset fill shape
-        document.getElementById('font-family').value = 'RiSync'; // Default font
-        document.getElementById('font-size').value = 16; // Default font size
+        document.getElementById('tool').value = tool;
+        document.getElementById('color').value = color;
+        document.getElementById('thickness').value = thickness;
+        document.getElementById('fill-shape').checked = false;
+        document.getElementById('font-family').value = 'RiSync';
+        document.getElementById('font-size').value = 16;
 
-        // Re-enable controls based on default or current tool selected
         if (['rectangle', 'circle'].includes(currentTool)) {
             fillContainer.style.display = 'flex';
-        } else {
-            fillContainer.style.display = 'none';
         }
 
         if (currentTool === 'text') {
@@ -654,16 +755,13 @@ function updateSelectedProperties() {
     if (!selectedCanvasElement && !selectedDomElement) return;
     saveHistoryState();
     
-    // Update canvas element properties
     if (selectedCanvasElement) {
         selectedCanvasElement.color = document.getElementById('color').value;
         selectedCanvasElement.thickness = parseInt(document.getElementById('thickness').value);
         if(typeof selectedCanvasElement.isFilled !== 'undefined') {
             selectedCanvasElement.isFilled = document.getElementById('fill-shape').checked;
         }
-    } 
-    // Update text element properties (if selectedDomElement is present, it means a text element is selected)
-    else if (selectedDomElement) {
+    } else if (selectedDomElement) {
         const elementData = pages[currentPage].elements.find(el => el.id === selectedDomElement.id);
         if (elementData && elementData.type === 'text') {
             elementData.font = document.getElementById('font-family').value;
@@ -703,11 +801,11 @@ async function redrawPage() {
         const img = await loadImage(element.src);
         ctx.drawImage(img, element.x, element.y, element.width, element.height);
       } catch (error) { console.error("Error drawing image:", error); }
-    } else if (element.type !== 'text') { // Draw canvas elements (strokes, shapes)
+    } else if (element.type !== 'text') {
       drawElement(element, ctx);
     }
   }
-  recreateAllTextElements(); // Recreate and position all HTML text elements
+  recreateAllTextElements();
   drawSelectionUI();
 }
 
@@ -720,12 +818,10 @@ function drawElement(element, context) {
       context.lineWidth = element.thickness;
       applyStyle(context, element.style, element.color);
       context.beginPath();
-      // FIX: Changed p.x for the y-coordinate to p.y
       element.path.forEach(p => context.lineTo(p.x, p.y)); 
       context.stroke();
       break;
     case 'rectangle':
-      // START OF FILL SHAPE LOGIC IN DRAWELEMENT
       if (element.isFilled) {
         context.fillStyle = element.color;
         context.fillRect(element.x, element.y, element.width, element.height);
@@ -734,12 +830,10 @@ function drawElement(element, context) {
         context.lineWidth = element.thickness;
         context.strokeRect(element.x, element.y, element.width, element.height);
       }
-      // END OF FILL SHAPE LOGIC IN DRAWELEMENT
       break;
     case 'circle':
       context.beginPath();
       context.arc(element.x, element.y, element.radius, 0, 2 * Math.PI);
-      // START OF FILL SHAPE LOGIC IN DRAWELEMENT
       if (element.isFilled) {
         context.fillStyle = element.color;
         context.fill();
@@ -748,7 +842,6 @@ function drawElement(element, context) {
         context.lineWidth = element.thickness;
         context.stroke();
       }
-      // END OF FILL SHAPE LOGIC IN DRAWELEMENT
       break;
     case 'line':
       context.strokeStyle = element.color;
@@ -782,7 +875,6 @@ function drawSelectionUI() {
         y = el.y - el.radius;
         w = h = el.radius * 2;
     } else if (el.type === 'line') {
-        // Draw a bounding box around the line
         x = Math.min(el.x1, el.x2);
         y = Math.min(el.y1, el.y2);
         w = Math.abs(el.x1 - el.x2);
@@ -822,7 +914,7 @@ function createTextElement(textData) {
   span.id = textData.id;
   if(selectedDomElement && selectedDomElement.id === textData.id) {
       span.classList.add('selected');
-      selectedDomElement = span; // Keep the reference to the new DOM element
+      selectedDomElement = span;
   }
   span.innerText = textData.content;
   span.style.left = `${textData.x}px`;
@@ -831,54 +923,7 @@ function createTextElement(textData) {
   span.style.fontFamily = textData.font;
   span.style.fontSize = `${textData.size}px`;
   
-  // Make text elements draggable
-  let isTextDragging = false;
-  let textDragOffsetX, textDragOffsetY;
-
-  span.addEventListener('mousedown', (e) => {
-    if (tool === 'select') {
-      e.stopPropagation(); // Prevent canvas mousedown
-      // Handle click on already selected text element
-      if (selectedDomElement === e.target) {
-          deselectAll();
-          redrawPage();
-          return;
-      }
-
-      deselectAll();
-      selectedDomElement = span;
-      selectedDomElement.classList.add('selected');
-      updateToolbarForSelection();
-      isTextDragging = true;
-      textDragOffsetX = e.clientX - span.getBoundingClientRect().left;
-      textDragOffsetY = e.clientY - span.getBoundingClientRect().top;
-      saveHistoryState(); // Save state before dragging text
-    }
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (isTextDragging && selectedDomElement === span) {
-      const containerRect = document.getElementById('canvas-container').getBoundingClientRect();
-      const newX = e.clientX - containerRect.left - textDragOffsetX;
-      const newY = e.clientY - containerRect.top - textDragOffsetY;
-      span.style.left = `${newX}px`;
-      span.style.top = `${newY}px`;
-
-      // Update the underlying data immediately for smooth dragging
-      const elementData = pages[currentPage].elements.find(el => el.id === span.id);
-      if (elementData) {
-        elementData.x = newX;
-        elementData.y = newY;
-      }
-    }
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (isTextDragging) {
-      isTextDragging = false;
-    }
-  });
-
+  // Dragging logic for DOM elements now handled by unified handleMove function
   document.getElementById('canvas-container').appendChild(span);
 }
 
@@ -886,26 +931,25 @@ function createTextElement(textData) {
 
 function saveHistoryState() {
   redoStack = [];
-  // Deep copy the current state of pages
   undoStack.push(JSON.parse(JSON.stringify(pages)));
-  if (undoStack.length > 50) undoStack.shift(); // Keep undoStack size reasonable
+  if (undoStack.length > 50) undoStack.shift();
 }
 
 function undo() {
-  if (undoStack.length <= 1) return; // Cannot undo if only initial state exists
-  redoStack.push(undoStack.pop()); // Move current state to redo stack
-  pages = JSON.parse(JSON.stringify(undoStack[undoStack.length - 1])); // Load previous state
-  currentPage = Math.min(currentPage, pages.length - 1); // Ensure current page is valid
+  if (undoStack.length <= 1) return;
+  redoStack.push(undoStack.pop());
+  pages = JSON.parse(JSON.stringify(undoStack[undoStack.length - 1]));
+  currentPage = Math.min(currentPage, pages.length - 1);
   deselectAll();
   loadPage(currentPage);
 }
 
 function redo() {
-  if (redoStack.length === 0) return; // Cannot redo if redo stack is empty
+  if (redoStack.length === 0) return;
   const nextState = redoStack.pop();
-  undoStack.push(nextState); // Move state from redo to undo stack
-  pages = JSON.parse(JSON.stringify(nextState)); // Load next state
-  currentPage = Math.min(currentPage, pages.length - 1); // Ensure current page is valid
+  undoStack.push(nextState);
+  pages = JSON.parse(JSON.stringify(nextState));
+  currentPage = Math.min(currentPage, pages.length - 1);
   deselectAll();
   loadPage(currentPage);
 }
@@ -924,7 +968,7 @@ function loadPage(index) {
 function nextPage() {
   currentPage++;
   if (!pages[currentPage]) {
-    saveHistoryState(); // Save state before adding a new page
+    saveHistoryState();
     pages.push({ elements: [], backgroundColor: '#ffffff' });
   }
   deselectAll();
@@ -941,7 +985,7 @@ function prevPage() {
 
 function deletePage() {
   if (pages.length <= 1) { 
-    confirmClear(); // If only one page, just clear it instead of deleting the last page
+    confirmClear();
     return; 
   }
   if (confirm("Are you sure you want to delete this page?")) {
@@ -971,11 +1015,10 @@ function handleImageUpload(e) {
     const img = new Image();
     img.onload = () => {
       saveHistoryState();
-      // Calculate aspect ratio to fit within canvas bounds or a max size
       let imgWidth = img.width;
       let imgHeight = img.height;
-      const maxWidth = CANVAS_WIDTH * 0.8; // Max 80% of canvas width
-      const maxHeight = CANVAS_HEIGHT * 0.8; // Max 80% of canvas height
+      const maxWidth = CANVAS_WIDTH * 0.8;
+      const maxHeight = CANVAS_HEIGHT * 0.8;
 
       if (imgWidth > maxWidth) {
           imgHeight = (imgHeight * maxWidth) / imgWidth;
@@ -989,8 +1032,8 @@ function handleImageUpload(e) {
       pages[currentPage].elements.push({
         type: 'image', id: `el-${Date.now()}`,
         src: event.target.result, 
-        x: (CANVAS_WIDTH - imgWidth) / 2, // Center the image horizontally
-        y: (CANVAS_HEIGHT - imgHeight) / 2, // Center the image vertically
+        x: (CANVAS_WIDTH - imgWidth) / 2,
+        y: (CANVAS_HEIGHT - imgHeight) / 2,
         width: imgWidth, height: imgHeight
       });
       redrawPage();
@@ -1009,12 +1052,12 @@ function drawGrid(type) {
   gridCtx.strokeStyle = gridcolor;
   gridCtx.fillStyle = gridcolor;
   const step = type === 'line' || type === 'square' ? 40 : 20;
-  gridCtx.lineWidth = 1; // Increased line width for visibility
+  gridCtx.lineWidth = 1;
   if (type === 'dot') {
     for (let x = 0; x < gridCanvas.width; x += step) {
       for (let y = 0; y < gridCanvas.height; y += step) {
         gridCtx.beginPath();
-        gridCtx.arc(x, y, 1.5, 0, 2 * Math.PI); // Slightly larger dots
+        gridCtx.arc(x, y, 1.5, 0, 2 * Math.PI);
         gridCtx.fill();
       }
     }
@@ -1038,9 +1081,8 @@ function drawGrid(type) {
 
 // --- Keyboard Shortcuts & Modal ---
 document.addEventListener('keydown', function(e) {
-  // Exclude both INPUT and SELECT elements, and also TEXTAREA if it were present
   if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) return; 
-  if (e.ctrlKey || e.metaKey) { // Ctrl for Windows/Linux, Cmd for Mac
+  if (e.ctrlKey || e.metaKey) {
     if (e.key.toLowerCase() === 'z') {
       e.preventDefault();
       e.shiftKey ? redo() : undo();

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+    <meta charset='utf-8' />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RiSync Calendar</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+    
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js'></script>
+
+    <style>
+        :root {
+            --primary-color: #f58220;
+            --secondary-color: #007bff;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+            transition: background-color 0.5s ease;
+        }
+
+        #main-container {
+            opacity: 0;
+            animation: fadeIn 1s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        #calendar {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            position: relative;
+        }
+
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-btn:hover,
+        .close-btn:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        label {
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        input[type="text"], input[type="date"], input[type="time"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="main-container">
+        <h1><i class="fas fa-calendar-alt"></i> RiSync Calendar</h1>
+        <div id='calendar'></div>
+    </div>
+
+    <div id="addEventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeAddEventModal">&times;</span>
+            <h2>Add New Event</h2>
+            <label for="eventName">Event Name:</label>
+            <input type="text" id="eventName" name="eventName">
+            <label for="eventDate">Event Date:</label>
+            <input type="date" id="eventDate" name="eventDate">
+            <button id="saveEventBtn">Save Event</button>
+        </div>
+    </div>
+
+    <div id="meetModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="closeMeetModal">&times;</span>
+            <h2>Schedule a Google Meet</h2>
+            <form id="meetForm">
+                <label for="meetTitle">Meeting Title:</label>
+                <input type="text" id="meetTitle" name="meetTitle" required>
+
+                <label for="meetDate">Date:</label>
+                <input type="date" id="meetDate" name="meetDate" required>
+
+                <label for="meetTime">Time:</label>
+                <input type="time" id="meetTime" name="meetTime" required>
+
+                <label for="meetAttendees">Attendees (comma-separated emails):</label>
+                <input type="text" id="meetAttendees" name="meetAttendees" placeholder="user1@example.com, user2@example.com">
+
+                <button type="submit" id="createMeetBtn">Create Meet</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Existing modal variables
+            const addEventModal = document.getElementById('addEventModal');
+            const closeAddEventModalBtn = document.getElementById('closeAddEventModal');
+            const saveEventBtn = document.getElementById('saveEventBtn');
+            const eventNameInput = document.getElementById('eventName');
+            const eventDateInput = document.getElementById('eventDate');
+
+            // New variables for the Google Meet modal
+            const meetModal = document.getElementById('meetModal');
+            const meetForm = document.getElementById('meetForm');
+            const closeMeetModalBtn = document.getElementById('closeMeetModal');
+            const meetTitleInput = document.getElementById('meetTitle');
+            const meetDateInput = document.getElementById('meetDate');
+            const meetTimeInput = document.getElementById('meetTime');
+            const meetAttendeesInput = document.getElementById('meetAttendees');
+
+            // Restore saved events from localStorage on page load
+            const savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+                editable: true,
+                selectable: true,
+                eventDidMount: function(info) {
+                    // This function is for custom event styling/modifications
+                },
+                // The dateClick function is triggered when a user clicks on a day cell.
+                dateClick: function(info) {
+                    // Set the date input in the modal to the clicked date
+                    meetDateInput.value = info.dateStr;
+                    // Show the new Google Meet modal
+                    meetModal.style.display = 'block';
+                },
+                events: savedEvents // Load events from localStorage
+            });
+
+            calendar.render();
+
+            // Close the Google Meet modal when the user clicks on the close button
+            closeMeetModalBtn.addEventListener('click', () => {
+                meetModal.style.display = 'none';
+                meetForm.reset();
+            });
+
+            // Close the Google Meet modal when the user clicks anywhere outside of it
+            window.addEventListener('click', (event) => {
+                if (event.target === meetModal) {
+                    meetModal.style.display = 'none';
+                    meetForm.reset();
+                }
+            });
+
+            // Handle form submission to create the Google Meet
+            meetForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                const meetTitle = meetTitleInput.value;
+                const meetDate = meetDateInput.value;
+                const meetTime = meetTimeInput.value;
+                const attendees = meetAttendeesInput.value.split(',').map(email => email.trim());
+
+                const startDateTime = new Date(`${meetDate}T${meetTime}:00`);
+                const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1-hour duration
+
+                const meetData = {
+                    title: meetTitle,
+                    start: startDateTime.toISOString(),
+                    end: endDateTime.toISOString(),
+                    attendees: attendees.map(email => ({ email }))
+                };
+
+                // Add a local event to the calendar for immediate display
+                const newEvent = {
+                    title: meetTitle,
+                    start: startDateTime,
+                    color: '#4285F4', // Google Blue
+                    description: 'Google Meet scheduled!'
+                };
+                calendar.addEvent(newEvent);
+                savedEvents.push(newEvent);
+                localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+
+                // Hide the modal and clear the form
+                meetModal.style.display = 'none';
+                meetForm.reset();
+
+                // Call your backend to create the Google Calendar event
+                try {
+                    const response = await fetch('/create-meet-event', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(meetData),
+                    });
+                    const data = await response.json();
+                    console.log('Event created successfully:', data);
+                    alert('Google Meet scheduled!');
+                } catch (error) {
+                    console.error('Error creating Google Meet:', error);
+                    alert('Failed to schedule Google Meet. Please try again.');
+                }
+            });
+            
+            // Existing event saving logic (kept for reference)
+            closeAddEventModalBtn.addEventListener('click', () => {
+                addEventModal.style.display = 'none';
+                eventNameInput.value = '';
+                eventDateInput.value = '';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === addEventModal) {
+                    addEventModal.style.display = 'none';
+                    eventNameInput.value = '';
+                    eventDateInput.value = '';
+                }
+            });
+
+            saveEventBtn.addEventListener('click', () => {
+                const eventName = eventNameInput.value;
+                const eventDate = eventDateInput.value;
+                if (eventName && eventDate) {
+                    const newEvent = {
+                        title: eventName,
+                        start: eventDate,
+                        color: 'purple',
+                        description: 'This is your custom event!'
+                    };
+                    calendar.addEvent(newEvent);
+                    savedEvents.push(newEvent);
+                    localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+                    addEventModal.style.display = 'none';
+                    eventNameInput.value = '';
+                    eventDateInput.value = '';
+                } else {
+                    alert("Please fill in both event name and date.");
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>
