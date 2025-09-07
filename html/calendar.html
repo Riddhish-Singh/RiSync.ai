@@ -26,161 +26,308 @@
             transition: background-color 0.5s ease;
         }
 
+        /* Fading in the main content for a smooth animation */
         #main-container {
             opacity: 0;
+            transform: translateY(20px);
             animation: fadeIn 1s forwards;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
         @keyframes fadeIn {
             to {
                 opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        #calendar {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #fff;
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            color: var(--primary-color);
+            margin: 0;
         }
 
-        /* Modal styles */
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        
+        .controls input[type="date"], .controls button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .controls button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .controls button:hover {
+            opacity: 0.8;
+        }
+
+        .theme-buttons {
+            display: flex;
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+        .theme-buttons button {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 2px solid #ccc;
+            cursor: pointer;
+        }
+
+        #orangeTheme { background-color: #f58220; }
+        #blueTheme { background-color: #007bff; }
+        #greenTheme { background-color: #28a745; }
+
+        .tooltip-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .fc-event-title:before {
+            content: attr(data-tooltip);
+            visibility: hidden;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%; /* Position above the event title */
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            white-space: nowrap;
+        }
+
+        .fc-event-title:hover:before {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .highlight-date {
+            background-color: #ffe799 !important;
+            border: 2px solid var(--primary-color) !important;
+        }
+
+        /* Modal styling */
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
+            z-index: 1;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
+            background-color: rgba(0,0,0,0.4);
+            animation: fadeInModal 0.3s ease-in-out;
         }
-
+        
         .modal-content {
             background-color: #fefefe;
             margin: 15% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 500px;
+            max-width: 400px;
             border-radius: 8px;
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-            position: relative;
+            animation: slideInModal 0.3s ease-in-out;
         }
 
+        @keyframes fadeInModal {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideInModal {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        
         .close-btn {
             color: #aaa;
-            float: right;
             font-size: 28px;
             font-weight: bold;
+            cursor: pointer;
         }
-
+        
         .close-btn:hover,
         .close-btn:focus {
             color: black;
             text-decoration: none;
+        }
+
+        .modal-body input {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        /* New button styling for Google Meet */
+        #createMeetLinkBtn {
+            background-color: #039BE5; /* Google Meet blue */
+            color: white;
+            border: none;
+            padding: 10px;
             cursor: pointer;
-        }
-        
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-        
-        label {
+            border-radius: 4px;
+            width: 100%;
+            margin-bottom: 10px;
             font-weight: bold;
+        }
+
+        .modal-footer {
+            text-align: right;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
             margin-top: 10px;
         }
-        
-        input[type="text"], input[type="date"], input[type="time"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
 
-        button {
-            background-color: var(--secondary-color);
+        #saveEventBtn {
+            background-color: var(--primary-color);
             color: white;
-            padding: 12px 20px;
             border: none;
+            padding: 10px 20px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-weight: bold;
         }
 
-        button:hover {
+        #saveEventBtn:hover {
             opacity: 0.8;
         }
-
     </style>
 </head>
 <body>
 
     <div id="main-container">
-        <h1><i class="fas fa-calendar-alt"></i> RiSync Calendar</h1>
+        <div class="header">
+            <h1>RiSync Calendar</h1>
+            <div class="controls">
+                <input type="date" id="dateInput">
+                <button id="goToDateBtn">Go to Date</button>
+                <button id="addEventBtn">Add Event</button>
+                <div class="theme-buttons">
+                    <button id="orangeTheme"></button>
+                    <button id="blueTheme"></button>
+                    <button id="greenTheme"></button>
+                </div>
+            </div>
+        </div>
+
         <div id='calendar'></div>
     </div>
 
     <div id="addEventModal" class="modal">
         <div class="modal-content">
-            <span class="close-btn" id="closeAddEventModal">&times;</span>
-            <h2>Add New Event</h2>
-            <label for="eventName">Event Name:</label>
-            <input type="text" id="eventName" name="eventName">
-            <label for="eventDate">Event Date:</label>
-            <input type="date" id="eventDate" name="eventDate">
-            <button id="saveEventBtn">Save Event</button>
-        </div>
-    </div>
-
-    <div id="meetModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" id="closeMeetModal">&times;</span>
-            <h2>Schedule a Google Meet</h2>
-            <form id="meetForm">
-                <label for="meetTitle">Meeting Title:</label>
-                <input type="text" id="meetTitle" name="meetTitle" required>
-
-                <label for="meetDate">Date:</label>
-                <input type="date" id="meetDate" name="meetDate" required>
-
-                <label for="meetTime">Time:</label>
-                <input type="time" id="meetTime" name="meetTime" required>
-
-                <label for="meetAttendees">Attendees (comma-separated emails):</label>
-                <input type="text" id="meetAttendees" name="meetAttendees" placeholder="user1@example.com, user2@example.com">
-
-                <button type="submit" id="createMeetBtn">Create Meet</button>
-            </form>
+            <div class="modal-header">
+                <h2>Add New Event</h2>
+                <span class="close-btn" id="closeModalBtn">&times;</span>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="eventName" placeholder="Event Name" required>
+                <input type="date" id="eventDate" required>
+                <input type="url" id="googleMeetLink" placeholder="Google Meet Link (Optional)" readonly>
+                <button id="createMeetLinkBtn">Create Google Meet Link</button>
+            </div>
+            <div class="modal-footer">
+                <button id="saveEventBtn">Save Event</button>
+            </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Existing modal variables
-            const addEventModal = document.getElementById('addEventModal');
-            const closeAddEventModalBtn = document.getElementById('closeAddEventModal');
-            const saveEventBtn = document.getElementById('saveEventBtn');
-            const eventNameInput = document.getElementById('eventName');
-            const eventDateInput = document.getElementById('eventDate');
+            // Predefined events
+            const predefinedEvents = [
+                // January
+                { title: 'New Year\'s Day', start: '2024-01-01', color: '#f58220', description: 'Happy New Year!' },
+                { title: 'Makar Sankranti', start: '2024-01-15', color: '#f58220', description: 'A Hindu festival dedicated to the deity Surya.' },
+                { title: 'Republic Day', start: '2024-01-26', color: '#f58220', description: 'Celebrates the date the Constitution of India came into force.' },
+                
+                // February
+                { title: 'Vasant Panchami', start: '2024-02-14', color: '#f58220', description: 'A festival marking the arrival of spring.' },
+                
+                // March
+                { title: 'Maha Shivaratri', start: '2024-03-08', color: '#f58220', description: 'A major festival honoring the deity Shiva.' },
+                { title: 'Holi', start: '2024-03-25', color: '#f58220', description: 'The festival of colors.' },
+                
+                // April
+                { title: 'Good Friday', start: '2024-03-29', color: '#f58220', description: 'A Christian holiday commemorating the crucifixion of Jesus.' },
+                { title: 'Ram Navami', start: '2024-04-17', color: '#f58220', description: 'Celebrates the birth of Lord Rama.' },
+                { title: 'Mahavir Jayanti', start: '2024-04-21', color: '#f58220', description: 'Celebrates the birth of Mahavira.' },
 
-            // New variables for the Google Meet modal
-            const meetModal = document.getElementById('meetModal');
-            const meetForm = document.getElementById('meetForm');
-            const closeMeetModalBtn = document.getElementById('closeMeetModal');
-            const meetTitleInput = document.getElementById('meetTitle');
-            const meetDateInput = document.getElementById('meetDate');
-            const meetTimeInput = document.getElementById('meetTime');
-            const meetAttendeesInput = document.getElementById('meetAttendees');
+                // May
+                { title: 'Eid-ul-Fitr', start: '2024-04-10', color: '#f58220', description: 'Marks the end of the month-long fast of Ramadan.' },
+                { title: 'Buddha Purnima', start: '2024-05-23', color: '#f58220', description: 'Commemorates the birth of Buddha.' },
 
-            // Restore saved events from localStorage on page load
+                // June
+                { title: 'Eid al-Adha', start: '2024-06-17', color: '#f58220', description: 'An Islamic festival celebrated worldwide.' },
+
+                // July
+                { title: 'Muharram', start: '2024-07-17', color: '#f58220', description: 'Marks the beginning of the Islamic New Year.' },
+
+                // August
+                { title: 'Independence Day', start: '2024-08-15', color: '#f58220', description: 'Celebrates India\'s independence from British rule.' },
+                { title: 'Raksha Bandhan', start: '2024-08-19', color: '#f58220', description: 'Celebrates the bond between brothers and sisters.' },
+                { title: 'Janmashtami', start: '2024-08-26', color: '#f58220', description: 'Celebrates the birth of Krishna.' },
+
+                // September
+                { title: 'Ganesh Chaturthi', start: '2024-09-07', color: '#f58220', description: 'A Hindu festival celebrating the arrival of Lord Ganesha.' },
+
+                // October
+                { title: 'Gandhi Jayanti', start: '2024-10-02', color: '#f58220', description: 'A national holiday to mark the birthday of Mahatma Gandhi.' },
+                { title: 'Dussehra', start: '2024-10-12', color: '#f58220', description: 'Celebrates the victory of good over evil.' },
+                
+                // November
+                { title: 'Diwali', start: '2024-11-01', color: '#f58220', description: 'The festival of lights.' },
+                { title: 'Govardhan Puja', start: '2024-11-02', color: '#f58220', description: 'A festival celebrating Lord Krishna.' },
+                { title: 'Bhai Dooj', start: '2024-11-03', color: '#f58220', description: 'A festival celebrating the bond between brothers and sisters.' },
+                { title: 'Guru Nanak Jayanti', start: '2024-11-15', color: '#f58220', description: 'Commemorates the birth of Guru Nanak.' },
+
+                // December
+                { title: 'Christmas', start: '2024-12-25', color: '#f58220', description: 'A Christian holiday celebrating the birth of Jesus Christ.' }
+            ];
+
+            // Load events from Local Storage
             const savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+            const allEvents = [...predefinedEvents, ...savedEvents];
 
             var calendarEl = document.getElementById('calendar');
             var calendar = new FullCalendar.Calendar(calendarEl, {
@@ -188,122 +335,150 @@
                 headerToolbar: {
                     left: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                    right: 'customYearSelect'
                 },
-                editable: true,
-                selectable: true,
+                
+                customButtons: {
+                    customYearSelect: {
+                        text: 'Select Year',
+                        click: function() {
+                            let year = prompt("Enter a year:");
+                            if (year) {
+                                let newDate = new Date(year, calendar.getDate().getMonth(), 1);
+                                calendar.gotoDate(newDate);
+                            }
+                        }
+                    }
+                },
+                
+                events: allEvents,
+
                 eventDidMount: function(info) {
-                    // This function is for custom event styling/modifications
-                },
-                // The dateClick function is triggered when a user clicks on a day cell.
-                dateClick: function(info) {
-                    // Set the date input in the modal to the clicked date
-                    meetDateInput.value = info.dateStr;
-                    // Show the new Google Meet modal
-                    meetModal.style.display = 'block';
-                },
-                events: savedEvents // Load events from localStorage
+                    // If the event has a Google Meet link, add it to the tooltip
+                    let description = info.event.extendedProps.description || '';
+                    if (info.event.extendedProps.googleMeetLink) {
+                        description += `<br><br>Google Meet: <a href="${info.event.extendedProps.googleMeetLink}" target="_blank">Join Meeting</a>`;
+                    }
+                    info.el.querySelector('.fc-event-title').setAttribute('data-tooltip', description);
+                }
             });
 
             calendar.render();
-
-            // Close the Google Meet modal when the user clicks on the close button
-            closeMeetModalBtn.addEventListener('click', () => {
-                meetModal.style.display = 'none';
-                meetForm.reset();
-            });
-
-            // Close the Google Meet modal when the user clicks anywhere outside of it
-            window.addEventListener('click', (event) => {
-                if (event.target === meetModal) {
-                    meetModal.style.display = 'none';
-                    meetForm.reset();
-                }
-            });
-
-            // Handle form submission to create the Google Meet
-            meetForm.addEventListener('submit', async (event) => {
-                event.preventDefault();
-
-                const meetTitle = meetTitleInput.value;
-                const meetDate = meetDateInput.value;
-                const meetTime = meetTimeInput.value;
-                const attendees = meetAttendeesInput.value.split(',').map(email => email.trim());
-
-                const startDateTime = new Date(`${meetDate}T${meetTime}:00`);
-                const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 1-hour duration
-
-                const meetData = {
-                    title: meetTitle,
-                    start: startDateTime.toISOString(),
-                    end: endDateTime.toISOString(),
-                    attendees: attendees.map(email => ({ email }))
-                };
-
-                // Add a local event to the calendar for immediate display
-                const newEvent = {
-                    title: meetTitle,
-                    start: startDateTime,
-                    color: '#4285F4', // Google Blue
-                    description: 'Google Meet scheduled!'
-                };
-                calendar.addEvent(newEvent);
-                savedEvents.push(newEvent);
-                localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
-
-                // Hide the modal and clear the form
-                meetModal.style.display = 'none';
-                meetForm.reset();
-
-                // Call your backend to create the Google Calendar event
-                try {
-                    const response = await fetch('/create-meet-event', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(meetData),
-                    });
-                    const data = await response.json();
-                    console.log('Event created successfully:', data);
-                    alert('Google Meet scheduled!');
-                } catch (error) {
-                    console.error('Error creating Google Meet:', error);
-                    alert('Failed to schedule Google Meet. Please try again.');
-                }
-            });
             
-            // Existing event saving logic (kept for reference)
-            closeAddEventModalBtn.addEventListener('click', () => {
+            // Highlight a selected date on the calendar
+            function highlightDate(dateString) {
+                const existingHighlights = document.querySelectorAll('.highlight-date');
+                existingHighlights.forEach(el => el.classList.remove('highlight-date'));
+
+                const dayEl = document.querySelector(`td[data-date="${dateString}"]`);
+                if (dayEl) {
+                    dayEl.classList.add('highlight-date');
+                }
+            }
+
+            const dateInput = document.getElementById('dateInput');
+            const goToDateBtn = document.getElementById('goToDateBtn');
+            const addEventBtn = document.getElementById('addEventBtn');
+            const orangeThemeBtn = document.getElementById('orangeTheme');
+            const blueThemeBtn = document.getElementById('blueTheme');
+            const greenThemeBtn = document.getElementById('greenTheme');
+            const root = document.documentElement;
+
+            const addEventModal = document.getElementById('addEventModal');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const saveEventBtn = document.getElementById('saveEventBtn');
+            const eventNameInput = document.getElementById('eventName');
+            const eventDateInput = document.getElementById('eventDate');
+            const googleMeetLinkInput = document.getElementById('googleMeetLink');
+            const createMeetLinkBtn = document.getElementById('createMeetLinkBtn');
+
+            // Function to generate a simple Google Meet-like link
+            function generateGoogleMeetLink() {
+                // A simple way to generate a semi-random string
+                const randomId = Math.random().toString(36).substring(2, 10);
+                return `https://meet.google.com/risync-${randomId}`;
+            }
+
+            // Function to change the theme color
+            function setTheme(color) {
+                root.style.setProperty('--primary-color', color);
+                calendar.getEvents().forEach(event => {
+                    if (event.backgroundColor === '#f58220' || event.backgroundColor === '#007bff' || event.backgroundColor === '#28a745') {
+                            event.setProp('backgroundColor', color);
+                    }
+                });
+            }
+
+            // Event Listeners for Theme Buttons
+            orangeThemeBtn.addEventListener('click', () => setTheme('#f58220'));
+            blueThemeBtn.addEventListener('click', () => setTheme('#007bff'));
+            greenThemeBtn.addEventListener('click', () => setTheme('#28a745'));
+
+            // Go to Date functionality
+            goToDateBtn.addEventListener('click', () => {
+                const selectedDate = dateInput.value;
+                if (selectedDate) {
+                    calendar.gotoDate(selectedDate);
+                    highlightDate(selectedDate);
+                }
+            });
+
+            // Modal functionality for adding events
+            addEventBtn.addEventListener('click', () => {
+                addEventModal.style.display = 'block';
+            });
+
+            closeModalBtn.addEventListener('click', () => {
                 addEventModal.style.display = 'none';
                 eventNameInput.value = '';
                 eventDateInput.value = '';
+                googleMeetLinkInput.value = '';
             });
 
             window.addEventListener('click', (event) => {
-                if (event.target === addEventModal) {
+                if (event.target == addEventModal) {
                     addEventModal.style.display = 'none';
                     eventNameInput.value = '';
                     eventDateInput.value = '';
+                    googleMeetLinkInput.value = '';
                 }
+            });
+
+            // New event listener for the Create Meet button
+            createMeetLinkBtn.addEventListener('click', () => {
+                const meetLink = generateGoogleMeetLink();
+                googleMeetLinkInput.value = meetLink;
             });
 
             saveEventBtn.addEventListener('click', () => {
                 const eventName = eventNameInput.value;
                 const eventDate = eventDateInput.value;
+                const googleMeetLink = googleMeetLinkInput.value;
+
                 if (eventName && eventDate) {
+                    // Create the new event object
                     const newEvent = {
                         title: eventName,
                         start: eventDate,
                         color: 'purple',
-                        description: 'This is your custom event!'
+                        description: 'This is your custom event!',
+                        googleMeetLink: googleMeetLink
                     };
+
+                    // Add the event to the calendar
                     calendar.addEvent(newEvent);
+
+                    // Add the new event to our list of saved events
                     savedEvents.push(newEvent);
+
+                    // Save the updated list to Local Storage
                     localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+
+                    // Hide the modal and clear the inputs
                     addEventModal.style.display = 'none';
                     eventNameInput.value = '';
                     eventDateInput.value = '';
+                    googleMeetLinkInput.value = '';
                 } else {
                     alert("Please fill in both event name and date.");
                 }

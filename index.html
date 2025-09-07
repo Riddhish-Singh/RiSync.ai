@@ -42,7 +42,15 @@
     @keyframes slideInDown { from { transform: translateY(-50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
+    @keyframes typing {
+        from { width: 0; }
+        to { width: 100%; }
+    }
+    @keyframes blink-caret {
+        from, to { border-color: transparent; }
+        50% { border-color: var(--white); }
+    }
+    
     header.slider-container {
       position: relative;
       height: 60vh;
@@ -108,12 +116,19 @@
       font-weight: 700;
       animation: slideInDown 1s ease-out;
     }
-
+    
     .header-content p {
       font-size: 20px;
       color: var(--white);
-      animation: slideInDown 1.2s ease-out;
       font-weight: 400;
+      border-right: 2px solid var(--white);
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0;
+      animation:
+        typing 3.5s steps(40, end) forwards,
+        blink-caret 0.75s step-end infinite;
+      animation-delay: 1.2s; /* Add a delay to let other elements appear first */
     }
 
     .slider-nav {
@@ -257,6 +272,13 @@
       opacity: 1;
       transform: translateY(0);
     }
+    
+    .feature-card.highlight {
+        animation: pulse 1s infinite alternate;
+        box-shadow: 0 0 0 5px rgba(74, 144, 226, 0.5), 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+        z-index: 10;
+        position: relative;
+    }
 
     h2 {
       font-size: 36px;
@@ -285,13 +307,37 @@
         line-height: 1.7;
         color: #555;
     }
-
-    .feature-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 30px;
-        margin-top: 40px;
+    
+    /* New CSS for modern marquee effect */
+    .scrolling-container {
+      width: 100%;
+      overflow: hidden;
+      position: relative;
     }
+    
+    .scrolling-content {
+      display: flex; /* Use flexbox to keep cards in a row */
+      animation: marquee-scroll 25s linear infinite;
+    }
+    
+    .scrolling-content:hover {
+      animation-play-state: paused;
+    }
+    
+    .feature-grid {
+      display: flex; /* Use flexbox to lay out cards horizontally */
+      flex-shrink: 0; /* Prevents the grid from shrinking */
+      gap: 30px;
+      padding: 0 15px; /* Add some padding to prevent cards from touching */
+      width: 100%; /* Ensure the grid takes full width */
+      justify-content: center; /* Center the cards inside the grid */
+    }
+    
+    @keyframes marquee-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-100%); }
+    }
+    
     .feature-card {
         background: rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
@@ -302,6 +348,7 @@
         border: 1px solid rgba(255, 255, 255, 0.18);
         box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
         transition: transform 0.3s ease, box-shadow 0.3s ease;
+        min-width: 280px; /* Ensure cards have a minimum width */
     }
     .feature-card:hover {
         transform: translateY(-10px);
@@ -564,6 +611,79 @@
     .ai-chatbot-predefined-questions button:hover { background-color: #e07a21; transform: translateY(-2px); }
     .ai-chatbot-predefined-questions button:active { transform: translateY(0); }
     
+    /* NEW: Flying Robot Animations & Styling */
+    #robot-pointer {
+        position: fixed;
+        bottom: 100px;
+        right: 100px;
+        font-size: 40px;
+        color: var(--secondary-orange);
+        display: none;
+        z-index: 1002;
+        transform-origin: bottom right;
+        opacity: 0;
+        transition: opacity 0.5s ease;
+    }
+
+    #robot-pointer i {
+      animation: flying-motion 3s ease-in-out infinite alternate;
+      text-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    
+    #robot-pointer::after {
+        content: '';
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 15px 15px 0 15px;
+        border-color: var(--secondary-orange) transparent transparent transparent;
+        bottom: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        animation: pointer-wiggle 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes fly-to-ribot {
+        from {
+            bottom: 100px;
+            right: 100px;
+            transform: scale(0.5);
+        }
+        to {
+            bottom: var(--target-y);
+            right: var(--target-x);
+            transform: scale(1.2);
+        }
+    }
+    
+    @keyframes flying-motion {
+        0% { transform: translateY(0px) rotate(5deg); }
+        50% { transform: translateY(-10px) rotate(-5deg); }
+        100% { transform: translateY(0px) rotate(5deg); }
+    }
+    
+    @keyframes pulse {
+        from { transform: scale(1); }
+        to { transform: scale(1.05); }
+    }
+    /* End of NEW CSS */
+
+    /* ADDED FOR VIDEO */
+    .video-container {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    
+    .responsive-video {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    /* END ADDED FOR VIDEO */
 
     @media (max-width: 992px) {
         .nav-links {
@@ -659,25 +779,56 @@
     <section id="features">
         <h2>Why RiSync?</h2>
         <p class="section-intro">We're not just another tutoring site. We're a community hub built on powerful, interactive tools designed to make learning collaborative, effective, and actually fun.</p>
-       <marquee> <div class="feature-grid">
-            <div class="feature-card">
-                <i class="fas fa-users"></i>
-                <h3>Peer-to-Peer Matching</h3>
-                <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
+        <div class="scrolling-container">
+            <div class="scrolling-content">
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-users"></i>
+                        <h3>Peer-to-Peer Matching</h3>
+                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3>Live Whiteboards</h3>
+                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
+                    </div>
+                    <div class="feature-card" data-ribot-target>
+                        <i class="fas fa-brain"></i>
+                        <h3>Meet RiBot, Your AI Pal</h3>
+                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
+                    </div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <i class="fas fa-users"></i>
+                        <h3>Peer-to-Peer Matching</h3>
+                        <p>Our smart AI connects you with the perfect <br> student tutor based on subject, skill level, <br> and learning style.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <h3>Live Whiteboards</h3>
+                        <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
+                    </div>
+                    <div class="feature-card" data-ribot-target>
+                        <i class="fas fa-brain"></i>
+                        <h3>Meet RiBot, Your AI Pal</h3>
+                        <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
+                    </div>
+                </div>
             </div>
-            <div class="feature-card">
-                <i class="fas fa-chalkboard-teacher"></i>
-                <h3>Live Whiteboards</h3>
-                <p>Tackle tricky problems together in <br> real-time with collaborative digital whiteboards. <br> Perfect for math and science!</p>
-            </div>
-            <div class="feature-card">
-                <i class="fas fa-brain"></i>
-                <h3>Meet RiBot, Your AI Pal</h3>
-                <p>Got a question at 3 AM? RiBot,<br> our 24/7 AI assistant, is always ready<br> to help you find answers and resources<br> related to <b>RiSync</b>.</p>
-            </div>
-        </div></marquee>
+        </div>
     </section>
 
+    <section id="ad-video">
+        <h2>See RiSync in Action</h2>
+        <p class="section-intro">Watch this quick video to see how RiSync makes learning a dynamic and collaborative experience.</p>
+        <div class="video-container">
+            <video controls playsinline poster="assets/video-thumbnail.jpg" class="responsive-video">
+                <source src="file:///C:/Users/Riddhish/Downloads/RiSync_Final_Ad.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </section>
     <section id="subjects">
       <h2>Find Your Subject</h2>
       <p class="section-intro">Whatever you're stuck on, we've got your back. Dive into our core subjects and find the support you need.</p>
@@ -771,6 +922,9 @@
 
   <div class="fab-container" id="fab-container">
     <div class="fab-options">
+        <a href="#" id="back-to-top" class="fab-option" title="Back to Top">
+            <i class="fas fa-arrow-up"></i>
+        </a>
         <button id="music-btn" class="fab-option" onclick="toggleMusic()" title="Toggle Music">
             <i class="fas fa-volume-mute"></i>
         </button>
@@ -804,8 +958,11 @@
     <div class="ai-chatbot-predefined-questions" id="ai-chatbot-predefined-questions">
       </div>
   </div>
+  
+  <div id="robot-pointer"><i class="fas fa-robot"></i></div>
 
   <script>
+    // New JavaScript for music toggle
     const audio = document.getElementById('bg-music');
     const musicButton = document.getElementById('music-btn');
     let hasInteracted = false;
@@ -843,10 +1000,25 @@
         fabContainer.classList.toggle('active');
     });
 
+    const backToTopBtn = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 300) {
+        backToTopBtn.style.display = 'flex';
+      } else {
+        backToTopBtn.style.display = 'none';
+      }
+    });
+
+    backToTopBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
     const aiChatbotContainer = document.getElementById('ai-chatbot-container');
     const aiChatbotMessages = document.getElementById('ai-chatbot-messages');
     const predefinedQuestionsDiv = document.getElementById('ai-chatbot-predefined-questions');
     const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const robotPointer = document.getElementById('robot-pointer');
 
     let currentUtterance = null;
     let currentSpeakerIcon = null;
@@ -941,6 +1113,8 @@
         });
       } else {
         aiChatbotContainer.style.display = 'flex';
+        // NEW: Start the robot animation when the chat opens
+        startRobotAnimation();
         setTimeout(() => {
             aiChatbotContainer.classList.add('active');
             aiChatbotMessages.innerHTML = `
@@ -1048,6 +1222,41 @@
             fullscreenBtn.title = isFullscreen ? 'Exit Fullscreen' : 'Toggle Fullscreen';
         }
     }
+
+    /* NEW: Flying Robot Animation Function */
+    function startRobotAnimation() {
+      const targetCard = document.querySelector('.feature-card[data-ribot-target]');
+      if (!targetCard) return;
+
+      const cardRect = targetCard.getBoundingClientRect();
+      const targetX = window.innerWidth - cardRect.right - (cardRect.width / 2) + 20;
+      const targetY = window.innerHeight - cardRect.bottom - (cardRect.height / 2) + 20;
+
+      robotPointer.style.setProperty('--target-x', `${targetX}px`);
+      robotPointer.style.setProperty('--target-y', `${targetY}px`);
+
+      robotPointer.style.display = 'block';
+      robotPointer.style.animation = 'fly-to-ribot 2s ease-in-out forwards';
+      robotPointer.style.opacity = '1';
+      
+      const originalTransform = targetCard.style.transform;
+      const originalTransition = targetCard.style.transition;
+
+      setTimeout(() => {
+        targetCard.classList.add('highlight');
+      }, 2000);
+
+      setTimeout(() => {
+        robotPointer.style.animation = '';
+        robotPointer.style.opacity = '0';
+        targetCard.classList.remove('highlight');
+      }, 5000);
+
+      setTimeout(() => {
+        robotPointer.style.display = 'none';
+      }, 5500);
+    }
+    /* End of NEW JS */
 
     const sections = document.querySelectorAll('section');
     const sectionObserver = new IntersectionObserver((entries, observer) => {
