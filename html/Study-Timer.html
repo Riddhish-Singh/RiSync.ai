@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RiSync Study Timer — Plus (Animated & Feature-packed)</title>
+<style>
+  :root{
+    --bg-1:#071027; --bg-2:#081426; --card:#071423;
+    --accent:#06b6d4; --accent-2:#7c3aed; --muted:#9aa4b2;
+    --glass:rgba(255,255,255,0.04);
+    --success:#10b981; --danger:#ef4444;
+    --glass-2: rgba(255,255,255,0.02);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,'Helvetica Neue',Arial; background:linear-gradient(180deg,var(--bg-1),var(--bg-2)); color:#e6eef6;-webkit-font-smoothing:antialiased;}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:36px;gap:24px;flex-wrap:wrap}
+  .panel{width:420px;max-width:94vw;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,0.6);position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+  /* animated particle bg */
+  .bg-canvas{position:absolute;inset:0;z-index:0;pointer-events:none;opacity:0.35}
+  header{position:relative;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  h1{font-size:18px;margin:0;letter-spacing:0.2px}
+  .sub{font-size:12px;color:var(--muted);margin-top:6px}
+  .center{display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;z-index:2}
+  .circle{width:196px;height:196px;position:relative;display:grid;place-items:center}
+  svg{width:100%;height:100%;transform:rotate(-90deg)}
+  .time{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;font-size:26px;z-index:2}
+  .time small{font-weight:600;font-size:13px;color:var(--muted)}
+  .controls{display:flex;gap:8px;justify-content:center;align-items:center;flex-wrap:wrap}
+  button{border:0;padding:8px 12px;border-radius:10px;background:var(--glass);color:var(--accent);cursor:pointer;transition:all .22s;backdrop-filter: blur(6px);}
+  button:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(6,182,212,0.08)}
+  button.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021124;box-shadow:0 10px 30px rgba(59,130,246,0.12)}
+  .small{font-size:13px;color:var(--muted)}
+  .presets{display:flex;gap:8px;justify-content:center;margin-top:6px;flex-wrap:wrap}
+  .presets button{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:6px 10px;color:var(--muted)}
+  .row{display:flex;gap:10px;align-items:center}
+  label{font-size:13px;color:var(--muted)}
+  input[type=number]{width:86px;padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+  select, input[type=range]{width:100%;}
+  .section{margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .muted{font-size:12px;color:var(--muted)}
+  .footer{margin-top:12px;font-size:12px;color:var(--muted);text-align:center}
+  .hint{margin-top:8px;font-size:12px;color:#ffd6a5}
+  .controls .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+  /* pulse ring animation */
+  .glow{filter:drop-shadow(0 0 12px rgba(6,182,212,0.25))}
+  .pulse{animation:pulse 1.8s infinite;opacity:0.9}
+  @keyframes pulse{0%{transform:scale(1);opacity:0.9}50%{transform:scale(1.04);opacity:1}100%{transform:scale(1);opacity:0.9}}
+  /* theme toggle */
+  .top-actions{display:flex;gap:8px;align-items:center}
+  .chip{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-size:13px;color:var(--muted)}
+  /* history & sparkline */
+  .meta{display:flex;gap:12px;align-items:center;justify-content:space-between;margin-top:12px}
+  .spark{width:120px;height:36px;background:transparent;border-radius:6px}
+  .history{display:flex;flex-direction:column;gap:6px;max-height:120px;overflow:auto;padding-right:6px}
+  .hist-item{display:flex;gap:8px;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.02);padding:6px;border-radius:8px;font-size:13px}
+  /* confetti container */
+  #confetti-canvas{position:absolute;inset:0;pointer-events:none;z-index:50}
+  /* modal settings */
+  .modal{position:fixed;inset:0;background:rgba(2,6,23,0.6);display:none;align-items:center;justify-content:center;z-index:60}
+  .modal .box{width:600px;max-width:94vw;background:linear-gradient(180deg, #071423, #08172a);padding:18px;border-radius:12px;border:1px solid rgba(255,255,255,0.03)}
+  .row-split{display:flex;gap:12px}
+  .flex{display:flex}
+  /* knobs */
+  .fancy-range{appearance:none;height:6px;border-radius:999px;background:linear-gradient(90deg,#263544,#123);outline:none}
+  .fancy-range::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent)}
+  /* keyboard hint */
+  .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, monospace;background:rgba(0,0,0,0.25);padding:4px 7px;border-radius:6px;font-size:12px;border:1px solid rgba(255,255,255,0.02)}
+  /* responsive tweaks */
+  @media(max-width:480px){.panel{padding:14px;border-radius:12px}.circle{width:160px;height:160px}.time{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- MAIN PANEL -->
+  <main class="panel" id="app" role="application" aria-label="RiSync Study Timer">
+    <canvas class="bg-canvas" id="bgCanvas"></canvas>
+    <canvas id="confetti-canvas"></canvas>
+
+    <header>
+      <div>
+        <h1>RiSync Study Timer — Plus</h1>
+        <div class="sub">Focus mode · Classic Beep repeats until stopped · fancy animations on finish ✨</div>
+      </div>
+      <div class="top-actions">
+        <div class="chip" id="cycleLabel">Pomodoro • Work</div>
+        <div>
+          <button class="chip" id="themeToggle" title="Toggle theme">🌙</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="center" style="margin-top:12px">
+      <!-- SVG ring + animated gradient -->
+      <div class="circle">
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <defs>
+            <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#06b6d4"/>
+              <stop offset="50%" stop-color="#7c3aed"/>
+              <stop offset="100%" stop-color="#f59e0b"/>
+            </linearGradient>
+            <filter id="f1" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <circle cx="60" cy="60" r="54" stroke="rgba(255,255,255,0.04)" stroke-width="6" fill="none"></circle>
+          <circle id="progress" cx="60" cy="60" r="54" stroke="url(#g1)" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="339.292" stroke-dashoffset="339.292" class="glow"></circle>
+        </svg>
+        <div class="time" id="timeDisplay" role="timer" aria-live="polite">
+          <div><span id="minText">25</span>:<span id="secText">00</span></div>
+          <small id="stateText">Ready • Press Start</small>
+        </div>
+      </div>
+
+      <!-- controls -->
+      <div class="controls">
+        <button id="startBtn" class="primary" aria-pressed="false">Start ▶</button>
+        <button id="pauseBtn" class="ghost">Pause ⏸</button>
+        <button id="resetBtn">Reset ⟲</button>
+        <button id="stopAlarmBtn" title="Stop alarm (if ringing)">Stop Alarm 🔕</button>
+      </div>
+
+      <!-- presets -->
+      <div class="presets" aria-hidden="false">
+        <button data-min="25">25m</button>
+        <button data-min="50">50m</button>
+        <button data-min="90">90m</button>
+        <button data-mode="pomodoro">Pomodoro</button>
+        <button data-mode="custom">Custom</button>
+      </div>
+
+      <!-- custom input -->
+      <div class="section" style="width:100%">
+        <div class="row" style="justify-content:space-between;gap:8px">
+          <div style="flex:1">
+            <label class="small">Custom time (min : sec)</label>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <input id="minutesInput" type="number" min="0" value="25" aria-label="minutes">
+              <span style="align-self:center">:</span>
+              <input id="secondsInput" type="number" min="0" max="59" value="0" aria-label="seconds">
+              <button id="applyBtn">Apply</button>
+            </div>
+          </div>
+
+          <div style="width:150px">
+            <label class="small">Volume</label>
+            <input id="volume" class="fancy-range" type="range" min="0" max="1" step="0.01" value="0.85" aria-label="volume">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:6px">
+              <span class="kbd">Space▶</span>
+              <span class="kbd">S • Start</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- alarms & ambient -->
+      <div class="section" style="width:100%">
+        <label class="small">Alarm type</label>
+        <div style="display:flex;gap:8px;margin-top:8px;align-items:center">
+          <select id="alarmSelect" aria-label="Alarm select">
+            <option value="classic">Classic Beep (webaudio)</option>
+            <option value="siren">Siren (webaudio)</option>
+            <option value="vibro">Vibrate Pattern</option>
+          </select>
+          <button id="testSound">Test Sound ▶</button>
+          <button id="openSettings">Settings ⚙️</button>
+        </div>
+
+        <div style="display:flex;gap:8px;margin-top:10px;align-items:center">
+          <label class="small">Ambient noise</label>
+          <select id="ambience" aria-label="Ambient noise">
+            <option value="none">None</option>
+            <option value="rain">Rain (loop)</option>
+            <option value="cafe">Café (loop)</option>
+          </select>
+          <button id="toggleAmb">Toggle Ambience</button>
+        </div>
+
+        <div class="muted">Tip: click any control once to unlock browser audio. Allow notifications for desktop alerts.</div>
+      </div>
+
+      <!-- meta: history + sparkline -->
+      <div class="meta" style="width:100%">
+        <div style="flex:1">
+          <div class="small">Session History</div>
+          <div class="history" id="history"></div>
+        </div>
+        <div style="width:140px;display:flex;flex-direction:column;align-items:flex-end">
+          <div class="small">Progress</div>
+          <canvas id="sparkline" class="spark" width="120" height="36" aria-hidden="true"></canvas>
+        </div>
+      </div>
+
+      <div class="footer">Made by RiSync • v2 • Keyboard: Space = Start/Pause, R = Reset, T = Test sound</div>
+    </div>
+  </main>
+
+  <!-- side panel: cycle/status quick controls -->
+  <aside class="panel" style="width:320px;max-width:94vw;">
+    <h3 style="margin:0">Session Cycles & Stats</h3>
+    <div class="sub">Switch modes, view totals, export history</div>
+
+    <div style="margin-top:12px;">
+      <label class="small">Mode</label>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="chip" id="modeWork">Work</button>
+        <button class="chip" id="modeShort">Short Break</button>
+        <button class="chip" id="modeLong">Long Break</button>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label class="small">Pomodoro settings</label>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-direction:column">
+        <div class="row-split">
+          <div style="flex:1"><label class="muted">Work (min)</label><input id="pomWork" type="number" min="1" value="25"></div>
+          <div style="flex:1"><label class="muted">Short (min)</label><input id="pomShort" type="number" min="1" value="5"></div>
+          <div style="flex:1"><label class="muted">Long (min)</label><input id="pomLong" type="number" min="1" value="15"></div>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:8px">
+          <button id="startPom" class="primary">Start Pomodoro</button>
+          <button id="exportBtn">Export CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px">
+      <label class="small">Totals</label>
+      <div style="display:flex;gap:8px;margin-top:8px;flex-direction:column">
+        <div class="hist-item"><strong id="totalSessions">0</strong><span class="muted">sessions</span></div>
+        <div class="hist-item"><strong id="totalMinutes">0</strong><span class="muted">minutes</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:12px" class="muted">Pro tip: press <span class="kbd">Space</span> to start/pause. Click "Test Sound" to ensure alarms are unlocked.</div>
+  </aside>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="modal">
+  <div class="box">
+    <h3>Settings</h3>
+    <div style="display:flex;gap:12px;margin-top:12px">
+      <div style="flex:1">
+        <label class="small">Auto-start next session</label>
+        <select id="autoNext"><option value="false">No</option><option value="true">Yes</option></select>
+      </div>
+      <div style="flex:1">
+        <label class="small">Auto-stop alarm</label>
+        <select id="autoStop"><option value="false">No (manual stop)</option><option value="true">After 30s</option></select>
+      </div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end">
+      <button id="closeModal">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- small hidden audio for ambience fallback (optional) -->
+<audio id="ambAudio" loop crossorigin="anonymous" style="display:none"></audio>
+
+<script>
+/* ===========================
+   Utility & State
+   =========================== */
+const state = {
+  initialSeconds: 25 * 60,
+  secondsLeft: 25 * 60,
+  timerId: null,
+  running: false,
+  cycle: 'work', // work | short | long
+  pomCycleCount: 0,
+  history: [], // {mode, durationMin, finishedAt, success}
+  audioCtx: null,
+  alarmPlaying: false,
+  alarmIntervalId: null,
+  ambiencePlaying: false
+};
+
+/* DOM */
+const minText = document.getElementById('minText');
+const secText = document.getElementById('secText');
+const stateText = document.getElementById('stateText');
+const progressEl = document.getElementById('progress');
+const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
+const resetBtn = document.getElementById('resetBtn');
+const stopAlarmBtn = document.getElementById('stopAlarmBtn');
+const minutesInput = document.getElementById('minutesInput');
+const secondsInput = document.getElementById('secondsInput');
+const applyBtn = document.getElementById('applyBtn');
+const presets = document.querySelectorAll('.presets button');
+const alarmSelect = document.getElementById('alarmSelect');
+const testSound = document.getElementById('testSound');
+const volumeEl = document.getElementById('volume');
+const historyEl = document.getElementById('history');
+const sparkCanvas = document.getElementById('sparkline');
+const sparkCtx = sparkCanvas.getContext('2d');
+const confettiCanvas = document.getElementById('confetti-canvas');
+const confettiCtx = confettiCanvas.getContext('2d');
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+const ambAudio = document.getElementById('ambAudio');
+const ambienceSelect = document.getElementById('ambience');
+const toggleAmb = document.getElementById('toggleAmb');
+const cycleLabel = document.getElementById('cycleLabel');
+const modal = document.getElementById('modal');
+const openSettings = document.getElementById('openSettings');
+const closeModal = document.getElementById('closeModal');
+const autoNext = document.getElementById('autoNext');
+const autoStop = document.getElementById('autoStop');
+const themeToggle = document.getElementById('themeToggle');
+
+const totalSessions = document.getElementById('totalSessions');
+const totalMinutes = document.getElementById('totalMinutes');
+
+const pomWork = document.getElementById('pomWork'),
+      pomShort = document.getElementById('pomShort'),
+      pomLong = document.getElementById('pomLong'),
+      startPom = document.getElementById('startPom'),
+      exportBtn = document.getElementById('exportBtn');
+
+/* Resize canvases */
+function fitCanvas(canvas, ctx){
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = canvas.clientWidth * ratio;
+  canvas.height = canvas.clientHeight * ratio;
+  ctx.scale(ratio, ratio);
+}
+function fitAll(){
+  // confetti
+  confettiCanvas.style.width = confettiCanvas.clientWidth + 'px';
+  confettiCanvas.style.height = confettiCanvas.clientHeight + 'px';
+  confettiCanvas.width = confettiCanvas.clientWidth * (devicePixelRatio||1);
+  confettiCanvas.height = confettiCanvas.clientHeight * (devicePixelRatio||1);
+  // bg
+  bgCanvas.width = bgCanvas.clientWidth * (devicePixelRatio||1);
+  bgCanvas.height = bgCanvas.clientHeight * (devicePixelRatio||1);
+  // sparkline
+  sparkCanvas.width = sparkCanvas.clientWidth * (devicePixelRatio||1);
+  sparkCanvas.height = sparkCanvas.clientHeight * (devicePixelRatio||1);
+}
+window.addEventListener('resize', ()=>{ fitAll(); drawBg(); drawSparkline(); });
+
+/* ===========================
+   Background particles (soft) 
+   =========================== */
+let particles = [];
+function initParticles(){
+  particles = [];
+  const N = 28;
+  for(let i=0;i<N;i++){
+    particles.push({
+      x: Math.random()*bgCanvas.clientWidth,
+      y: Math.random()*bgCanvas.clientHeight,
+      r: 6 + Math.random()*18,
+      vx: (Math.random()-0.5)*0.3,
+      vy: (Math.random()-0.5)*0.3,
+      alpha: 0.08 + Math.random()*0.14
+    });
+  }
+}
+function drawBg(){
+  const w = bgCanvas.clientWidth, h = bgCanvas.clientHeight;
+  bgCtx.clearRect(0,0,bgCanvas.width,bgCanvas.height);
+  const ratio = devicePixelRatio||1;
+  bgCtx.save();
+  bgCtx.scale(ratio, ratio);
+  // gradient stripes
+  const g = bgCtx.createLinearGradient(0,0,w, h);
+  g.addColorStop(0, 'rgba(7,18,39,0.0)');
+  g.addColorStop(1, 'rgba(18,30,46,0.0)');
+  bgCtx.fillStyle = g;
+  bgCtx.fillRect(0,0,w,h);
+  // particles
+  particles.forEach(p=>{
+    p.x += p.vx; p.y += p.vy;
+    if(p.x < -50) p.x = w+50;
+    if(p.x > w+50) p.x = -50;
+    if(p.y < -50) p.y = h+50;
+    if(p.y > h+50) p.y = -50;
+    const grd = bgCtx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+    grd.addColorStop(0, `rgba(124,58,237,${p.alpha*0.35})`);
+    grd.addColorStop(1, `rgba(6,182,212,${p.alpha*0.02})`);
+    bgCtx.fillStyle = grd;
+    bgCtx.beginPath();
+    bgCtx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    bgCtx.fill();
+  });
+  bgCtx.restore();
+}
+
+/* ===========================
+   Sparkline (simple progress history)
+   =========================== */
+function drawSparkline(){
+  const w = sparkCanvas.clientWidth, h = sparkCanvas.clientHeight;
+  const ratio = devicePixelRatio||1;
+  sparkCtx.setTransform(1,0,0,1,0,0);
+  sparkCtx.clearRect(0,0,sparkCanvas.width,sparkCanvas.height);
+  sparkCtx.scale(ratio, ratio);
+  // prepare data: last 12 durations minutes
+  const arr = state.history.slice(-12).map(s => s.durationMin);
+  if(arr.length === 0){ // placeholder
+    sparkCtx.fillStyle = 'rgba(255,255,255,0.03)';
+    sparkCtx.fillRect(0,0,w,h);
+    return;
+  }
+  const max = Math.max(...arr, 1);
+  sparkCtx.beginPath();
+  arr.forEach((v,i)=>{
+    const x = (i/(arr.length-1 || 1)) * (w-8) + 4;
+    const y = h - (v/max)*(h-8) - 4;
+    if(i===0) sparkCtx.moveTo(x,y); else sparkCtx.lineTo(x,y);
+  });
+  sparkCtx.strokeStyle = 'rgba(6,182,212,0.95)';
+  sparkCtx.lineWidth = 2;
+  sparkCtx.stroke();
+  // dots
+  arr.forEach((v,i)=>{
+    const x = (i/(arr.length-1 || 1)) * (w-8) + 4;
+    const y = h - (v/max)*(h-8) - 4;
+    sparkCtx.beginPath();
+    sparkCtx.arc(x,y,2,0,Math.PI*2);
+    sparkCtx.fillStyle = 'rgba(255,255,255,0.95)';
+    sparkCtx.fill();
+  });
+}
+
+/* ===========================
+   Confetti (on finish)
+   =========================== */
+let confettiPieces = [];
+function startConfetti(){
+  confettiPieces = [];
+  const W = confettiCanvas.clientWidth, H = confettiCanvas.clientHeight;
+  for(let i=0;i<80;i++){
+    confettiPieces.push({
+      x: Math.random()*W,
+      y: -Math.random()*H,
+      vx: (Math.random()-0.5)*4,
+      vy: 1 + Math.random()*4,
+      r: 6 + Math.random()*8,
+      color: `hsl(${Math.random()*360} 80% 60%)`,
+      rot: Math.random()*360,
+      rotV: (Math.random()-0.5)*8
+    });
+  }
+  requestAnimationFrame(confettiLoop);
+}
+function confettiLoop(){
+  const ctx = confettiCtx;
+  ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height);
+  ctx.save();
+  const ratio = devicePixelRatio||1;
+  ctx.scale(ratio, ratio);
+  const W = confettiCanvas.clientWidth, H = confettiCanvas.clientHeight;
+  confettiPieces.forEach((p,i)=>{
+    p.x += p.vx; p.y += p.vy; p.vy += 0.06;
+    p.rot += p.rotV;
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rot * Math.PI/180);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(-p.r/2, -p.r/2, p.r, p.r*0.6);
+    ctx.restore();
+  });
+  ctx.restore();
+  // stop when pieces off-screen
+  confettiPieces = confettiPieces.filter(p => p.y < confettiCanvas.clientHeight + 100);
+  if(confettiPieces.length) requestAnimationFrame(confettiLoop);
+}
+
+/* ===========================
+   WebAudio alarm (loop until stopped)
+   =========================== */
+async function getAudioCtx(){
+  if(state.audioCtx) return state.audioCtx;
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AudioContext();
+  // resume if suspended due to autoplay policy
+  if(ctx.state === 'suspended') try{ await ctx.resume(); }catch(e){}
+  state.audioCtx = ctx;
+  return ctx;
+}
+let alarmNodes = [];
+async function playAlarm(type='classic'){
+  if(state.alarmPlaying) return;
+  const ctx = await getAudioCtx();
+  const vol = Number(volumeEl.value) || 0.8;
+  // create repeating pattern by scheduling oscillators
+  state.alarmPlaying = true;
+  const master = ctx.createGain(); master.gain.value = vol; master.connect(ctx.destination);
+  if(type === 'classic'){
+    // short beep, repeat via setInterval using oscillators
+    const playOnce = ()=>{
+      const o = ctx.createOscillator();
+      o.type = 'sine';
+      o.frequency.value = 880;
+      const g = ctx.createGain();
+      g.gain.setValueAtTime(0.0001, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime+0.5);
+      o.connect(g); g.connect(master);
+      o.start();
+      setTimeout(()=>{ try{ o.stop(); }catch(e){} }, 520);
+    };
+    playOnce();
+    const iv = setInterval(playOnce, 650);
+    state.alarmIntervalId = iv;
+    alarmNodes.push(master);
+  }else if(type === 'siren'){
+    const o = ctx.createOscillator();
+    o.type = 'sawtooth';
+    const g = ctx.createGain(); g.gain.value = vol*0.7;
+    const lfo = ctx.createOscillator(); lfo.frequency.value = 6; // siren sweep
+    const lfoGain = ctx.createGain(); lfoGain.gain.value = 400;
+    lfo.connect(lfoGain);
+    lfoGain.connect(o.frequency);
+    o.connect(g); g.connect(master);
+    lfo.start();
+    o.start();
+    alarmNodes.push(o, g, lfo);
+  }else if(type === 'vibro'){
+    // vibrate-only fallback
+    if('vibrate' in navigator) navigator.vibrate([300,100,300,100,600]);
+    state.alarmIntervalId = setInterval(()=>{ if('vibrate' in navigator) navigator.vibrate([300,100,300]); }, 1500);
+  }
+  // notifications
+  if(window.Notification && Notification.permission === 'granted'){
+    new Notification('RiSync Timer', { body: "Time's up! Stop the alarm when you're done." });
+  } else if(window.Notification && Notification.permission !== 'denied'){
+    Notification.requestPermission().then(p=>{ if(p==='granted') new Notification('RiSync Timer', { body: "Time's up! Stop the alarm when you're done." }); });
+  }
+}
+async function stopAlarm(){
+  // clear intervals
+  if(state.alarmIntervalId) { clearInterval(state.alarmIntervalId); state.alarmIntervalId = null; }
+  // stop nodes
+  if(state.audioCtx && alarmNodes.length){
+    for(const n of alarmNodes){
+      try{ if(n.stop) n.stop(); if(n.disconnect) n.disconnect(); }catch(e){}
+    }
+    alarmNodes = [];
+  }
+  state.alarmPlaying = false;
+}
+
+/* ===========================
+   Timer behavior
+   =========================== */
+function formatTime(s){
+  const mm = String(Math.floor(s/60)).padStart(2,'0');
+  const ss = String(s%60).padStart(2,'0');
+  return {mm, ss};
+}
+function updateUI(){
+  const t = formatTime(state.secondsLeft);
+  minText.textContent = t.mm;
+  secText.textContent = t.ss;
+  const circumference = 2 * Math.PI * 54;
+  const progress = 1 - (state.secondsLeft/state.initialSeconds || 0);
+  const offset = circumference * (1 - progress);
+  progressEl.style.strokeDashoffset = offset;
+  // color shift
+  const pct = progress*100;
+  if(pct > 90) progressEl.style.filter = 'drop-shadow(0 0 12px rgba(239,68,68,0.28))';
+  else if(pct > 66) progressEl.style.filter = 'drop-shadow(0 0 12px rgba(245,158,11,0.24))';
+  else progressEl.style.filter = 'drop-shadow(0 0 12px rgba(6,182,212,0.24))';
+  // state text
+  stateText.textContent = state.running ? `Running • ${state.cycle.toUpperCase()}` : `Paused • ${state.cycle.toUpperCase()}`;
+}
+function tick(){
+  if(state.secondsLeft <= 0){
+    // finished
+    clearInterval(state.timerId); state.timerId = null; state.running = false;
+    updateUI();
+    // record history
+    const durationMin = Math.round(state.initialSeconds/60);
+    state.history.push({mode: state.cycle, durationMin, finishedAt: new Date().toISOString(), success: true});
+    renderHistory();
+    drawSparkline();
+    // confetti + alarm
+    startConfetti();
+    playAlarm(alarmSelect.value);
+    // auto stop alarm option
+    if(autoStop.value === 'true'){ setTimeout(()=>{ stopAlarm(); }, 30000); } // 30s
+    // auto next?
+    if(autoNext.value === 'true'){
+      setTimeout(()=>{ // small break before auto start
+        if(state.cycle === 'work'){ // go to short
+          setMode('short'); start();
+        } else {
+          setMode('work'); start();
+        }
+      }, 1800);
+    }
+    return;
+  }
+  state.secondsLeft -= 1; updateUI();
+}
+async function start(){
+  if(state.running) return;
+  // unlock audio
+  await getAudioCtx().catch(()=>{});
+  if(state.secondsLeft <= 0) state.secondsLeft = state.initialSeconds;
+  state.timerId = setInterval(tick, 1000);
+  state.running = true;
+  updateUI();
+}
+function pause(){
+  if(state.timerId){ clearInterval(state.timerId); state.timerId = null; state.running = false; updateUI(); }
+}
+function reset(){
+  pause();
+  state.secondsLeft = state.initialSeconds;
+  updateUI();
+}
+function setInitialFromInputs(){
+  const mins = Math.max(0, Math.floor(Number(minutesInput.value) || 0));
+  const secs = Math.max(0, Math.min(59, Math.floor(Number(secondsInput.value) || 0)));
+  state.initialSeconds = (mins*60)+secs || 1;
+  state.secondsLeft = state.initialSeconds;
+  updateUI();
+}
+applyBtn.addEventListener('click', ()=>{ setInitialFromInputs(); });
+
+/* presets */
+presets.forEach(btn=> btn.addEventListener('click', ()=> {
+  const min = btn.dataset.min;
+  const mode = btn.dataset.mode;
+  if(mode === 'pomodoro'){ configurePomodoro(); return; }
+  if(mode === 'custom'){ minutesInput.focus(); return; }
+  if(min){
+    minutesInput.value = min; secondsInput.value = 0; setInitialFromInputs();
+  }
+}));
+document.getElementById('startBtn').addEventListener('click', ()=>{ start(); });
+pauseBtn.addEventListener('click', ()=>{ pause(); });
+resetBtn.addEventListener('click', ()=>{ reset(); });
+stopAlarmBtn.addEventListener('click', ()=>{ stopAlarm(); });
+
+/* keyboard shortcuts */
+window.addEventListener('keydown', (e)=>{
+  if(e.code === 'Space'){ e.preventDefault(); if(state.running) pause(); else start(); }
+  if(e.key === 's' || e.key === 'S'){ start(); }
+  if(e.key === 'r' || e.key === 'R'){ reset(); }
+  if(e.key === 't' || e.key === 'T'){ testSound.click(); }
+});
+
+/* test sound */
+testSound.addEventListener('click', async ()=>{
+  await getAudioCtx().catch(()=>{});
+  // brief beep
+  await playAlarm('classic');
+  setTimeout(()=>{ stopAlarm(); }, 1200);
+});
+
+/* ambience toggle - simple audio URL fallback; since we can't include big assets, we try to use small data: URI or silence fallback */
+toggleAmb.addEventListener('click', async ()=>{
+  if(state.ambiencePlaying){ ambAudio.pause(); ambAudio.src=''; state.ambiencePlaying = false; toggleAmb.textContent = 'Toggle Ambience'; return; }
+  const v = ambienceSelect.value;
+  if(v === 'none'){ alert('Select an ambience first'); return; }
+  // try to load common CDN-free short loops -- browsers may block cross-origin; we will attempt minimal
+  if(v === 'rain'){
+    // small loop using data-uri white-noise? For brevity use WebAudio to simulate rainfall-ish noise
+    const ctx = await getAudioCtx();
+    // create noise buffer
+    const bufferSize = ctx.sampleRate * 2.0;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){
+      data[i] = (Math.random()*2-1)*0.12;
+    }
+    const src = ctx.createBufferSource(); src.buffer = buffer; src.loop = true;
+    const g = ctx.createGain(); g.gain.value = 0.15;
+    src.connect(g); g.connect(ctx.destination);
+    src.start();
+    ambAudio._wa_src = src;
+    ambAudio._wa_gain = g;
+    state.ambiencePlaying = true; toggleAmb.textContent = 'Stop Ambience';
+  } else if(v === 'cafe'){
+    // lower-volume noise
+    const ctx = await getAudioCtx();
+    const bufferSize = ctx.sampleRate * 2.0;
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){
+      data[i] = (Math.random()*2-1)*0.08;
+    }
+    const src = ctx.createBufferSource(); src.buffer = buffer; src.loop = true;
+    const g = ctx.createGain(); g.gain.value = 0.08;
+    src.connect(g); g.connect(ctx.destination);
+    src.start();
+    ambAudio._wa_src = src;
+    ambAudio._wa_gain = g;
+    state.ambiencePlaying = true; toggleAmb.textContent = 'Stop Ambience';
+  }
+});
+
+/* history rendering */
+function renderHistory(){
+  historyEl.innerHTML = '';
+  state.history.slice().reverse().forEach(h=>{
+    const el = document.createElement('div'); el.className = 'hist-item';
+    el.innerHTML = `<div><strong>${h.mode}</strong><div class="muted" style="font-size:12px">${h.durationMin} min</div></div><div class="muted" style="font-size:12px">${new Date(h.finishedAt).toLocaleTimeString()}</div>`;
+    historyEl.appendChild(el);
+  });
+  totalSessions.textContent = state.history.length;
+  totalMinutes.textContent = state.history.reduce((s, v)=> s + v.durationMin, 0);
+}
+
+/* export CSV */
+exportBtn.addEventListener('click', ()=>{
+  const rows = [['mode','durationMin','finishedAt']];
+  state.history.forEach(h => rows.push([h.mode, h.durationMin, h.finishedAt]));
+  const csv = rows.map(r => r.map(c => JSON.stringify(c)).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'risync_timer_history.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+/* settings modal */
+openSettings.addEventListener('click', ()=>{ modal.style.display='flex'; });
+closeModal.addEventListener('click', ()=>{ modal.style.display='none'; });
+
+/* theme */
+let dark = true;
+themeToggle.addEventListener('click', ()=>{
+  dark = !dark;
+  if(!dark){
+    document.documentElement.style.setProperty('--bg-1', '#f7fafc');
+    document.documentElement.style.setProperty('--bg-2', '#eef2ff');
+    document.documentElement.style.setProperty('--card', '#ffffff');
+    document.documentElement.style.setProperty('--accent', '#7c3aed');
+    document.documentElement.style.setProperty('--muted', '#475569');
+    themeToggle.textContent = '☀️';
+  }else{
+    document.documentElement.style.setProperty('--bg-1', '#071027');
+    document.documentElement.style.setProperty('--bg-2', '#081426');
+    document.documentElement.style.setProperty('--card', '#071423');
+    document.documentElement.style.setProperty('--accent', '#06b6d4');
+    document.documentElement.style.setProperty('--muted', '#9aa4b2');
+    themeToggle.textContent = '🌙';
+  }
+});
+
+/* modes & pomodoro */
+function setMode(mode){
+  state.cycle = mode;
+  cycleLabel.textContent = (mode==='work' ? 'Pomodoro • Work' : mode==='short' ? 'Pomodoro • Short Break' : 'Pomodoro • Long Break');
+  if(mode === 'work'){
+    minutesInput.value = pomWork.value; secondsInput.value = 0;
+  }else if(mode === 'short'){
+    minutesInput.value = pomShort.value; secondsInput.value = 0;
+  }else{
+    minutesInput.value = pomLong.value; secondsInput.value = 0;
+  }
+  setInitialFromInputs();
+}
+document.getElementById('modeWork').addEventListener('click', ()=>{ setMode('work'); });
+document.getElementById('modeShort').addEventListener('click', ()=>{ setMode('short'); });
+document.getElementById('modeLong').addEventListener('click', ()=>{ setMode('long'); });
+
+startPom.addEventListener('click', ()=>{
+  setMode('work'); start();
+});
+
+/* apply inputs initially + UI init */
+function initUI(){
+  state.initialSeconds = 25 * 60;
+  state.secondsLeft = state.initialSeconds;
+  updateUI();
+  fitAll();
+  initParticles();
+  drawBg();
+  drawSparkline();
+}
+initUI();
+
+/* periodically animate background */
+setInterval(drawBg, 1000/30);
+
+/* fit canvas sizes once loaded */
+setTimeout(()=>{ fitAll(); drawBg(); }, 200);
+
+/* request notification permission early */
+if('Notification' in window && Notification.permission === 'default') {
+  setTimeout(()=>{ try{ Notification.requestPermission(); }catch(e){} }, 800);
+}
+
+/* render sparkline periodically */
+setInterval(drawSparkline, 1200);
+
+/* very small accessibility: announce finishing via aria-live update */
+function announce(msg){
+  stateText.textContent = msg;
+}
+
+/* remove any external audio reliance for alarm — stop on user click */
+stopAlarmBtn.addEventListener('click', async ()=>{ await stopAlarm(); announce('Alarm stopped'); });
+
+/* save history to localStorage (persistence) */
+function saveState(){
+  try{ localStorage.setItem('risync_timer_history_v2', JSON.stringify(state.history)); }catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem('risync_timer_history_v2');
+    if(raw) state.history = JSON.parse(raw);
+  }catch(e){}
+}
+window.addEventListener('beforeunload', saveState);
+loadState(); renderHistory(); drawSparkline();
+
+/* occasionally trim history to keep UI snappy */
+setInterval(()=>{ if(state.history.length > 120) state.history.splice(0, state.history.length-120); saveState(); renderHistory(); }, 5000);
+
+/* minimal mobile-friendly fallbacks for audio unlock: call getAudioCtx when user interacts */
+['click','touchstart','keydown'].forEach(ev => window.addEventListener(ev, ()=>{ getAudioCtx().catch(()=>{}); }, {once:true}));
+
+/* ============ Fancy: animate ring on start/stop ============ */
+function animateRingPulse(){
+  progressEl.animate([
+    { transform: 'scale(1)' },
+    { transform: 'scale(1.04)' },
+    { transform: 'scale(1)' }
+  ], { duration: 1000, iterations: 1, easing: 'ease-in-out' });
+}
+startBtn.addEventListener('click', ()=>{ animateRingPulse(); });
+pauseBtn.addEventListener('click', ()=>{ animateRingPulse(); });
+
+/* ============ Confetti sizing ============ */
+function resizeConfettiCanvas(){
+  confettiCanvas.style.width = confettiCanvas.clientWidth + 'px';
+  confettiCanvas.style.height = confettiCanvas.clientHeight + 'px';
+  confettiCanvas.width = confettiCanvas.clientWidth * (devicePixelRatio||1);
+  confettiCanvas.height = confettiCanvas.clientHeight * (devicePixelRatio||1);
+}
+resizeConfettiCanvas();
+window.addEventListener('resize', resizeConfettiCanvas);
+
+/* =========================
+   Helper: configure Pomodoro quickly
+   ========================= */
+function configurePomodoro(){
+  // quick default cycle: 25/5 with autoNext false
+  pomWork.value = 25; pomShort.value = 5; pomLong.value = 15;
+  setMode('work');
+  minutesInput.value = 25; secondsInput.value = 0;
+  setInitialFromInputs();
+}
+
+/* Make code more robust: observe input changes */
+pomWork.addEventListener('change', ()=>{ if(state.cycle === 'work'){ setMode('work'); } });
+pomShort.addEventListener('change', ()=>{ if(state.cycle === 'short'){ setMode('short'); } });
+pomLong.addEventListener('change', ()=>{ if(state.cycle === 'long'){ setMode('long'); } });
+
+/* Small UX: click anywhere on ring to toggle start/pause */
+document.querySelector('.circle').addEventListener('click', ()=>{ if(state.running) pause(); else start(); });
+
+/* finalize: after finishing, show confetti and small glow */
+(function attachFinishEffects(){
+  const origTick = tick;
+  // after tick finishes, we already run confetti; keep this for extra pulse
+})();
+
+/* End of script */
+</script>
+</body>
+</html>
