@@ -851,7 +851,9 @@
     
     <nav class="sidebar" id="sidebar">
       <div class="logo-container">
-        <img src="../assets/logo.png" alt="RiSync Logo">
+       <a href="../index.html" class="logo">
+    <img src="../assets/logo.png" alt="RiSync Logo">
+</a>
         <h2>RiSync</h2>
         <p>Let's Re Sync With RiSync</p>
       </div>
@@ -2607,6 +2609,72 @@
       });
     });
   </script>
+  <script>
+  // --- Profile & Logout wiring (paste into content.html near your main init) ---
+  document.addEventListener('DOMContentLoaded', () => {
+    // Elements (already present in your markup)
+    const profileBtn = document.getElementById('profileBtn');       // settings menu profile button
+    const logoutButton = document.getElementById('logoutButton');   // settings menu logout button
+    const profileIcon = document.getElementById('profileIcon');     // avatar in header
+
+    // === PROFILE NAV ===
+    // When user clicks Profile in settings menu -> open profile.html
+    if (profileBtn) {
+      profileBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // if you use a separate profile page:
+        window.location.href = 'profile.html';
+        // OR, if you want to open in a new tab:
+        // window.open('profile.html', '_blank');
+      });
+    }
+
+    // Also allow clicking the avatar icon to go to profile page (in addition to upload)
+    if (profileIcon) {
+      profileIcon.addEventListener('dblclick', (e) => {
+        // double-click to open profile (single-click currently opens upload)
+        window.location.href = 'profile.html';
+      });
+      // Optionally: also on long-press or with a modifier:
+      profileIcon.addEventListener('click', (e) => {
+        if (e.shiftKey) { // eg. Shift+click opens profile page
+          window.location.href = 'profile.html';
+        }
+      });
+    }
+
+    // === LOGOUT HANDLER ===
+    if (logoutButton) {
+      logoutButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+
+        // Clear auth-related data (customize keys as needed)
+        localStorage.removeItem('username');
+        localStorage.removeItem('authToken');     // if you store an auth token with this key
+        // remove other keys you use for session:
+        // localStorage.removeItem('userId'); localStorage.removeItem('profileImage');
+
+        // Optionally: clear everything (uncomment if appropriate)
+        // localStorage.clear();
+
+        // Redirect to login / index page
+        window.location.href = '../index.html'; // change to your real login page file
+      });
+    }
+
+    // Helpful: protect profile.html and other pages by checking `username` on load
+    // (Add this snippet to profile.html or pages that require auth.)
+    /*
+      (function checkAuth() {
+        const username = localStorage.getItem('username');
+        if (!username) {
+          // Not logged in — redirect to login
+          window.location.href = 'login.html';
+        }
+      })();
+    */
+  });
+</script>
 </body>
 </html>
 </body>
