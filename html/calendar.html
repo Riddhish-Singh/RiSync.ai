@@ -1,490 +1,400 @@
 <!DOCTYPE html>
 <html lang='en'>
 <head>
-    <meta charset='utf-8' />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RiSync Calendar</title>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
-    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
-    
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js'></script>
+  <meta charset='utf-8' />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RiSync Calendar</title>
 
-    <style>
-        :root {
-            --primary-color: #f58220;
-            --secondary-color: #007bff;
-        }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/locales-all.min.js'></script>
 
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f0f2f5;
-            transition: background-color 0.5s ease;
-        }
-
-        /* Fading in the main content for a smooth animation */
-        #main-container {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeIn 1s forwards;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        @keyframes fadeIn {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        h1 {
-            color: var(--primary-color);
-            margin: 0;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-        
-        .controls input[type="date"], .controls button {
-            padding: 8px 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-
-        .controls button {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        .controls button:hover {
-            opacity: 0.8;
-        }
-
-        .theme-buttons {
-            display: flex;
-            gap: 5px;
-            margin-left: 10px;
-        }
-
-        .theme-buttons button {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            border: 2px solid #ccc;
-            cursor: pointer;
-        }
-
-        #orangeTheme { background-color: #f58220; }
-        #blueTheme { background-color: #007bff; }
-        #greenTheme { background-color: #28a745; }
-
-        .tooltip-container {
-            position: relative;
-            display: inline-block;
-        }
-
-        .fc-event-title:before {
-            content: attr(data-tooltip);
-            visibility: hidden;
-            background-color: black;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 5px 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%; /* Position above the event title */
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            white-space: nowrap;
-        }
-
-        .fc-event-title:hover:before {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .highlight-date {
-            background-color: #ffe799 !important;
-            border: 2px solid var(--primary-color) !important;
-        }
-
-        /* Modal styling */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            animation: fadeInModal 0.3s ease-in-out;
-        }
-        
-        .modal-content {
-            background-color: #fefefe;
-            margin: 15% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 400px;
-            border-radius: 8px;
-            animation: slideInModal 0.3s ease-in-out;
-        }
-
-        @keyframes fadeInModal {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideInModal {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ccc;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
-        }
-        
-        .close-btn {
-            color: #aaa;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close-btn:hover,
-        .close-btn:focus {
-            color: black;
-            text-decoration: none;
-        }
-
-        .modal-body input {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
-
-        /* New button styling for Google Meet */
-        #createMeetLinkBtn {
-            background-color: #039BE5; /* Google Meet blue */
-            color: white;
-            border: none;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 4px;
-            width: 100%;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .modal-footer {
-            text-align: right;
-            border-top: 1px solid #ccc;
-            padding-top: 10px;
-            margin-top: 10px;
-        }
-
-        #saveEventBtn {
-            background-color: var(--primary-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        #saveEventBtn:hover {
-            opacity: 0.8;
-        }
-    </style>
+  <style>
+    :root { --primary-color: #f58220; --muted: #6b7280; }
+    body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#f3f6fb; margin:0; padding:18px; color:#111; }
+    #main-container{ max-width:1100px; margin:0 auto; background:#fff; padding:18px; border-radius:12px; box-shadow:0 8px 30px rgba(14,20,40,0.06); }
+    .header{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    h1{ margin:0; font-size:20px; color:var(--primary-color); }
+    .controls{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    input[type="date"], button{ padding:8px 10px; border-radius:8px; border:1px solid #e6e9ef; font-size:14px; }
+    button{ background:var(--primary-color); color:#fff; border:none; cursor:pointer; }
+    .theme-buttons button{ width:30px; height:30px; border-radius:50%; border:2px solid #eee; cursor:pointer; }
+    .modal{ display:none; position:fixed; z-index:60; inset:0; background:rgba(2,6,23,0.45); }
+    .modal-content{ width:92%; max-width:720px; margin:6% auto; background:#fff; border-radius:12px; padding:16px; box-shadow:0 20px 50px rgba(2,6,23,0.18); }
+    .modal-header{ display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f4f8; padding-bottom:8px; }
+    .close-btn{ cursor:pointer; font-size:22px; color:var(--muted); }
+    .badge{ display:inline-block; padding:6px 10px; border-radius:999px; background:var(--primary-color); color:#fff; font-size:13px; }
+    .weather-box{ margin-top:12px; padding:12px; border-radius:10px; background:#fbfdff; border:1px solid #eef6ff; }
+    .events-list{ margin-top:10px; display:flex; flex-direction:column; gap:8px; }
+    .event-row{ padding:10px; border-radius:8px; border:1px solid #f3f5f9; background:#fff; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+    .event-title{ font-weight:600; }
+    .muted{ color:var(--muted); font-size:13px; }
+    @media (max-width:600px){ .header{ flex-direction:column; align-items:flex-start } }
+  </style>
 </head>
 <body>
-
-    <div id="main-container">
-        <div class="header">
-            <h1>RiSync Calendar</h1>
-            <div class="controls">
-                <input type="date" id="dateInput">
-                <button id="goToDateBtn">Go to Date</button>
-                <button id="addEventBtn">Add Event</button>
-                <div class="theme-buttons">
-                    <button id="orangeTheme"></button>
-                    <button id="blueTheme"></button>
-                    <button id="greenTheme"></button>
-                </div>
-            </div>
+  <div id="main-container">
+    <div class="header">
+      <h1>RiSync Calendar</h1>
+      <div class="controls">
+	         <a href="../index.html" class="logo">
+    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
+</a>
+        <input type="date" id="dateInput">
+        <button id="goToDateBtn">Go to Date</button>
+        <button id="addEventBtn">Add Event</button>
+        <div class="theme-buttons" style="display:flex; gap:8px;">
+          <button id="orangeTheme" style="background:#f58220"></button>
+          <button id="blueTheme" style="background:#007bff"></button>
+          <button id="greenTheme" style="background:#28a745"></button>
         </div>
-
-        <div id='calendar'></div>
+      </div>
     </div>
 
-    <div id="addEventModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Add New Event</h2>
-                <span class="close-btn" id="closeModalBtn">&times;</span>
-            </div>
-            <div class="modal-body">
-                <input type="text" id="eventName" placeholder="Event Name" required>
-                <input type="date" id="eventDate" required>
-                <input type="url" id="googleMeetLink" placeholder="Google Meet Link (Optional)" readonly>
-                <button id="createMeetLinkBtn">Create Google Meet Link</button>
-            </div>
-            <div class="modal-footer">
-                <button id="saveEventBtn">Save Event</button>
-            </div>
+    <div id='calendar'></div>
+  </div>
+
+  <!-- Add Event Modal (same as before) -->
+  <div id="addEventModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin:0">Add New Event</h3>
+        <span class="close-btn" id="closeModalBtn">&times;</span>
+      </div>
+      <div style="padding-top:10px;">
+        <input id="eventName" placeholder="Event title" style="width:100%;margin-bottom:8px;">
+        <input id="eventDate" type="date" style="width:100%;margin-bottom:8px;">
+        <input id="googleMeetLink" placeholder="Google Meet link (optional)" style="width:100%;margin-bottom:8px;" readonly>
+        <button id="createMeetLinkBtn" style="background:#0ea5e9;margin-bottom:8px;">Create Meet Link</button>
+        <div style="text-align:right;">
+          <button id="saveEventBtn">Save</button>
         </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Predefined events
-            const predefinedEvents = [
-                // January
-                { title: 'New Year\'s Day', start: '2024-01-01', color: '#f58220', description: 'Happy New Year!' },
-                { title: 'Makar Sankranti', start: '2024-01-15', color: '#f58220', description: 'A Hindu festival dedicated to the deity Surya.' },
-                { title: 'Republic Day', start: '2024-01-26', color: '#f58220', description: 'Celebrates the date the Constitution of India came into force.' },
-                
-                // February
-                { title: 'Vasant Panchami', start: '2024-02-14', color: '#f58220', description: 'A festival marking the arrival of spring.' },
-                
-                // March
-                { title: 'Maha Shivaratri', start: '2024-03-08', color: '#f58220', description: 'A major festival honoring the deity Shiva.' },
-                { title: 'Holi', start: '2024-03-25', color: '#f58220', description: 'The festival of colors.' },
-                
-                // April
-                { title: 'Good Friday', start: '2024-03-29', color: '#f58220', description: 'A Christian holiday commemorating the crucifixion of Jesus.' },
-                { title: 'Ram Navami', start: '2024-04-17', color: '#f58220', description: 'Celebrates the birth of Lord Rama.' },
-                { title: 'Mahavir Jayanti', start: '2024-04-21', color: '#f58220', description: 'Celebrates the birth of Mahavira.' },
+  <!-- Day Details Modal (opens ONLY on date click) -->
+  <div id="dayDetailsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="dayTitle" style="margin:0">Date Details</h3>
+        <span class="close-btn" id="closeDayModal">&times;</span>
+      </div>
+      <div style="padding-top:10px;">
+        <p><strong>Date:</strong> <span id="dayDate"></span></p>
 
-                // May
-                { title: 'Eid-ul-Fitr', start: '2024-04-10', color: '#f58220', description: 'Marks the end of the month-long fast of Ramadan.' },
-                { title: 'Buddha Purnima', start: '2024-05-23', color: '#f58220', description: 'Commemorates the birth of Buddha.' },
+        <div id="eventsContainer">
+          <strong>Events</strong>
+          <div class="events-list" id="eventsList"></div>
+        </div>
 
-                // June
-                { title: 'Eid al-Adha', start: '2024-06-17', color: '#f58220', description: 'An Islamic festival celebrated worldwide.' },
+        <div id="noEventsMsg" class="muted" style="display:none; margin-top:8px;">No events on this date.</div>
 
-                // July
-                { title: 'Muharram', start: '2024-07-17', color: '#f58220', description: 'Marks the beginning of the Islamic New Year.' },
+        <div id="weatherBox" class="weather-box" style="display:none;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Current weather</strong>
+            <span class="muted" id="weatherUpdated"></span>
+          </div>
+          <p id="weatherText" style="margin:6px 0 0 0;"></p>
 
-                // August
-                { title: 'Independence Day', start: '2024-08-15', color: '#f58220', description: 'Celebrates India\'s independence from British rule.' },
-                { title: 'Raksha Bandhan', start: '2024-08-19', color: '#f58220', description: 'Celebrates the bond between brothers and sisters.' },
-                { title: 'Janmashtami', start: '2024-08-26', color: '#f58220', description: 'Celebrates the birth of Krishna.' },
+          <div id="forecastForDate" style="margin-top:12px;">
+            <strong>Forecast for this date</strong>
+            <p id="forecastText" class="muted" style="margin-top:6px;"></p>
+          </div>
+        </div>
 
-                // September
-                { title: 'Ganesh Chaturthi', start: '2024-09-07', color: '#f58220', description: 'A Hindu festival celebrating the arrival of Lord Ganesha.' },
+        <div id="noWeatherMsg" class="muted" style="margin-top:8px; display:none;">Weather not available.</div>
 
-                // October
-                { title: 'Gandhi Jayanti', start: '2024-10-02', color: '#f58220', description: 'A national holiday to mark the birthday of Mahatma Gandhi.' },
-                { title: 'Dussehra', start: '2024-10-12', color: '#f58220', description: 'Celebrates the victory of good over evil.' },
-                
-                // November
-                { title: 'Diwali', start: '2024-11-01', color: '#f58220', description: 'The festival of lights.' },
-                { title: 'Govardhan Puja', start: '2024-11-02', color: '#f58220', description: 'A festival celebrating Lord Krishna.' },
-                { title: 'Bhai Dooj', start: '2024-11-03', color: '#f58220', description: 'A festival celebrating the bond between brothers and sisters.' },
-                { title: 'Guru Nanak Jayanti', start: '2024-11-15', color: '#f58220', description: 'Commemorates the birth of Guru Nanak.' },
+        <div style="text-align:right;margin-top:12px;">
+          <button id="closeDayFooter" style="background:#eef2ff;color:#111;padding:8px 12px;border-radius:8px;border:1px solid #e6e9ef;">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+		<button id="backButton" onclick="window.location.href='content.html'">← Back</button>
 
-                // December
-                { title: 'Christmas', start: '2024-12-25', color: '#f58220', description: 'A Christian holiday celebrating the birth of Jesus Christ.' }
-            ];
+<script>
+/* ---------- CONFIG ---------- */
+const FALLBACK_COORDS = { lat: 28.6139, lon: 77.2090 };
+const PRETTY = {0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Fog',48:'Depositing rime fog',51:'Light drizzle',53:'Moderate drizzle',55:'Dense drizzle',56:'Light freezing drizzle',57:'Dense freezing drizzle',61:'Light rain',63:'Moderate rain',65:'Heavy rain',66:'Light freezing rain',67:'Heavy freezing rain',71:'Light snow',73:'Moderate snow',75:'Heavy snow',77:'Snow grains',80:'Slight rain showers',81:'Moderate rain showers',82:'Violent rain showers',85:'Slight snow showers',86:'Heavy snow showers',95:'Thunderstorm',96:'Thunderstorm slight hail',99:'Thunderstorm heavy hail' };
 
-            // Load events from Local Storage
-            const savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
-            const allEvents = [...predefinedEvents, ...savedEvents];
+/* ---------- EVENTS ---------- */
+const predefinedEvents = [
+  { title: "New Year's Day", start: "2024-01-01", color: "#f58220", description: "Happy New Year!", isFestival: true },
+  { title: "Makar Sankranti", start: "2024-01-15", color: "#f58220", description: "A Hindu festival dedicated to the deity Surya.", isFestival: true },
+  { title: "Republic Day", start: "2024-01-26", color: "#f58220", description: "Celebrates the date the Constitution of India came into force.", isFestival: false },
+  { title: "Vasant Panchami", start: "2024-02-14", color: "#f58220", description: "A festival marking the arrival of spring.", isFestival: true },
+  { title: "Maha Shivaratri", start: "2024-03-08", color: "#f58220", description: "A major festival honoring the deity Shiva.", isFestival: true },
+  { title: "Holi", start: "2024-03-25", color: "#f58220", description: "The festival of colors.", isFestival: true },
+  { title: "Good Friday", start: "2024-03-29", color: "#f58220", description: "A Christian holiday commemorating the crucifixion of Jesus.", isFestival: false },
+  { title: "Ram Navami", start: "2024-04-17", color: "#f58220", description: "Celebrates the birth of Lord Rama.", isFestival: true },
+  { title: "Mahavir Jayanti", start: "2024-04-21", color: "#f58220", description: "Celebrates the birth of Mahavira.", isFestival: true },
+  { title: "Eid-ul-Fitr", start: "2024-04-10", color: "#f58220", description: "Marks the end of the month-long fast of Ramadan.", isFestival: true },
+  { title: "Buddha Purnima", start: "2024-05-23", color: "#f58220", description: "Commemorates the birth of Buddha.", isFestival: true },
+  { title: "Eid al-Adha", start: "2024-06-17", color: "#f58220", description: "An Islamic festival celebrated worldwide.", isFestival: true },
+  { title: "Muharram", start: "2024-07-17", color: "#f58220", description: "Marks the beginning of the Islamic New Year.", isFestival: true },
+  { title: "Independence Day", start: "2024-08-15", color: "#f58220", description: "Celebrates India's independence from British rule.", isFestival: false },
+  { title: "Raksha Bandhan", start: "2024-08-19", color: "#f58220", description: "Celebrates the bond between brothers and sisters.", isFestival: true },
+  { title: "Janmashtami", start: "2024-08-26", color: "#f58220", description: "Celebrates the birth of Krishna.", isFestival: true },
+  { title: "Ganesh Chaturthi", start: "2024-09-07", color: "#f58220", description: "A Hindu festival celebrating the arrival of Lord Ganesha.", isFestival: true },
+  { title: "Gandhi Jayanti", start: "2024-10-02", color: "#f58220", description: "A national holiday to mark the birthday of Mahatma Gandhi.", isFestival: false },
+  { title: "Dussehra", start: "2024-10-12", color: "#f58220", description: "Celebrates the victory of good over evil.", isFestival: true },
+  { title: "Diwali", start: "2024-11-01", color: "#f58220", description: "The festival of lights.", isFestival: true },
+  { title: "Govardhan Puja", start: "2024-11-02", color: "#f58220", description: "A festival celebrating Lord Krishna.", isFestival: true },
+  { title: "Bhai Dooj", start: "2024-11-03", color: "#f58220", description: "A festival celebrating the bond between brothers and sisters.", isFestival: true },
+  { title: "Guru Nanak Jayanti", start: "2024-11-15", color: "#f58220", description: "Commemorates the birth of Guru Nanak.", isFestival: true },
+  { title: "Christmas", start: "2024-12-25", color: "#f58220", description: "A Christian holiday celebrating the birth of Jesus Christ.", isFestival: true }
+];
 
-            var calendarEl = document.getElementById('calendar');
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: 'dayGridMonth',
-                headerToolbar: {
-                    left: 'prev,next today',
-                    center: 'title',
-                    right: 'customYearSelect'
-                },
-                
-                customButtons: {
-                    customYearSelect: {
-                        text: 'Select Year',
-                        click: function() {
-                            let year = prompt("Enter a year:");
-                            if (year) {
-                                let newDate = new Date(year, calendar.getDate().getMonth(), 1);
-                                calendar.gotoDate(newDate);
-                            }
-                        }
-                    }
-                },
-                
-                events: allEvents,
+const savedEvents = JSON.parse(localStorage.getItem('calendarEvents')) || [];
+const allEvents = [...predefinedEvents, ...savedEvents];
 
-                eventDidMount: function(info) {
-                    // If the event has a Google Meet link, add it to the tooltip
-                    let description = info.event.extendedProps.description || '';
-                    if (info.event.extendedProps.googleMeetLink) {
-                        description += `<br><br>Google Meet: <a href="${info.event.extendedProps.googleMeetLink}" target="_blank">Join Meeting</a>`;
-                    }
-                    info.el.querySelector('.fc-event-title').setAttribute('data-tooltip', description);
-                }
-            });
+let monthCache = JSON.parse(localStorage.getItem('monthForecastCache') || '{}');
 
-            calendar.render();
-            
-            // Highlight a selected date on the calendar
-            function highlightDate(dateString) {
-                const existingHighlights = document.querySelectorAll('.highlight-date');
-                existingHighlights.forEach(el => el.classList.remove('highlight-date'));
+document.addEventListener('DOMContentLoaded', async () => {
+  const calendarEl = document.getElementById('calendar');
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'customYearSelect' },
+    customButtons: {
+      customYearSelect: {
+        text: 'Select Year',
+        click: function() {
+          let year = prompt("Enter a year:");
+          if (year) calendar.gotoDate(new Date(year, calendar.getDate().getMonth(), 1));
+        }
+      }
+    },
+    events: allEvents,
+    // IMPORTANT: dateClick handles opening details. Events are inert (no modal) when clicked.
+    dateClick: function(info) {
+      // open modal for the clicked date only
+      openDayDetailsModal(info.dateStr);
+    },
+    eventClick: function(info) {
+      // do nothing on event click — keep events visible but don't open modal
+      info.jsEvent.preventDefault();
+    },
+    datesSet: async function(info) {
+      // prefetch forecast for the visible month
+      const monthStart = new Date(info.start.getFullYear(), info.start.getMonth(), 1);
+      await ensureMonthForecast(monthStart.getFullYear(), monthStart.getMonth()+1);
+    },
+    eventDidMount: function(info) {
+      if (info.el.querySelector('.fc-event-title')) {
+        const desc = info.event.extendedProps.description || '';
+        info.el.querySelector('.fc-event-title').setAttribute('title', desc);
+      }
+    }
+  });
 
-                const dayEl = document.querySelector(`td[data-date="${dateString}"]`);
-                if (dayEl) {
-                    dayEl.classList.add('highlight-date');
-                }
-            }
+  calendar.render();
 
-            const dateInput = document.getElementById('dateInput');
-            const goToDateBtn = document.getElementById('goToDateBtn');
-            const addEventBtn = document.getElementById('addEventBtn');
-            const orangeThemeBtn = document.getElementById('orangeTheme');
-            const blueThemeBtn = document.getElementById('blueTheme');
-            const greenThemeBtn = document.getElementById('greenTheme');
-            const root = document.documentElement;
+  // controls
+  document.getElementById('goToDateBtn').addEventListener('click', () => {
+    const v = document.getElementById('dateInput').value;
+    if (v) calendar.gotoDate(v);
+  });
 
-            const addEventModal = document.getElementById('addEventModal');
-            const closeModalBtn = document.getElementById('closeModalBtn');
-            const saveEventBtn = document.getElementById('saveEventBtn');
-            const eventNameInput = document.getElementById('eventName');
-            const eventDateInput = document.getElementById('eventDate');
-            const googleMeetLinkInput = document.getElementById('googleMeetLink');
-            const createMeetLinkBtn = document.getElementById('createMeetLinkBtn');
+  document.getElementById('orangeTheme').addEventListener('click', ()=> setTheme('#f58220'));
+  document.getElementById('blueTheme').addEventListener('click', ()=> setTheme('#007bff'));
+  document.getElementById('greenTheme').addEventListener('click', ()=> setTheme('#28a745'));
 
-            // Function to generate a simple Google Meet-like link
-            function generateGoogleMeetLink() {
-                // A simple way to generate a semi-random string
-                const randomId = Math.random().toString(36).substring(2, 10);
-                return `https://meet.google.com/risync-${randomId}`;
-            }
+  function setTheme(color) {
+    document.documentElement.style.setProperty('--primary-color', color);
+    calendar.getEvents().forEach(ev => {
+      if (['#f58220','#007bff','#28a745'].includes(ev.backgroundColor || ev.extendedProps.color)) {
+        ev.setProp('backgroundColor', color);
+      }
+    });
+  }
 
-            // Function to change the theme color
-            function setTheme(color) {
-                root.style.setProperty('--primary-color', color);
-                calendar.getEvents().forEach(event => {
-                    if (event.backgroundColor === '#f58220' || event.backgroundColor === '#007bff' || event.backgroundColor === '#28a745') {
-                            event.setProp('backgroundColor', color);
-                    }
-                });
-            }
+  // add event UI
+  const addEventBtn = document.getElementById('addEventBtn');
+  const addEventModal = document.getElementById('addEventModal');
+  const closeModalBtn = document.getElementById('closeModalBtn');
+  const saveEventBtn = document.getElementById('saveEventBtn');
+  const eventNameInput = document.getElementById('eventName');
+  const eventDateInput = document.getElementById('eventDate');
+  const googleMeetLinkInput = document.getElementById('googleMeetLink');
+  const createMeetLinkBtn = document.getElementById('createMeetLinkBtn');
 
-            // Event Listeners for Theme Buttons
-            orangeThemeBtn.addEventListener('click', () => setTheme('#f58220'));
-            blueThemeBtn.addEventListener('click', () => setTheme('#007bff'));
-            greenThemeBtn.addEventListener('click', () => setTheme('#28a745'));
+  createMeetLinkBtn.addEventListener('click', ()=> googleMeetLinkInput.value = `https://meet.google.com/risync-${Math.random().toString(36).slice(2,10)}`);
+  addEventBtn.addEventListener('click', ()=> addEventModal.style.display='block');
+  closeModalBtn.addEventListener('click', closeAddModal);
+  window.addEventListener('click', (e)=> { if (e.target == addEventModal) closeAddModal(); });
 
-            // Go to Date functionality
-            goToDateBtn.addEventListener('click', () => {
-                const selectedDate = dateInput.value;
-                if (selectedDate) {
-                    calendar.gotoDate(selectedDate);
-                    highlightDate(selectedDate);
-                }
-            });
+  function closeAddModal(){ addEventModal.style.display='none'; eventNameInput.value=''; eventDateInput.value=''; googleMeetLinkInput.value=''; }
 
-            // Modal functionality for adding events
-            addEventBtn.addEventListener('click', () => {
-                addEventModal.style.display = 'block';
-            });
+  saveEventBtn.addEventListener('click', ()=>{
+    const name = eventNameInput.value.trim();
+    const date = eventDateInput.value;
+    const meet = googleMeetLinkInput.value.trim();
+    if (!name || !date) return alert('Fill title + date');
+    const newEvent = { title: name, start: date, color:'purple', description:'Custom event', googleMeetLink: meet, isFestival:false };
+    calendar.addEvent(newEvent);
+    savedEvents.push(newEvent);
+    localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+    closeAddModal();
+  });
 
-            closeModalBtn.addEventListener('click', () => {
-                addEventModal.style.display = 'none';
-                eventNameInput.value = '';
-                eventDateInput.value = '';
-                googleMeetLinkInput.value = '';
-            });
+  /* ---------- Day Details modal logic ---------- */
+  const dayModal = document.getElementById('dayDetailsModal');
+  const closeDayModal = document.getElementById('closeDayModal');
+  const closeDayFooter = document.getElementById('closeDayFooter');
 
-            window.addEventListener('click', (event) => {
-                if (event.target == addEventModal) {
-                    addEventModal.style.display = 'none';
-                    eventNameInput.value = '';
-                    eventDateInput.value = '';
-                    googleMeetLinkInput.value = '';
-                }
-            });
+  closeDayModal.addEventListener('click', ()=> dayModal.style.display='none');
+  closeDayFooter.addEventListener('click', ()=> dayModal.style.display='none');
+  window.addEventListener('click', (e)=> { if (e.target == dayModal) dayModal.style.display='none'; });
 
-            // New event listener for the Create Meet button
-            createMeetLinkBtn.addEventListener('click', () => {
-                const meetLink = generateGoogleMeetLink();
-                googleMeetLinkInput.value = meetLink;
-            });
+  async function openDayDetailsModal(dateStr) {
+    // set header
+    document.getElementById('dayTitle').textContent = `Details — ${dateStr}`;
+    document.getElementById('dayDate').textContent = dateStr;
 
-            saveEventBtn.addEventListener('click', () => {
-                const eventName = eventNameInput.value;
-                const eventDate = eventDateInput.value;
-                const googleMeetLink = googleMeetLinkInput.value;
+    // list events on that date
+    const eventsListEl = document.getElementById('eventsList');
+    eventsListEl.innerHTML = '';
+    const eventsOnDate = allEvents.filter(ev => ev.start === dateStr);
+    if (eventsOnDate.length === 0) {
+      document.getElementById('eventsContainer').style.display = 'none';
+      document.getElementById('noEventsMsg').style.display = 'block';
+    } else {
+      document.getElementById('eventsContainer').style.display = 'block';
+      document.getElementById('noEventsMsg').style.display = 'none';
+      eventsOnDate.forEach(ev => {
+        const row = document.createElement('div');
+        row.className = 'event-row';
+        const left = document.createElement('div');
+        left.innerHTML = `<div class="event-title">${ev.title}</div><div class="muted">${ev.description || ''}</div>`;
+        const right = document.createElement('div');
+        right.style.textAlign = 'right';
+        const typeBadge = ev.isFestival || isEventFestival(ev) ? '<span class="badge">Festival</span>' : '';
+        const meetLink = ev.googleMeetLink ? `<div style="margin-top:6px"><a href="${ev.googleMeetLink}" target="_blank">Join Meet</a></div>` : '';
+        right.innerHTML = `${typeBadge}${meetLink}`;
+        row.appendChild(left);
+        row.appendChild(right);
+        eventsListEl.appendChild(row);
+      });
+    }
 
-                if (eventName && eventDate) {
-                    // Create the new event object
-                    const newEvent = {
-                        title: eventName,
-                        start: eventDate,
-                        color: 'purple',
-                        description: 'This is your custom event!',
-                        googleMeetLink: googleMeetLink
-                    };
+    // weather
+    document.getElementById('weatherBox').style.display='block';
+    document.getElementById('weatherText').textContent = 'Fetching current weather...';
+    document.getElementById('weatherUpdated').textContent = '';
+    document.getElementById('forecastText').textContent = '';
 
-                    // Add the event to the calendar
-                    calendar.addEvent(newEvent);
+    const coords = await getUserCoords();
+    try {
+      const cur = await fetchCurrentWeatherOpenMeteo(coords.lat, coords.lon);
+      const curDesc = PRETTY[cur.weathercode] || cur.weathercode;
+      const updatedAt = (new Date()).toLocaleString();
+      document.getElementById('weatherText').innerHTML = `${curDesc}. Temp ${cur.temperature}°C, wind ${cur.windspeed} m/s.`;
+      document.getElementById('weatherUpdated').textContent = `as of ${updatedAt}`;
 
-                    // Add the new event to our list of saved events
-                    savedEvents.push(newEvent);
+      // Forecast for clicked date: check month cache (for that date's month)
+      const evDate = new Date(dateStr);
+      const monthKey = `${evDate.getFullYear()}-${String(evDate.getMonth()+1).padStart(2,'0')}`;
+      await ensureMonthForecast(evDate.getFullYear(), evDate.getMonth()+1);
+      const monthObj = monthCache[monthKey];
+      if (monthObj && monthObj.data && monthObj.data[dateStr]) {
+        const info = monthObj.data[dateStr];
+        const pretty = PRETTY[info.weathercode] || info.weathercode;
+        document.getElementById('forecastText').textContent = `${pretty} — High ${info.maxTemp}°C, Low ${info.minTemp}°C.`;
+      } else {
+        // if not available (edge case), try to fetch single-day forecast
+        const single = await fetchForecastForDate(coords.lat, coords.lon, dateStr);
+        if (single) {
+          const pretty = PRETTY[single.weathercode] || single.weathercode;
+          document.getElementById('forecastText').textContent = `${pretty} — High ${single.maxTemp}°C, Low ${single.minTemp}°C.`;
+        } else {
+          document.getElementById('forecastText').textContent = 'Forecast not available for this date.';
+        }
+      }
 
-                    // Save the updated list to Local Storage
-                    localStorage.setItem('calendarEvents', JSON.stringify(savedEvents));
+      document.getElementById('noWeatherMsg').style.display='none';
+    } catch (err) {
+      console.error('weather fail', err);
+      document.getElementById('weatherBox').style.display='none';
+      document.getElementById('noWeatherMsg').style.display='block';
+    }
 
-                    // Hide the modal and clear the inputs
-                    addEventModal.style.display = 'none';
-                    eventNameInput.value = '';
-                    eventDateInput.value = '';
-                    googleMeetLinkInput.value = '';
-                } else {
-                    alert("Please fill in both event name and date.");
-                }
-            });
-        });
-    </script>
+    dayModal.style.display='block';
+  }
 
+  function isEventFestival(event) {
+    const keys = ['diwali','holi','eid','shiva','ganesh','navami','muharram','purnima','janmashtami','raksha','makar','buddha','christmas','guru','mahavir','dussehra','new year','sankranti'];
+    const t = (event.title||'').toLowerCase();
+    return keys.some(x=> t.includes(x));
+  }
+
+  /* ---------- Geolocation + Open-Meteo helpers (same as before) ---------- */
+  function getUserCoords() {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve(FALLBACK_COORDS);
+      navigator.geolocation.getCurrentPosition(
+        pos => resolve({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
+        err => { console.warn('geo fail, fallback', err); resolve(FALLBACK_COORDS); },
+        { timeout:8000 }
+      );
+    });
+  }
+
+  async function fetchCurrentWeatherOpenMeteo(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&timezone=auto`;
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Open-Meteo current failed');
+    const j = await res.json();
+    return { temperature: j.current_weather.temperature, windspeed: j.current_weather.windspeed, weathercode: j.current_weather.weathercode, timezone: j.timezone || '' };
+  }
+
+  async function fetchForecastForDate(lat, lon, dateStr) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&start_date=${dateStr}&end_date=${dateStr}`;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const j = await res.json();
+    if (!j.daily || !j.daily.time || j.daily.time.length===0) return null;
+    return { maxTemp: j.daily.temperature_2m_max[0], minTemp: j.daily.temperature_2m_min[0], weathercode: j.daily.weathercode ? j.daily.weathercode[0] : null };
+  }
+
+  async function ensureMonthForecast(year, month1indexed) {
+    const key = `${year}-${String(month1indexed).padStart(2,'0')}`;
+    const cached = monthCache[key];
+    if (cached && (Date.now() - cached.fetchedAt < 1000*60*60*12)) return;
+    const start = `${year}-${String(month1indexed).padStart(2,'0')}-01`;
+    const endDate = new Date(year, month1indexed, 0).getDate();
+    const end = `${year}-${String(month1indexed).padStart(2,'0')}-${String(endDate).padStart(2,'0')}`;
+    const coords = await getUserCoords();
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=auto&start_date=${start}&end_date=${end}`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('month forecast fetch failed');
+      const j = await res.json();
+      const map = {};
+      if (j && j.daily && j.daily.time && j.daily.time.length) {
+        for (let i=0;i<j.daily.time.length;i++){
+          const day = j.daily.time[i];
+          map[day] = { maxTemp: j.daily.temperature_2m_max[i], minTemp: j.daily.temperature_2m_min[i], weathercode: j.daily.weathercode ? j.daily.weathercode[i] : null };
+        }
+      }
+      monthCache[key] = { fetchedAt: Date.now(), data: map };
+      monthCache = trimMonthCache(monthCache, 6);
+      localStorage.setItem('monthForecastCache', JSON.stringify(monthCache));
+    } catch (err) {
+      console.warn('ensureMonthForecast err', err);
+    }
+  }
+
+  function trimMonthCache(cacheObj, keepMonths) {
+    const keys = Object.keys(cacheObj).sort().reverse();
+    const keep = keys.slice(0, keepMonths);
+    const out = {};
+    for (const k of keep) out[k] = cacheObj[k];
+    return out;
+  }
+
+}); // DOMContentLoaded end
+</script>
 </body>
 </html>
