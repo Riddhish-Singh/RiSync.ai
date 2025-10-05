@@ -1,0 +1,914 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Advanced Block Site Builder — Images, Videos & Animations</title>
+  <style>
+    :root{
+      --ui-bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --accent:#2563eb;
+      --radius:12px; --shadow:0 10px 30px rgba(11,17,34,0.08); --mono: Inter, system-ui, Arial;
+    }
+    *{box-sizing:border-box}
+    body{font-family:var(--mono);margin:0;background:var(--ui-bg);color:#0b1220}
+    .wrap{display:flex;gap:20px;padding:26px;min-height:100vh;align-items:flex-start}
+    aside{width:360px;background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px;overflow:auto}
+    main{flex:1;min-width:320px}
+    h1{margin:0 0 12px 0;font-size:18px}
+    label{display:block;color:var(--muted);font-size:13px;margin-top:12px;margin-bottom:6px}
+    input[type="text"], textarea, select{width:100%;padding:10px;border:1px solid #e6e9ef;border-radius:8px;font-size:14px}
+    textarea{min-height:90px;resize:vertical}
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid rgba(11,17,34,0.06);background:#fff;cursor:pointer}
+    .btn-primary{background:var(--accent);color:white;border:none}
+    .muted-small{font-size:12px;color:var(--muted);margin-top:8px}
+    .blocks-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
+    .block-row{background:#fbfdff;border:1px solid #eef3ff;padding:10px;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:grab}
+    .block-row.dragging{opacity:0.5}
+    .block-type{font-weight:700;font-size:13px}
+    .block-actions{margin-left:auto;display:flex;gap:6px}
+    .block-actions button{background:transparent;border:none;color:var(--muted);cursor:pointer}
+    .editor{margin-top:14px;background:#fff;border-radius:8px;padding:12px;border:1px solid #f0f3f7}
+    .preview-card{background:var(--panel);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .preview-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid #f0f3f7}
+    .preview-body{padding:22px}
+    .site-root{font-family:Inter,system-ui,Arial;margin:0;padding:0}
+    .container{max-width:980px;margin:0 auto;padding:28px}
+    .site-hero{text-align:center;padding:48px 18px}
+    .site-title{font-size:42px;margin:0;font-weight:800}
+    .site-sub{font-size:18px;margin-top:10px;color:var(--muted)}
+    .site-body{padding-top:16px;color:var(--text)}
+    img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin:16px auto}
+    .two-col{display:flex;gap:18px;flex-wrap:wrap}
+    .two-col>div{flex:1;min-width:220px}
+    .small{font-size:13px;color:var(--muted)}
+    .row{display:flex;gap:8px;align-items:center}
+    .spacer{flex:1}
+    label.inline{display:inline-block;margin-right:8px}
+    input[type="range"]{width:100%}
+    .filter-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .filter-button{padding:6px 8px;border-radius:6px;border:1px solid #eee;background:#fafafa;cursor:pointer;font-size:13px}
+    /* animation helper classes used in preview & export */
+    .anim-fade{animation-name:animFade;animation-fill-mode:forwards}
+    .anim-slideup{animation-name:animSlideUp;animation-fill-mode:forwards}
+    .anim-slideleft{animation-name:animSlideLeft;animation-fill-mode:forwards}
+    .anim-zoom{animation-name:animZoom;animation-fill-mode:forwards}
+    .anim-bounce{animation-name:animBounce;animation-fill-mode:forwards}
+    @keyframes animFade{from{opacity:0}to{opacity:1}}
+    @keyframes animSlideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+    @keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+    @media (max-width:920px){ .wrap{flex-direction:column;padding:12px} aside{width:100%} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <aside>
+      <h1>Advanced Builder</h1>
+
+      <div class="row" style="gap:10px;align-items:center">
+        <label style="margin:0">Theme</label>
+        <select id="themeSelect" style="margin-left:auto">
+          <option value="light">Clean Light</option>
+          <option value="dark">Midnight</option>
+          <option value="royal">Royal Lux</option>
+          <option value="luxury">Luxury</option>
+          <option value="elegant">Elegant</option>
+        </select>
+      </div>
+
+      <label>Add block</label>
+      <div class="row" style="gap:8px">
+        <button class="btn" data-add="hero">Hero</button>
+        <button class="btn" data-add="text">Text</button>
+        <button class="btn" data-add="image">Image</button>
+        <button class="btn" data-add="video">Video</button>
+        <button class="btn" data-add="two-col">2-Col</button>
+      </div>
+
+      <label style="margin-top:12px">Blocks (drag to reorder)</label>
+      <div id="blocksList" class="blocks-list" aria-live="polite"></div>
+
+      <div id="editorWrap" class="editor" aria-live="polite" style="display:none">
+        <div style="display:flex;gap:8px;align-items:center">
+          <strong id="editorTitle">Edit block</strong>
+          <div class="spacer"></div>
+          <button class="btn" id="removeBlockBtn" title="Remove block">Remove</button>
+        </div>
+        <div id="editorFields" style="margin-top:10px"></div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+    <button class="btn btn-primary" id="saveBtn">Save Project</button>
+    <button class="btn" id="downloadBtn">Download .html</button>
+    <button class="btn" id="copyBtn">Copy HTML</button>
+    <button class="btn" id="previewBtn">Open Preview</button>
+      </div>
+
+      <div class="muted-small" style="margin-top:12px">Tip: uploaded images/videos embed into the exported file. Animations are CSS-based and preserved in export.</div>
+    </aside>
+
+    <main>
+      <div class="preview-card" id="previewCard" role="region" aria-label="Live preview">
+        <div class="preview-top">
+          <div><strong>Live Preview</strong><div class="small" id="themeTag">Theme: Clean Light</div></div>
+          <div class="small" id="status">Ready</div>
+        </div>
+        <div class="preview-body" id="previewBody">
+          <!-- preview renders here -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- hidden file input for images/videos -->
+  <input id="fileInput" type="file" style="display:none" />
+
+  <script>
+    /* --------- State & helpers --------- */
+    const state = {
+      theme: 'light',
+      blocks: [
+        { id: id(), type: 'hero', data: { title: 'Your Awesome Site', subtitle: 'A one-liner that slaps', animation: { type:'fade', duration:600, delay:0 } } },
+        { id: id(), type: 'image', data: { image: null, alt:'', width:80, align:'center', filter:{name:'none',value:0}, caption:'', link:'', animation:{type:'fade',duration:600,delay:0} } },
+        { id: id(), type: 'text', data: { text: 'This is a paragraph. Edit me!', animation:{type:'none',duration:600,delay:0} } }
+      ],
+      selected: null
+	  
+    };
+// Get the project ID from the URL
+const urlParams = new URLSearchParams(window.location.search);
+const projectId = urlParams.get('project');
+
+// Load initial state from local storage
+if (projectId) {
+    const projects = getProjects();
+    const project = projects.find(p => p.id === projectId);
+    if (project && project.state) {
+        // Deep merge the saved state with the default state to avoid errors
+        state.blocks = project.state.blocks || state.blocks;
+        state.theme = project.state.theme || state.theme;
+        renderBlocksList();
+        renderPreview();
+        // open the editor for the first block if it exists
+        if(state.blocks.length) openEditor(state.blocks[0].id);
+    }
+}
+
+// Helper functions for local storage
+function getProjects() {
+    try {
+        const projects = JSON.parse(localStorage.getItem('siteBuilderProjects') || '[]');
+        return projects;
+    } catch (e) {
+        console.error('Failed to parse projects from Local Storage:', e);
+        return [];
+    }
+}
+
+function saveProjects(projects) {
+    localStorage.setItem('siteBuilderProjects', JSON.stringify(projects));
+}
+
+// Event listener for the new Save button
+const saveBtn = el('#saveBtn');
+saveBtn.addEventListener('click', () => {
+    saveCurrentProject();
+});
+
+// The core function to save the project state
+function saveCurrentProject() {
+    if (!projectId) {
+        alert("Cannot save: No project ID found in URL.");
+        return;
+    }
+    const projects = getProjects();
+    const projectIndex = projects.findIndex(p => p.id === projectId);
+    if (projectIndex === -1) {
+        alert("Cannot save: Project not found.");
+        return;
+    }
+
+    // Update the project's state in the projects array
+    projects[projectIndex].state = {
+        blocks: state.blocks,
+        theme: state.theme,
+    };
+    projects[projectIndex].date = new Date().toISOString(); // Update the saved date
+
+    saveProjects(projects);
+    flashStatus('Project saved!');
+}
+    const themePresets = {
+      light: { name:'Clean Light', vars:{'--bg':'#ffffff','--text':'#0b1220','--muted':'#64748b'} },
+      dark:  { name:'Midnight',    vars:{'--bg':'#071428','--text':'#e6eef8','--muted':'#9aa6bf'} },
+      royal: { name:'Royal Lux',   vars:{'--bg':'#0f1724','--text':'#fff1e6','--muted':'#d4b6a7'} },
+      luxury: { name:'Luxury',   vars:{'--bg':'#002366','--text':'#F5BD02','--muted':'#d4b6a7'} },
+      elegant: { name:'Elegant',   vars:{'--bg':'#358597','--text':'#F4a896','--muted':'#ffffff'} }
+    };
+
+    function id(){return 'b_' + Math.random().toString(36).slice(2,9)}
+    function el(q){return document.querySelector(q)}
+    function escapeHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;') }
+    function slugify(s){ return String(s||'site').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'') }
+
+    // DOM refs
+    const blocksList = el('#blocksList');
+    const previewBody = el('#previewBody');
+    const themeSelect = el('#themeSelect');
+    const themeTag = el('#themeTag');
+    const editorWrap = el('#editorWrap');
+    const editorFields = el('#editorFields');
+    const editorTitle = el('#editorTitle');
+    const removeBlockBtn = el('#removeBlockBtn');
+    const fileInput = el('#fileInput');
+    const downloadBtn = el('#downloadBtn');
+    const copyBtn = el('#copyBtn');
+    const previewBtn = el('#previewBtn');
+    const status = el('#status');
+
+    // init
+    renderBlocksList();
+    renderPreview();
+    updateThemeTag();
+
+    // wire add buttons
+    document.querySelectorAll('[data-add]').forEach(btn=>{
+      btn.addEventListener('click', ()=> addBlock(btn.getAttribute('data-add')));
+    });
+    themeSelect.addEventListener('change', (e)=> { state.theme = e.target.value; renderPreview(); updateThemeTag(); });
+
+    /* --------- Block ops --------- */
+    function addBlock(type){
+      const defaultData = (t=>{
+        if(t==='hero') return { title:'New Title', subtitle:'Subtitle', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='text') return { text:'New text', animation:{type:'none',duration:600,delay:0} };
+        if(t==='image') return { image:null, alt:'', width:80, align:'center', filter:{name:'none',value:0}, caption:'', link:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='video') return { video:null, srcUrl:'', provider:'file', autoplay:false, loop:false, muted:false, controls:true, poster:'', caption:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='two-col') return { left:'Left', right:'Right', animation:{type:'none',duration:600,delay:0} };
+        return {};
+      })(type);
+      const b = { id:id(), type, data: defaultData };
+      state.blocks.push(b);
+      renderBlocksList();
+      renderPreview();
+      openEditor(b.id);
+    }
+
+    function removeBlock(bid){
+      state.blocks = state.blocks.filter(b=>b.id!==bid);
+      if(state.selected===bid) state.selected=null;
+      renderBlocksList(); renderPreview();
+      if(state.selected===null) closeEditor();
+    }
+
+    function updateBlock(bid, patch){
+      state.blocks = state.blocks.map(b => b.id===bid ? { ...b, data: { ...b.data, ...patch } } : b);
+      renderPreview();
+      renderBlocksList();
+    }
+
+    function setBlockData(bid, keyPath, value){
+      // keyPath can be like 'filter.name' or 'animation.type'
+      const b = state.blocks.find(x=>x.id===bid);
+      if(!b) return;
+      const parts = keyPath.split('.');
+      let cur = b.data;
+      for(let i=0;i<parts.length-1;i++){
+        const p = parts[i];
+        cur[p] = cur[p] || {};
+        cur = cur[p];
+      }
+      cur[parts[parts.length-1]] = value;
+      updateBlock(bid, b.data);
+    }
+
+    /* --------- Drag reorder --------- */
+    let dragId = null;
+    function renderBlocksList(){
+      blocksList.innerHTML = '';
+      state.blocks.forEach(b=>{
+        const row = document.createElement('div');
+        row.className = 'block-row';
+        row.draggable = true;
+        row.dataset.id = b.id;
+        row.innerHTML = `<div class="block-type">${b.type.toUpperCase()}</div>
+                         <div class="small" style="margin-left:8px">${blockSummary(b)}</div>
+                         <div class="block-actions">
+                           <button title="Edit">✏️</button>
+                           <button title="Duplicate">📄</button>
+                         </div>`;
+        row.querySelector('button[title="Edit"]').addEventListener('click', ()=> openEditor(b.id));
+        row.querySelector('button[title="Duplicate"]').addEventListener('click', ()=> duplicateBlock(b.id));
+        row.addEventListener('dragstart', e=>{ dragId=b.id; row.classList.add('dragging'); e.dataTransfer.effectAllowed='move' });
+        row.addEventListener('dragend', ()=>{ dragId=null; row.classList.remove('dragging') });
+        row.addEventListener('dragover', e=> e.preventDefault());
+        row.addEventListener('drop', e=>{ e.preventDefault(); if(!dragId||dragId===b.id) return; reorderBlocks(dragId,b.id); renderBlocksList(); renderPreview(); });
+        blocksList.appendChild(row);
+      });
+    }
+
+    function blockSummary(b){
+      if(b.type==='hero') return escapeHtml(b.data.title||'');
+      if(b.type==='text') return (String(b.data.text||'').slice(0,40) + ((b.data.text||'').length>40?'…':''));
+      if(b.type==='image') return b.data.image ? b.data.image.name : '[empty image]';
+      if(b.type==='video') return b.data.video ? b.data.video.name || b.data.srcUrl : (b.data.srcUrl||'[video]');
+      if(b.type==='two-col') return escapeHtml(String(b.data.left||'').slice(0,20)) + ' / ' + escapeHtml(String(b.data.right||'').slice(0,20));
+      return '';
+    }
+
+    function reorderBlocks(fromId,toId){
+      const arr=[...state.blocks];
+      const fi = arr.findIndex(x=>x.id===fromId), ti = arr.findIndex(x=>x.id===toId);
+      if(fi===-1||ti===-1) return;
+      const [m] = arr.splice(fi,1);
+      arr.splice(ti,0,m);
+      state.blocks = arr;
+    }
+
+    function duplicateBlock(bid){
+      const b = state.blocks.find(x=>x.id===bid);
+      if(!b) return;
+      const copy = JSON.parse(JSON.stringify(b)); copy.id = id();
+      state.blocks.push(copy); renderBlocksList(); renderPreview();
+    }
+
+    /* --------- Editor UI --------- */
+    function openEditor(bid){
+      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
+      state.selected = bid;
+      editorWrap.style.display = 'block';
+      editorTitle.textContent = 'Edit: ' + b.type.toUpperCase();
+      editorFields.innerHTML = '';
+      // common: animation controls
+      const animSection = document.createElement('div');
+      animSection.innerHTML = `<label class="inline">Animation</label>
+        <select id="animType">
+          <option value="none">None</option>
+          <option value="fade">Fade</option>
+          <option value="slideup">Slide Up</option>
+          <option value="slideleft">Slide Left</option>
+          <option value="zoom">Zoom</option>
+          <option value="bounce">Bounce</option>
+        </select>
+        <label class="inline" style="margin-top:8px">Duration (ms)</label>
+        <input id="animDur" type="number" value="${b.data.animation?.duration||600}" />
+        <label class="inline" style="margin-top:8px">Delay (ms)</label>
+        <input id="animDelay" type="number" value="${b.data.animation?.delay||0}" />`;
+      editorFields.appendChild(animSection);
+      const animType = editorFields.querySelector('#animType');
+      const animDur = editorFields.querySelector('#animDur');
+      const animDelay = editorFields.querySelector('#animDelay');
+      animType.value = b.data.animation?.type || 'none';
+      animDur.addEventListener('input', ()=> setBlockData(bid,'animation.duration',Number(animDur.value||0)));
+      animDelay.addEventListener('input', ()=> setBlockData(bid,'animation.delay',Number(animDelay.value||0)));
+      animType.addEventListener('change', ()=> setBlockData(bid,'animation.type',animType.value));
+
+      // type-specific fields
+      if(b.type==='hero'){
+        addField('Title', b.data.title||'', v=> updateBlock(bid,{ title:v }));
+        addField('Subtitle', b.data.subtitle||'', v=> updateBlock(bid,{ subtitle:v }));
+      }
+      if(b.type==='text'){
+        addTextarea('Text', b.data.text||'', v=> updateBlock(bid,{ text:v }));
+      }
+      if(b.type==='two-col'){
+        addTextarea('Left column', b.data.left||'', v=> updateBlock(bid,{ left:v }));
+        addTextarea('Right column', b.data.right||'', v=> updateBlock(bid,{ right:v }));
+      }
+      if(b.type==='image'){
+        addField('Alt text', b.data.alt||'', v=> updateBlock(bid,{ alt:v }));
+        addRange('Width %', b.data.width||80, 20,100, v=> updateBlock(bid,{ width: Number(v) }));
+        addSelect('Alignment', ['left','center','right'], b.data.align||'center', v=> updateBlock(bid,{ align:v }));
+        addFilterControls(bid, b.data.filter || {name:'none',value:0});
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        addField('Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        // image upload / replace / remove
+        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+        const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent = b.data.image ? 'Replace image' : 'Upload image';
+        uploadBtn.addEventListener('click', ()=> { fileInput.accept='image/*'; fileInput.onchange = handleFileForImage(bid); fileInput.click(); });
+        wrap.appendChild(uploadBtn);
+        if(b.data.image){
+          const rm = document.createElement('button'); rm.className='btn'; rm.style.marginLeft='8px'; rm.textContent='Remove';
+          rm.addEventListener('click', ()=> { updateBlock(bid,{ image:null }); openEditor(bid); });
+          wrap.appendChild(rm);
+          // preview thumbnail
+          const thumb = document.createElement('div'); thumb.style.marginTop='8px';
+          thumb.innerHTML = `<img src="${b.data.image.dataURL}" alt="${escapeHtml(b.data.alt||'')}" style="max-width:100%;border-radius:6px">`;
+          wrap.appendChild(thumb);
+        }
+        editorFields.appendChild(wrap);
+      }
+      if(b.type==='video'){
+        addSelect('Video source', ['file','youtube','vimeo'], b.data.provider||'file', v=> updateBlock(bid,{ provider:v }));
+        addField('Video URL (for YouTube/Vimeo)', b.data.srcUrl||'', v=> updateBlock(bid,{ srcUrl:v }));
+        addCheckbox('Autoplay', b.data.autoplay||false, v=> updateBlock(bid,{ autoplay:v }));
+        addCheckbox('Loop', b.data.loop||false, v=> updateBlock(bid,{ loop:v }));
+        addCheckbox('Muted', b.data.muted||false, v=> updateBlock(bid,{ muted:v }));
+        addCheckbox('Show controls', b.data.controls===undefined?true:b.data.controls, v=> updateBlock(bid,{ controls:v }));
+        addField('Poster image URL (optional)', b.data.poster||'', v=> updateBlock(bid,{ poster:v }));
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        // upload file button
+        const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+        const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent='Upload video file';
+        uploadBtn.addEventListener('click', ()=> { fileInput.accept='video/*'; fileInput.onchange = handleFileForVideo(bid); fileInput.click(); });
+        wrap.appendChild(uploadBtn);
+        if(b.data.video){
+          const p = document.createElement('div'); p.style.marginTop='8px'; p.innerHTML = `<div class="small">Uploaded: ${escapeHtml(b.data.video.name||'video')}</div>`;
+          wrap.appendChild(p);
+        }
+        editorFields.appendChild(wrap);
+      }
+
+      removeBlockBtn.onclick = ()=> { if(confirm('Remove this block?')) removeBlock(bid) };
+    }
+
+    function closeEditor(){ editorWrap.style.display='none'; state.selected=null; }
+
+    function addField(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='text'; input.value = value||''; input.style.marginTop='6px';
+      input.addEventListener('input', ()=> onChange(input.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(input);
+    }
+    function addTextarea(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const ta = document.createElement('textarea'); ta.value = value||''; ta.style.marginTop='6px';
+      ta.addEventListener('input', ()=> onChange(ta.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(ta);
+    }
+    function addRange(labelText, value, min, max, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
+      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
+      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); });
+      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
+    }
+    function addSelect(labelText, options, selectedVal, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
+      sel.addEventListener('change', ()=> onChange(sel.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(sel);
+    }
+    function addCheckbox(labelText, checked, onChange){
+      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
+      input.addEventListener('change', ()=> onChange(input.checked));
+      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
+      wrap.appendChild(input); wrap.appendChild(lbl);
+      editorFields.appendChild(wrap);
+    }
+
+    function addFilterControls(bid, filter){
+      const lbl = document.createElement('label'); lbl.textContent='Filter'; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{
+        const opt = document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt);
+      });
+      const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=200; slider.value=filter.value||0; slider.style.marginTop='6px';
+      const val = document.createElement('div'); val.className='small'; val.textContent = filter.value + (filter.name==='blur' ? 'px' : '%');
+      sel.addEventListener('change', ()=> { setBlockData(bid,'filter.name',sel.value); updateFilterLabel(); });
+      slider.addEventListener('input', ()=> { setBlockData(bid,'filter.value',Number(slider.value)); updateFilterLabel(); });
+      function updateFilterLabel(){ const f=sel.value; const v=slider.value; val.textContent = v + (f==='blur' ? 'px' : '%'); }
+      editorFields.appendChild(lbl); editorFields.appendChild(sel); editorFields.appendChild(slider); editorFields.appendChild(val);
+    }
+
+    /* --------- File handlers for image/video uploads --------- */
+    function handleFileForImage(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> {
+          updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } });
+          openEditor(bid);
+        };
+        reader.readAsDataURL(file);
+        fileInput.value = '';
+      };
+    }
+
+    function handleFileForVideo(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> {
+          updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result }, provider:'file', srcUrl: '' });
+          openEditor(bid);
+        };
+        reader.readAsDataURL(file);
+        fileInput.value = '';
+      };
+    }
+
+    /* --------- Preview rendering (applies filters & animations inline) --------- */
+    function renderPreview(){
+      previewBody.innerHTML = '';
+      const root = document.createElement('div'); root.className='site-root';
+      const container = document.createElement('div'); container.className='container';
+      // apply theme quick inline to preview (not CSS vars export — handled on export)
+      const theme = themePresets[state.theme];
+      container.style.background = theme.vars['--bg'];
+      container.style.color = theme.vars['--text'];
+
+      state.blocks.forEach(b=>{
+        const wrapper = document.createElement('div');
+        wrapper.style.margin = '18px 0';
+        // animation
+        const anim = (b.data.animation || {type:'none',duration:600,delay:0});
+        if(anim && anim.type && anim.type!=='none'){
+          wrapper.classList.add('anim-' + (anim.type==='slideup'?'slideup':anim.type==='slideleft'?'slideleft':anim.type));
+          wrapper.style.animationDuration = (anim.duration||600) + 'ms';
+          wrapper.style.animationDelay = (anim.delay||0) + 'ms';
+        }
+        // block types
+        if(b.type==='hero'){
+          const header = document.createElement('div'); header.className='site-hero';
+          const h = document.createElement('h1'); h.className='site-title'; h.textContent = b.data.title||'';
+          const p = document.createElement('p'); p.className='site-sub'; p.textContent = b.data.subtitle||'';
+          header.appendChild(h); header.appendChild(p); wrapper.appendChild(header);
+        } else if(b.type==='text'){
+          const p = document.createElement('p'); p.style.whiteSpace='pre-wrap'; p.textContent = b.data.text||''; wrapper.appendChild(p);
+        } else if(b.type==='two-col'){
+          const wrap = document.createElement('div'); wrap.className='two-col';
+          const l = document.createElement('div'); l.innerHTML = '<div style="white-space:pre-wrap">' + escapeHtml(b.data.left||'') + '</div>';
+          const r = document.createElement('div'); r.innerHTML = '<div style="white-space:pre-wrap">' + escapeHtml(b.data.right||'') + '</div>';
+          wrap.appendChild(l); wrap.appendChild(r); wrapper.appendChild(wrap);
+        } else if(b.type==='image'){
+          // image wrapper with alignment & width
+          const align = b.data.align || 'center';
+          const imgWidth = (b.data.width||80) + '%';
+          const imgWrap = document.createElement('div'); imgWrap.style.textAlign = align;
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank';
+            const img = document.createElement('img'); img.className='responsive'; img.style.width = imgWidth;
+            if(b.data.image && b.data.image.dataURL) img.src = b.data.image.dataURL; else img.alt='[empty image]';
+            applyFilterToElement(img, b.data.filter);
+            a.appendChild(img); imgWrap.appendChild(a);
+          } else {
+            const img = document.createElement('img'); img.className='responsive'; img.style.width = imgWidth;
+            if(b.data.image && b.data.image.dataURL) img.src = b.data.image.dataURL; else img.alt='[empty image]';
+            applyFilterToElement(img, b.data.filter);
+            imgWrap.appendChild(img);
+          }
+          if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; imgWrap.appendChild(cap); }
+          wrapper.appendChild(imgWrap);
+        } else if(b.type==='video'){
+          const vidWrap = document.createElement('div'); vidWrap.style.textAlign = 'center';
+          if(b.data.provider === 'file' && b.data.video && b.data.video.dataURL){
+            const vid = document.createElement('video'); vid.src = b.data.video.dataURL; vid.className='responsive';
+            vid.style.maxWidth = '100%'; vid.style.height = 'auto';
+            if(b.data.poster) vid.poster = b.data.poster;
+            if(b.data.autoplay) vid.autoplay = true;
+            if(b.data.loop) vid.loop = true;
+            if(b.data.muted) vid.muted = true;
+            vid.controls = !!b.data.controls;
+            vidWrap.appendChild(vid);
+          } else if(b.data.provider === 'youtube' && b.data.srcUrl){
+            // create iframe embed (simple)
+            const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
+            iframe.src = normalizeYoutubeEmbed(b.data.srcUrl);
+            iframe.setAttribute('frameborder','0'); iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'); iframe.allowFullscreen = true;
+            vidWrap.appendChild(iframe);
+          } else if(b.data.provider === 'vimeo' && b.data.srcUrl){
+            const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
+            iframe.src = normalizeVimeoEmbed(b.data.srcUrl);
+            iframe.setAttribute('frameborder','0'); iframe.allowFullscreen = true;
+            vidWrap.appendChild(iframe);
+          } else {
+            vidWrap.innerHTML = '<div class="small">No video</div>';
+          }
+          if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; vidWrap.appendChild(cap); }
+          wrapper.appendChild(vidWrap);
+        }
+        container.appendChild(wrapper);
+      });
+
+      root.appendChild(container);
+      previewBody.appendChild(root);
+    }
+
+    function applyFilterToElement(elm, filter){
+      if(!filter || filter.name==='none') { elm.style.filter='none'; return; }
+      const n = filter.name, v = Number(filter.value||0);
+      switch(n){
+        case 'grayscale': elm.style.filter = `grayscale(${v}%)`; break;
+        case 'sepia': elm.style.filter = `sepia(${v}%)`; break;
+        case 'blur': elm.style.filter = `blur(${v}px)`; break;
+        case 'brightness': elm.style.filter = `brightness(${v}%)`; break;
+        case 'contrast': elm.style.filter = `contrast(${v}%)`; break;
+        case 'saturate': elm.style.filter = `saturate(${v}%)`; break;
+        default: elm.style.filter='none';
+      }
+    }
+
+    /* --------- File handlers --------- */
+    function handleFileForImage(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> { updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } }); openEditor(bid); };
+        reader.readAsDataURL(file);
+        fileInput.value='';
+      };
+    }
+    function handleFileForVideo(bid){
+      return function(e){
+        const file = (e.target.files||[])[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev)=> { updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result } , provider:'file', srcUrl:'' }); openEditor(bid); };
+        reader.readAsDataURL(file);
+        fileInput.value='';
+      };
+    }
+
+    /* --------- Editor helpers previously used above --------- */
+    function setBlockData(bid,keyPath,value){
+      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
+      const parts = keyPath.split('.');
+      let cur = b.data;
+      for(let i=0;i<parts.length-1;i++){ const p=parts[i]; cur[p]=cur[p]||{}; cur = cur[p]; }
+      cur[parts[parts.length-1]] = value;
+      updateBlock(bid, b.data);
+    }
+
+    /* --------- helper UI field creators reused here (redeclared for scope) --------- */
+    function addField(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='text'; input.value = value||''; input.style.marginTop='6px';
+      input.addEventListener('input', ()=> onChange(input.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(input);
+    }
+    function addTextarea(labelText, value, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const ta = document.createElement('textarea'); ta.value=value||''; ta.style.marginTop='6px';
+      ta.addEventListener('input', ()=> onChange(ta.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(ta);
+    }
+    function addRange(labelText, value, min, max, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
+      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
+      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); } );
+      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
+    }
+    function addSelect(labelText, options, selectedVal, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
+      sel.addEventListener('change', ()=> onChange(sel.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(sel);
+    }
+    function addCheckbox(labelText, checked, onChange){
+      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
+      input.addEventListener('change', ()=> onChange(input.checked));
+      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
+      wrap.appendChild(input); wrap.appendChild(lbl);
+      editorFields.appendChild(wrap);
+    }
+
+    /* --------- Video helpers (normalize embed URLs) --------- */
+    function normalizeYoutubeEmbed(url){
+      // accepts youtu.be or youtube.com/watch?v=ID
+      try{
+        const u = new URL(url);
+        let id='';
+        if(u.hostname.includes('youtu.be')) id = u.pathname.slice(1);
+        if(u.hostname.includes('youtube.com')) id = u.searchParams.get('v');
+        if(!id) return url;
+        return 'https://www.youtube.com/embed/' + id + '?rel=0';
+      }catch(e){ return url; }
+    }
+    function normalizeVimeoEmbed(url){
+      try{
+        const u = new URL(url);
+        const parts = u.pathname.split('/'); const id = parts.pop() || parts.pop();
+        if(!id) return url;
+        return 'https://player.vimeo.com/video/' + id;
+      }catch(e){ return url; }
+    }
+
+    /* --------- Export: generate HTML with inline CSS + embedded assets + animations/filters --------- */
+    function generateExportHtml(){
+      const theme = themePresets[state.theme];
+      const themeCssVars = Object.entries(theme.vars).map(([k,v])=>`${k}:${v};`).join('');
+      const themeCss = `:root{${themeCssVars}} body{margin:0;font-family:Inter,system-ui,Arial;background:var(--bg);color:var(--text)}`;
+      const sharedCss = `
+.container{max-width:980px;margin:0 auto;padding:28px}
+.site-hero{text-align:center;padding:48px 18px}
+.site-title{font-size:42px;margin:0;font-weight:800;color:var(--text)}
+.site-sub{font-size:18px;margin-top:10px;color:var(--muted)}
+.site-body{padding-top:16px;color:var(--text)}
+img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin:16px auto}
+.two-col{display:flex;gap:18px;flex-wrap:wrap}
+.two-col>div{flex:1;min-width:220px}
+.anim-fade{animation-name:animFade;animation-fill-mode:forwards}
+.anim-slideup{animation-name:animSlideUp;animation-fill-mode:forwards}
+.anim-slideleft{animation-name:animSlideLeft;animation-fill-mode:forwards}
+.anim-zoom{animation-name:animZoom;animation-fill-mode:forwards}
+.anim-bounce{animation-name:animBounce;animation-fill-mode:forwards}
+@keyframes animFade{from{opacity:0}to{opacity:1}}
+@keyframes animSlideUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
+@keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
+@keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+`;
+      // build blocks html
+      const blocksHtml = state.blocks.map(b=>{
+        const anim = b.data.animation || {type:'none',duration:600,delay:0};
+        const animClass = anim.type && anim.type!=='none' ? `class="anim-${anim.type}" style="animation-duration:${anim.duration}ms;animation-delay:${anim.delay}ms;"` : '';
+        if(b.type==='hero'){
+          return `<header ${animClass} class="site-hero"><h1 class="site-title">${escapeHtml(b.data.title||'')}</h1><p class="site-sub">${escapeHtml(b.data.subtitle||'')}</p></header>`;
+        }
+        if(b.type==='text'){
+          return `<section ${animClass} class="site-body"><p style="white-space:pre-wrap">${escapeHtml(b.data.text||'')}</p></section>`;
+        }
+        if(b.type==='two-col'){
+          return `<section ${animClass} class="site-body"><div class="two-col"><div>${escapeHtml(b.data.left||'')}</div><div>${escapeHtml(b.data.right||'')}</div></div></section>`;
+        }
+        if(b.type==='image'){
+          const img = b.data.image && b.data.image.dataURL ? b.data.image.dataURL : '';
+          const alt = escapeHtml(b.data.alt||'');
+          const width = (b.data.width||80) + '%';
+          // filter CSS
+          const f = b.data.filter || {name:'none',value:0};
+          let filterCss = 'none';
+          if(f.name && f.name!=='none'){
+            if(f.name==='grayscale') filterCss = `grayscale(${f.value}%)`;
+            else if(f.name==='sepia') filterCss = `sepia(${f.value}%)`;
+            else if(f.name==='blur') filterCss = `blur(${f.value}px)`;
+            else if(f.name==='brightness') filterCss = `brightness(${f.value}%)`;
+            else if(f.name==='contrast') filterCss = `contrast(${f.value}%)`;
+            else if(f.name==='saturate') filterCss = `saturate(${f.value}%)`;
+          }
+          const align = b.data.align || 'center';
+          const caption = escapeHtml(b.data.caption||'');
+          const link = b.data.link || '';
+          const tagStart = link ? `<a href="${escapeHtml(link)}" target="_blank">` : '';
+          const tagEnd = link ? `</a>` : '';
+          return `<div ${animClass} style="text-align:${align};margin:18px 0"><div>${tagStart}<img class="responsive" src="${img}" alt="${alt}" style="width:${width};filter:${filterCss};border-radius:8px" />${tagEnd}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+        }
+        if(b.type==='video'){
+          const caption = escapeHtml(b.data.caption||'');
+          if(b.data.provider==='file' && b.data.video && b.data.video.dataURL){
+            const attrs = `${b.data.autoplay? 'autoplay':''} ${b.data.loop? 'loop':''} ${b.data.muted? 'muted':''} ${b.data.controls? 'controls':''}`;
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><video src="${b.data.video.dataURL}" style="max-width:100%;height:auto;border-radius:8px" ${attrs}></video>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else if(b.data.provider==='youtube' && b.data.srcUrl){
+            const embed = normalizeYoutubeEmbed(b.data.srcUrl);
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><iframe src="${embed}" width="100%" height="480" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else if(b.data.provider==='vimeo' && b.data.srcUrl){
+            const embed = normalizeVimeoEmbed(b.data.srcUrl);
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><iframe src="${embed}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+          } else {
+            return `<div ${animClass} style="margin:18px 0"><div style="color:var(--muted)">No video</div></div>`;
+          }
+        }
+        return '';
+      }).join('\n');
+
+      const html = `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Exported Site</title><style>${themeCss}\n${sharedCss}</style></head><body><div class="container">${blocksHtml}</div></body></html>`;
+      return html;
+    }
+
+    /* --------- actions: download/copy/preview --------- */
+    downloadBtn.addEventListener('click', ()=> {
+      const html = generateExportHtml();
+      const blob = new Blob([html], { type:'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = slugify('site') + '.html';
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      flashStatus('Downloaded');
+    });
+
+    copyBtn.addEventListener('click', async ()=> {
+      const html = generateExportHtml();
+      try { await navigator.clipboard.writeText(html); flashStatus('Copied HTML'); }
+      catch(e){ const w = window.open(); if(!w){ alert('Clipboard failed & pop-ups blocked.'); return } w.document.open(); w.document.write('<pre style="white-space:pre-wrap">'+escapeHtml(html)+'</pre>'); w.document.close(); }
+    });
+
+    previewBtn.addEventListener('click', ()=> {
+      const html = generateExportHtml();
+      const w = window.open(); if(!w){ alert('Popup blocked — allow popups to preview.'); return; }
+      w.document.open(); w.document.write(html); w.document.close();
+    });
+
+    // keyboard save
+    window.addEventListener('keydown', (e)=> { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadBtn.click(); } });
+
+    function flashStatus(msg, ms=1400){ status.textContent = msg; setTimeout(()=> status.textContent='Ready', ms) }
+
+    function updateThemeTag(){ themeTag.textContent = 'Theme: ' + themePresets[state.theme].name }
+
+    // normalize youtube/vimeo helpers used for export & preview
+    function normalizeYoutubeEmbed(url){
+      try{ const u=new URL(url); let id=''; if(u.hostname.includes('youtu.be')) id = u.pathname.slice(1); if(u.hostname.includes('youtube.com')) id = u.searchParams.get('v'); if(!id) return url; return 'https://www.youtube.com/embed/' + id + '?rel=0'; }catch(e){ return url; }
+    }
+    function normalizeVimeoEmbed(url){
+      try{ const u=new URL(url); const parts=u.pathname.split('/'); const id = parts.pop() || parts.pop(); if(!id) return url; return 'https://player.vimeo.com/video/' + id; }catch(e){ return url; }
+    }
+
+    // public little helpers for UI: open editor (re-usable)
+    function openEditor(bid){
+      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
+      state.selected = bid; editorWrap.style.display = 'block'; editorTitle.textContent = 'Edit: ' + b.type.toUpperCase();
+      editorFields.innerHTML = '';
+      // animation controls
+      const animSec = document.createElement('div');
+      animSec.innerHTML = `<label class="inline">Animation</label>
+        <select id="animType"><option value="none">None</option><option value="fade">Fade</option><option value="slideup">Slide Up</option><option value="slideleft">Slide Left</option><option value="zoom">Zoom</option><option value="bounce">Bounce</option></select>
+        <label style="margin-top:8px">Duration (ms)</label><input id="animDur" type="number" value="${b.data.animation?.duration||600}" />
+        <label style="margin-top:8px">Delay (ms)</label><input id="animDelay" type="number" value="${b.data.animation?.delay||0}" />`;
+      editorFields.appendChild(animSec);
+      const animType = editorFields.querySelector('#animType'), animDur = editorFields.querySelector('#animDur'), animDelay = editorFields.querySelector('#animDelay');
+      animType.value = b.data.animation?.type || 'none';
+      animType.addEventListener('change', ()=> setBlockData(bid,'animation.type',animType.value));
+      animDur.addEventListener('input', ()=> setBlockData(bid,'animation.duration',Number(animDur.value||0)));
+      animDelay.addEventListener('input', ()=> setBlockData(bid,'animation.delay',Number(animDelay.value||0)));
+      // specifics per type
+      if(b.type==='hero'){ addField('Title', b.data.title||'', v=> updateBlock(bid,{ title:v })); addField('Subtitle', b.data.subtitle||'', v=> updateBlock(bid,{ subtitle:v })); }
+      if(b.type==='text'){ addTextarea('Text', b.data.text||'', v=> updateBlock(bid,{ text:v })); }
+      if(b.type==='two-col'){ addTextarea('Left', b.data.left||'', v=> updateBlock(bid,{ left:v })); addTextarea('Right', b.data.right||'', v=> updateBlock(bid,{ right:v })); }
+      if(b.type==='image'){
+        addField('Alt', b.data.alt||'', v=> updateBlock(bid,{ alt:v })); addRange('Width %', b.data.width||80,20,100, v=> updateBlock(bid,{ width:Number(v) }));
+        addSelect('Alignment',['left','center','right'], b.data.align||'center', v=> updateBlock(bid,{ align:v }));
+        addFilterControls(bid, b.data.filter || {name:'none',value:0});
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        addField('Link', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
+        const up = document.createElement('button'); up.className='btn'; up.textContent = b.data.image ? 'Replace image' : 'Upload image'; up.addEventListener('click', ()=> { fileInput.accept='image/*'; fileInput.onchange = handleFileForImage(bid); fileInput.click(); });
+        wrap.appendChild(up);
+        if(b.data.image){ const rm=document.createElement('button'); rm.className='btn'; rm.style.marginLeft='8px'; rm.textContent='Remove'; rm.addEventListener('click', ()=> { updateBlock(bid,{ image:null }); openEditor(bid); }); wrap.appendChild(rm); const t=document.createElement('div'); t.style.marginTop='8px'; t.innerHTML=`<img src="${b.data.image.dataURL}" style="max-width:100%;border-radius:6px">`; wrap.appendChild(t); }
+        editorFields.appendChild(wrap);
+      }
+      if(b.type==='video'){
+        addSelect('Provider',['file','youtube','vimeo'], b.data.provider||'file', v=> updateBlock(bid,{ provider:v }));
+        addField('Video URL (YouTube/Vimeo)', b.data.srcUrl||'', v=> updateBlock(bid,{ srcUrl:v }));
+        addCheckbox('Autoplay', b.data.autoplay||false, v=> updateBlock(bid,{ autoplay:v }));
+        addCheckbox('Loop', b.data.loop||false, v=> updateBlock(bid,{ loop:v }));
+        addCheckbox('Muted', b.data.muted||false, v=> updateBlock(bid,{ muted:v }));
+        addCheckbox('Controls', b.data.controls===undefined?true:b.data.controls, v=> updateBlock(bid,{ controls:v }));
+        addField('Poster URL', b.data.poster||'', v=> updateBlock(bid,{ poster:v }));
+        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+        const up = document.createElement('button'); up.className='btn'; up.textContent = b.data.video ? 'Replace video file' : 'Upload video file';
+        up.addEventListener('click', ()=> { fileInput.accept='video/*'; fileInput.onchange = handleFileForVideo(bid); fileInput.click(); });
+        wrap.appendChild(up);
+        if(b.data.video){ const p=document.createElement('div'); p.style.marginTop='8px'; p.innerHTML = `<div class="small">Uploaded: ${escapeHtml(b.data.video.name||'video')}</div>`; wrap.appendChild(p); }
+        editorFields.appendChild(wrap);
+      }
+      removeBlockBtn.onclick = ()=> { if(confirm('Remove this block?')) removeBlock(bid) };
+    }
+
+    /* --------- Helpers re-used in editor (declared earlier) --------- */
+    function addRange(labelText, value, min, max, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
+      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
+      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); } );
+      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
+    }
+    function addSelect(labelText, options, selectedVal, onChange){
+      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
+      sel.addEventListener('change', ()=> onChange(sel.value));
+      editorFields.appendChild(lbl); editorFields.appendChild(sel);
+    }
+    function addCheckbox(labelText, checked, onChange){
+      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
+      input.addEventListener('change', ()=> onChange(input.checked));
+      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
+      wrap.appendChild(input); wrap.appendChild(lbl);
+      editorFields.appendChild(wrap);
+    }
+    function addFilterControls(bid, filter){
+      const lbl = document.createElement('label'); lbl.textContent='Filter'; lbl.style.marginTop='8px';
+      const sel = document.createElement('select'); sel.style.marginTop='6px';
+      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{ const opt=document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt); });
+      const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=200; slider.value=filter.value||0; slider.style.marginTop='6px';
+      const val = document.createElement('div'); val.className='small'; val.textContent = filter.value + (filter.name==='blur' ? 'px' : '%');
+      sel.addEventListener('change', ()=> { setBlockData(bid,'filter.name',sel.value); updateLabel(); });
+      slider.addEventListener('input', ()=> { setBlockData(bid,'filter.value',Number(slider.value)); updateLabel(); });
+      function updateLabel(){ const f=sel.value; const v=slider.value; val.textContent = v + (f==='blur' ? 'px' : '%'); }
+      editorFields.appendChild(lbl); editorFields.appendChild(sel); editorFields.appendChild(slider); editorFields.appendChild(val);
+    }
+
+    /* --------- misc init stuff & UI bindings --------- */
+    renderPreview();
+    renderBlocksList();
+    updateThemeTag();
+    // open first block editor for convenience
+    if(state.blocks.length) openEditor(state.blocks[0].id);
+
+    // small status helper
+    function flashStatus(msg, ms=1400){ status.textContent = msg; setTimeout(()=> status.textContent='Ready', ms) }
+  </script>
+</body>
+</html>

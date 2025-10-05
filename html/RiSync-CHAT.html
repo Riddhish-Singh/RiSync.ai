@@ -144,9 +144,14 @@
             text-align: left;
         }
 
+        /* make "Sync" blue (#003399) per request */
         #header-title {
             font-size: 18px;
             margin: 0;
+            font-weight: 600;
+        }
+        #header-title .sync {
+            color: #003399;
         }
 
         #status {
@@ -520,51 +525,52 @@
         <div id="header">
             <button id="backButton" class="icon-button" onclick="window.location.href='content.html'">&#8592;</button>
             <div id="header-info">
-       <a href="../index.html" class="logo">
-    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
-</a>
+                <a href="../index.html" class="logo" aria-label="RiSync Home">
+                    <img src="../assets/logo.png" alt="RiSync Logo" style="width:80px; height:auto;">
+                </a>
                 <div id="header-title-container">
-                    <h2 id="header-title">RiSync Chat</h2>
+                    <!-- RiSync with 'Sync' colored #003399 -->
+                    <h2 id="header-title">Ri<span class="sync">Sync</span></h2>
                     <p id="status">Online</p>
                 </div>
             </div>
-            <button id="themeToggle" class="icon-button">🎨</button>
-            <button id="modeToggle" class="icon-button">🌙</button>
+            <button id="themeToggle" class="icon-button" aria-label="Theme picker">🎨</button>
+            <button id="modeToggle" class="icon-button" aria-label="Toggle dark mode">🌙</button>
 
-            <div id="theme-picker">
-                <div class="theme-swatch swatch-blue" data-theme="blue"></div>
-                <div class="theme-swatch swatch-green" data-theme="green"></div>
-                <div class="theme-swatch swatch-pink" data-theme="pink"></div>
+            <div id="theme-picker" role="menu" aria-hidden="true">
+                <div class="theme-swatch swatch-blue" data-theme="blue" title="Blue theme"></div>
+                <div class="theme-swatch swatch-green" data-theme="green" title="Green theme"></div>
+                <div class="theme-swatch swatch-pink" data-theme="pink" title="Pink theme"></div>
                 <div class="swatch-reset" onclick="applyTheme('default');">Reset</div>
             </div>
         </div>
 
-        <div id="messages"></div>
+        <div id="messages" aria-live="polite"></div>
         <div id="typing-indicator"></div>
         
-        <div id="reply-preview">
+        <div id="reply-preview" aria-hidden="true">
             <div id="reply-preview-content"></div>
-            <button id="reply-preview-close">✕</button>
+            <button id="reply-preview-close" aria-label="Close reply preview">✕</button>
         </div>
 
         <div id="input-container">
             <div id="message-input-wrapper">
-                <button class="icon-button" id="emoji-button-toggle">😊</button>
-                <button class="icon-button" onclick="document.getElementById('fileInput').click()">📎</button>
+                <button class="icon-button" id="emoji-button-toggle" aria-label="Toggle emoji picker">😊</button>
+                <button class="icon-button" onclick="document.getElementById('fileInput').click()" aria-label="Attach file">📎</button>
                 <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection()">
                 <input type="text" id="message" placeholder="Type your message..." onkeydown="if(event.key==='Enter') sendMessage()">
-                <button class="icon-button" id="scheduleBtn">⏰</button>
+                <button class="icon-button" id="scheduleBtn" title="Schedule message">⏰</button>
             </div>
             <div style="display: flex; justify-content: flex-end; width: 100%;">
-                <button class="icon-button" id="boldBtn"><b>B</b></button>
-                <button class="icon-button" id="italicBtn"><i>I</i></button>
-                <button class="icon-button" id="sendBtn">➤</button>
-                <button class="icon-button" id="microphoneBtn">🎤</button>
+                <button class="icon-button" id="boldBtn" title="Bold"><b>B</b></button>
+                <button class="icon-button" id="italicBtn" title="Italic"><i>I</i></button>
+                <button class="icon-button" id="sendBtn" title="Send">➤</button>
+                <button class="icon-button" id="microphoneBtn" title="Voice input">🎤</button>
             </div>
         </div>
-        <div id="deletion-counter"></div>
+        <div id="deletion-counter" aria-live="polite"></div>
         
-        <div id="emoji-picker" style="display: none;">
+        <div id="emoji-picker" style="display: none;" role="dialog" aria-label="Emoji picker">
             <div class="emoji-group">
                 <button class="emoji-button">📖</button>
                 <button class="emoji-button">📚</button>
@@ -632,9 +638,9 @@
         </div>
     </div>
 
-    <div id="scheduleModal" class="modal">
+    <div id="scheduleModal" class="modal" aria-hidden="true">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
+            <span class="close-button" role="button" aria-label="Close schedule modal">&times;</span>
             <h3>Schedule Message</h3>
             <input type="datetime-local" id="scheduleTimeInput">
             <button id="scheduleSendBtn">Schedule</button>
@@ -643,16 +649,22 @@
 
     <script>
         const username = localStorage.getItem("username") || "Guest";
-        const userClass = localStorage.getItem("signupClass") || "N/A";
+        const userClass = localStorage.getItem("signupClass");
         const profileImage = localStorage.getItem("profileImage") || "../assets/user-icon.png";
         const messageInput = document.getElementById("message");
         const typingIndicator = document.getElementById("typing-indicator");
         const deletionCounter = document.getElementById("deletion-counter");
         const messagesContainer = document.getElementById("messages");
         const sendBtn = document.getElementById("sendBtn");
+        const modeToggleBtn = document.getElementById("modeToggle");
+        const themeToggleBtn = document.getElementById("themeToggle");
+        const themePicker = document.getElementById("theme-picker");
+        const swatches = document.querySelectorAll(".theme-swatch");
         
-        document.getElementById("header-title").innerText = "RiSync Chat";
-        document.getElementById("status").innerText = `Class ${userClass} | Online`;
+        document.getElementById("header-title").innerText = ""; // we will set with span below
+        // Set the RiSync with 'Sync' colored via innerHTML to preserve span
+        document.getElementById("header-title").innerHTML = 'Ri<span class="sync">Sync</span>';
+        document.getElementById("status").innerText = userClass ? `Class ${userClass} | Online` : "Online";
         
         let repliedToMessage = null;
         let editingMessageIndex = null;
@@ -687,15 +699,17 @@
 
         function checkScheduledMessages() {
             const now = new Date().getTime();
-            scheduledMessages.forEach((msg, index) => {
+            // iterate copy because we modify scheduledMessages inside loop
+            for (let i = scheduledMessages.length - 1; i >= 0; i--) {
+                const msg = scheduledMessages[i];
                 if (new Date(msg.scheduledTime).getTime() <= now) {
                     messages.push(msg);
-                    scheduledMessages.splice(index, 1);
+                    scheduledMessages.splice(i, 1);
                     localStorage.setItem("chatMessages", JSON.stringify(messages));
                     localStorage.setItem("scheduledMessages", JSON.stringify(scheduledMessages));
                     appendMessage(msg);
                 }
-            });
+            }
         }
         setInterval(checkScheduledMessages, 1000); // Check every second
 
@@ -708,6 +722,7 @@
         let typingTimeout;
         messageInput.addEventListener('input', () => {
             typingIndicator.style.display = 'block';
+            typingIndicator.textContent = "Typing...";
             clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
                 typingIndicator.style.display = 'none';
@@ -717,7 +732,12 @@
         function sendMessage() {
             const text = messageInput.value.trim();
             if (isEditing) {
+                if (!text) {
+                    alert("Edited message cannot be empty.");
+                    return;
+                }
                 messages[editingMessageIndex].text = text;
+                messages[editingMessageIndex].timestamp = new Date().toISOString();
                 localStorage.setItem("chatMessages", JSON.stringify(messages));
                 redrawMessages();
                 isEditing = false;
@@ -765,6 +785,7 @@
 
         function appendMessage(msg) {
             const el = document.createElement("div");
+            // safer message index: compute from messages array by timestamp & text
             const messageIndex = messages.indexOf(msg);
             el.classList.add("message", msg.user === username ? "sent" : "received");
             el.setAttribute('data-user', msg.user);
@@ -778,13 +799,15 @@
 
             if (msg.reply) {
                 let replyText = msg.reply.text;
-                replyText = replyText.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>');
-                replyText = replyText.replace(/`(.*?)`/g, '<code>$1</code>');
-                replyText = replyText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+                replyText = escapeHtml(replyText)
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
 
                 messageContentHtml += `
                     <div class="reply-quote">
-                        <strong>${msg.reply.user === username ? 'You' : msg.reply.user}</strong>
+                        <strong>${msg.reply.user === username ? 'You' : escapeHtml(msg.reply.user)}</strong>
                         ${replyText}
                     </div>
                 `;
@@ -796,7 +819,7 @@
             } else if (msg.type === 'file') {
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
-                fileItem.innerHTML = `<span class="file-icon">📎</span><div class="file-info"><strong>${msg.text}</strong><small>${msg.size}</small></div>`;
+                fileItem.innerHTML = `<span class="file-icon">📎</span><div class="file-info"><strong>${escapeHtml(msg.text)}</strong><small>${msg.size}</small></div>`;
                 fileItem.onclick = () => {
                     const link = document.createElement('a');
                     link.href = msg.data;
@@ -806,26 +829,29 @@
                 };
                 messageContentHtml += fileItem.outerHTML;
             } else {
-                let formattedText = msg.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\*(.*?)\*/g, '<i>$1</i>');
-                formattedText = formattedText.replace(/`(.*?)`/g, '<code>$1</code>');
-                formattedText = formattedText.replace(/```([\s\S]*?)```/g, '<pre>$1</pre>');
-                formattedText = formattedText.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+                let formattedText = escapeHtml(msg.text)
+                    .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>')
+                    .replace(/\*(.*?)\*/g, '<i>$1</i>')
+                    .replace(/```([\s\S]*?)```/g, '<pre>$1</pre>')
+                    .replace(/`(.*?)`/g, '<code>$1</code>')
+                    .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
 
                 messageContentHtml += `<p class="message-text">${formattedText}</p>`;
             }
 
             const contentHtml = `
                 <div class="message-content">
-                    <span class="message-user">${msg.user === username ? "You" : msg.user}</span>
+                    <span class="message-user">${msg.user === username ? "You" : escapeHtml(msg.user)}</span>
                     ${messageContentHtml}
                     <span class="message-timestamp">${formattedTimestamp}</span>
                 </div>
             `;
-            const profileHtml = `<img src="${img}" class="profile-img" alt="${msg.user}'s profile picture">`;
+            const profileHtml = `<img src="${img}" class="profile-img" alt="${escapeHtml(msg.user)}'s profile picture">`;
 
+            const escapedTextForReply = (msg.text || "").replace(/'/g, "\\'").replace(/"/g, '\\"');
             const actionButtonsHtml = `
                 <div class="message-actions">
-                    <button class="action-button reply-button" onclick="setReply('${msg.user}', '${msg.text.replace(/'/g, "\\'").replace(/"/g, '\\"')}')">↩️</button>
+                    <button class="action-button reply-button" onclick="setReply('${escapeJsString(msg.user)}', '${escapeJsString(escapedTextForReply)}')">↩️</button>
                     ${msg.user === username ? `
                         <button class="action-button edit-button" onclick="editMessage(${messageIndex})">✏️</button>
                         <button class="action-button delete-button" onclick="deleteMessage(${messageIndex})">🗑️</button>
@@ -869,14 +895,17 @@
             repliedToMessage = { user, text };
             const preview = document.getElementById("reply-preview");
             const previewContent = document.getElementById("reply-preview-content");
-            previewContent.innerHTML = `<strong>${user === username ? 'You' : user}</strong><br>${text}`;
+            previewContent.innerHTML = `<strong>${user === username ? 'You' : escapeHtml(user)}</strong><br>${escapeHtml(text)}`;
             preview.style.display = "block";
+            preview.setAttribute('aria-hidden', 'false');
             messageInput.focus();
         }
 
         function clearReply() {
             repliedToMessage = null;
-            document.getElementById("reply-preview").style.display = "none";
+            const preview = document.getElementById("reply-preview");
+            preview.style.display = "none";
+            preview.setAttribute('aria-hidden', 'true');
         }
         document.getElementById("reply-preview-close").addEventListener("click", clearReply);
 
@@ -921,7 +950,8 @@
         const emojiButtonToggle = document.getElementById("emoji-button-toggle");
         const emojiPicker = document.getElementById("emoji-picker");
         
-        emojiButtonToggle.addEventListener("click", () => {
+        emojiButtonToggle.addEventListener("click", (e) => {
+            e.stopPropagation();
             emojiPicker.style.display = emojiPicker.style.display === "flex" ? "none" : "flex";
         });
         
@@ -940,11 +970,6 @@
         });
 
         // 2. Dark mode toggle (🌙) and Theme Picker (🎨)
-        const modeToggleBtn = document.getElementById("modeToggle");
-        const themeToggleBtn = document.getElementById("themeToggle");
-        const themePicker = document.getElementById("theme-picker");
-        const swatches = document.querySelectorAll(".theme-swatch");
-        
         const savedMode = localStorage.getItem("mode") || "light";
         const savedTheme = localStorage.getItem("theme") || "default";
         applyMode(savedMode);
@@ -1001,6 +1026,9 @@
                     swatch.classList.remove("active");
                 }
             });
+            if (activeTheme === "default") {
+                document.querySelectorAll(".theme-swatch").forEach(s => s.classList.remove("active"));
+            }
         }
         // --- END OF THEME LOGIC ---
 
@@ -1077,7 +1105,7 @@
                 alert("Please write a message before scheduling.");
                 return;
             }
-            // Set min date to now
+            // Set min date to now (local timezone)
             const now = new Date();
             const year = now.getFullYear();
             const month = (now.getMonth() + 1).toString().padStart(2, '0');
@@ -1086,10 +1114,12 @@
             const minutes = now.getMinutes().toString().padStart(2, '0');
             scheduleTimeInput.min = `${year}-${month}-${day}T${hours}:${minutes}`;
             scheduleModal.style.display = "flex";
+            scheduleModal.setAttribute('aria-hidden', 'false');
         }
 
         closeButton.onclick = function() {
             scheduleModal.style.display = "none";
+            scheduleModal.setAttribute('aria-hidden', 'true');
         }
 
         scheduleSendBtn.onclick = scheduleMessage;
@@ -1097,7 +1127,25 @@
         window.onclick = function(event) {
             if (event.target == scheduleModal) {
                 scheduleModal.style.display = "none";
+                scheduleModal.setAttribute('aria-hidden', 'true');
             }
+        }
+
+        // Utility: escape HTML to prevent injection when rendering
+        function escapeHtml(text) {
+            if (!text && text !== "") return "";
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Utility: escape JS string for inline onclick usage
+        function escapeJsString(str) {
+            if (!str && str !== "") return "";
+            return String(str).replace(/\\/g, "\\\\").replace(/'/g, "\\'").replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '');
         }
     </script>
 </body>
