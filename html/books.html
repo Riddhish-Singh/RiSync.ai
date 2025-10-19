@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RiSync | Books by Riddhish Singh</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #081028, #0f2149);
+  color: white;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.header {
+  text-align: center;
+  padding: 60px 20px 20px;
+  animation: fadeIn 1.2s ease;
+}
+
+.header h1 {
+  font-size: 2.8rem;
+  color: #ff7b00;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
+
+.header p {
+  color: #d0dae7;
+  font-size: 1.1rem;
+}
+
+.book-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 35px;
+  padding: 60px;
+  justify-items: center;
+  animation: fadeInUp 1.5s ease;
+}
+
+.book-card {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  transition: all 0.4s ease;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+  text-align: center;
+  width: 100%;
+  max-width: 280px;
+  transform: translateY(0);
+}
+
+.book-card img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+  border-bottom: 3px solid #ff7b00;
+  transition: transform 0.4s ease;
+}
+
+.book-card:hover img {
+  transform: scale(1.08);
+}
+
+.book-card h3 {
+  font-size: 1.3rem;
+  margin: 15px 0 5px;
+  color: #ffb347;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.book-card p {
+  font-size: 0.95rem;
+  color: #c5c5c5;
+  padding: 0 15px 25px;
+  line-height: 1.4;
+}
+
+.book-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(255, 123, 0, 0.3);
+}
+
+.footer {
+  text-align: center;
+  padding: 30px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aab3c4;
+  font-size: 0.9rem;
+}
+
+.book-card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+</style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <h1>🚀 Riddhish Singh’s Book Collection</h1>
+    <p>Dive into the imagination of a young creator — stories that explore rockets, laughter, and innovation 🌟</p>
+  </header>
+
+  <section class="book-gallery">
+
+    <div class="book-card">
+      <a href="https://www.bribooks.com/bookstore/me-and-my-rocket-irrr" target="_blank">
+        <img src="https://d1rj087f48l8b.cloudfront.net/public/BookCovers/book_297351_1.png?width=500" alt="Me and My Rocket IRRR">
+        <h3>Me and My Rocket IRRR</h3>
+        <p>The journey begins! The first story of a boy and his rocket — an adventure that blasts beyond imagination.</p>
+      </a>
+    </div>
+
+    <div class="book-card">
+      <a href="https://www.bribooks.com/bookstore/me-and-my-rocket-irrr-2" target="_blank">
+        <img src="https://d1rj087f48l8b.cloudfront.net/public/AuthorCoverImages/user_cover_66af6254a2203_b0_v665603.png?width=500" alt="Me and My Rocket IRRR 2">
+        <h3>Me and My Rocket IRRR 2</h3>
+        <p>The rocket returns — bigger, smarter, and ready for a brand-new cosmic challenge! 🌌</p>
+      </a>
+    </div>
+
+    <div class="book-card">
+      <a href="https://d1rj087f48l8b.cloudfront.net/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500" target="_blank">
+        <img src="https://d1rj087f48l8b.cloudfront.net/public/AuthorCoverImages/user_cover_66eb343d62adf_b1_v799599.png?width=500" alt="Me and My Rocket IRRR 3">
+        <h3>Me and My Rocket IRRR 3</h3>
+        <p>The final mission! A thrilling finale where friendship and science collide in space 🚀✨</p>
+      </a>
+    </div>
+
+    <div class="book-card">
+      <a href="https://www.bribooks.com/bookstore/the-halorious-laughing-bob-" target="_blank">
+        <img src="https://d1rj087f48l8b.cloudfront.net/public/BookCovers/book_480021_1.png?width=500" alt="The Hilarious Laughing Bob">
+        <h3>The Hilarious Laughing Bob</h3>
+        <p>Meet Bob — the funniest character ever! A book that’ll make you laugh non-stop 😂</p>
+      </a>
+    </div>
+
+    <div class="book-card">
+      <a href="https://www.bribooks.com/bookstore/ball-and-shoot-by-riddhish-singh" target="_blank">
+        <img src="https://d1rj087f48l8b.cloudfront.net/public/AuthorCoverImages/user_cover_68d82bcddbdfa_b0_v1465137.png?width=500" alt="Ball and Shoot">
+        <h3>Ball and Shoot</h3>
+        <p>A game turns into an unexpected adventure — filled with action, humor, and heart 🏀🔥</p>
+      </a>
+    </div>
+
+  </section>
+
+  <footer class="footer">
+    <p>© 2025 RiSync | Written & Imagined by <strong>Riddhish Singh</strong></p>
+  </footer>
+</body>
+</html>
