@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Advanced Block Site Builder — Images, Videos & Animations</title>
+  <title>Advanced Block Site Builder — Buttons & Link Integration</title>
   <style>
     :root{
       --ui-bg:#f6f8fb; --panel:#ffffff; --muted:#6b7280; --accent:#2563eb;
@@ -58,6 +58,16 @@
     @keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
     @keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
     @keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+    /* video CTA overlay */
+    .video-wrap{position:relative;display:inline-block;width:100%}
+    .video-cta{position:absolute;bottom:18px;padding:8px 14px;border-radius:8px;background:rgba(37,99,235,0.95);color:#fff;text-decoration:none;font-weight:700;display:inline-block}
+    .video-cta.left{left:18px}
+    .video-cta.center{left:50%;transform:translateX(-50%)}
+    .video-cta.right{right:18px}
+    /* button block styles */
+    .call-to-action{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700}
+    .cta-primary{background:var(--accent);color:#fff}
+    .cta-outline{background:#fff;border:1px solid #eef3ff;color:#0b1220}
     @media (max-width:920px){ .wrap{flex-direction:column;padding:12px} aside{width:100%} }
   </style>
 </head>
@@ -84,6 +94,7 @@
         <button class="btn" data-add="image">Image</button>
         <button class="btn" data-add="video">Video</button>
         <button class="btn" data-add="two-col">2-Col</button>
+        <button class="btn" data-add="button">Button</button>
       </div>
 
       <label style="margin-top:12px">Blocks (drag to reorder)</label>
@@ -105,7 +116,7 @@
     <button class="btn" id="previewBtn">Open Preview</button>
       </div>
 
-      <div class="muted-small" style="margin-top:12px">Tip: uploaded images/videos embed into the exported file. Animations are CSS-based and preserved in export.</div>
+      <div class="muted-small" style="margin-top:12px">Tip: uploaded images/videos embed into the exported file. Animations are CSS-based and preserved in export. Buttons and video CTAs export too.</div>
     </aside>
 
     <main>
@@ -129,76 +140,32 @@
     const state = {
       theme: 'light',
       blocks: [
-        { id: id(), type: 'hero', data: { title: 'Your Awesome Site', subtitle: 'A one-liner that slaps', animation: { type:'fade', duration:600, delay:0 } } },
+        { id: id(), type: 'hero', data: { title: 'Your Awesome Site', subtitle: 'A one-liner that slaps', link:'', animation: { type:'fade', duration:600, delay:0 } } },
         { id: id(), type: 'image', data: { image: null, alt:'', width:80, align:'center', filter:{name:'none',value:0}, caption:'', link:'', animation:{type:'fade',duration:600,delay:0} } },
-        { id: id(), type: 'text', data: { text: 'This is a paragraph. Edit me!', animation:{type:'none',duration:600,delay:0} } }
+        { id: id(), type: 'text', data: { text: 'This is a paragraph. Edit me!', link:'', animation:{type:'none',duration:600,delay:0} } }
       ],
       selected: null
-	  
     };
-// Get the project ID from the URL
-const urlParams = new URLSearchParams(window.location.search);
-const projectId = urlParams.get('project');
 
-// Load initial state from local storage
-if (projectId) {
-    const projects = getProjects();
-    const project = projects.find(p => p.id === projectId);
-    if (project && project.state) {
-        // Deep merge the saved state with the default state to avoid errors
-        state.blocks = project.state.blocks || state.blocks;
-        state.theme = project.state.theme || state.theme;
-        renderBlocksList();
-        renderPreview();
-        // open the editor for the first block if it exists
-        if(state.blocks.length) openEditor(state.blocks[0].id);
-    }
-}
+    // Get the project ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectId = urlParams.get('project');
 
-// Helper functions for local storage
-function getProjects() {
-    try {
-        const projects = JSON.parse(localStorage.getItem('siteBuilderProjects') || '[]');
-        return projects;
-    } catch (e) {
-        console.error('Failed to parse projects from Local Storage:', e);
-        return [];
-    }
-}
-
-function saveProjects(projects) {
-    localStorage.setItem('siteBuilderProjects', JSON.stringify(projects));
-}
-
-// Event listener for the new Save button
-const saveBtn = el('#saveBtn');
-saveBtn.addEventListener('click', () => {
-    saveCurrentProject();
-});
-
-// The core function to save the project state
-function saveCurrentProject() {
-    if (!projectId) {
-        alert("Cannot save: No project ID found in URL.");
-        return;
-    }
-    const projects = getProjects();
-    const projectIndex = projects.findIndex(p => p.id === projectId);
-    if (projectIndex === -1) {
-        alert("Cannot save: Project not found.");
-        return;
+    // Load initial state from local storage if project id present (existing logic)
+    if (projectId) {
+        try {
+            const projects = JSON.parse(localStorage.getItem('siteBuilderProjects') || '[]');
+            const project = projects.find(p => p.id === projectId);
+            if (project && project.state) {
+                state.blocks = project.state.blocks || state.blocks;
+                state.theme = project.state.theme || state.theme;
+                renderBlocksList();
+                renderPreview();
+                if(state.blocks.length) openEditor(state.blocks[0].id);
+            }
+        } catch(e){ console.error('Load projects failed', e); }
     }
 
-    // Update the project's state in the projects array
-    projects[projectIndex].state = {
-        blocks: state.blocks,
-        theme: state.theme,
-    };
-    projects[projectIndex].date = new Date().toISOString(); // Update the saved date
-
-    saveProjects(projects);
-    flashStatus('Project saved!');
-}
     const themePresets = {
       light: { name:'Clean Light', vars:{'--bg':'#ffffff','--text':'#0b1220','--muted':'#64748b'} },
       dark:  { name:'Midnight',    vars:{'--bg':'#071428','--text':'#e6eef8','--muted':'#9aa6bf'} },
@@ -226,6 +193,7 @@ function saveCurrentProject() {
     const copyBtn = el('#copyBtn');
     const previewBtn = el('#previewBtn');
     const status = el('#status');
+    const saveBtn = el('#saveBtn');
 
     // init
     renderBlocksList();
@@ -238,14 +206,29 @@ function saveCurrentProject() {
     });
     themeSelect.addEventListener('change', (e)=> { state.theme = e.target.value; renderPreview(); updateThemeTag(); });
 
-    /* --------- Block ops --------- */
+    // save current project (same logic as original)
+    saveBtn.addEventListener('click', () => {
+        if (!projectId) { alert("Cannot save: No project ID found in URL."); return; }
+        try {
+            const projects = JSON.parse(localStorage.getItem('siteBuilderProjects') || '[]');
+            const projectIndex = projects.findIndex(p => p.id === projectId);
+            if (projectIndex === -1) { alert("Cannot save: Project not found."); return; }
+            projects[projectIndex].state = { blocks: state.blocks, theme: state.theme };
+            projects[projectIndex].date = new Date().toISOString();
+            localStorage.setItem('siteBuilderProjects', JSON.stringify(projects));
+            flashStatus('Project saved!');
+        } catch(e){ alert('Save failed'); console.error(e) }
+    });
+
+    /* --------- Block ops (added: button block + link fields) --------- */
     function addBlock(type){
       const defaultData = (t=>{
-        if(t==='hero') return { title:'New Title', subtitle:'Subtitle', animation:{type:'fade',duration:600,delay:0} };
-        if(t==='text') return { text:'New text', animation:{type:'none',duration:600,delay:0} };
+        if(t==='hero') return { title:'New Title', subtitle:'Subtitle', link:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='text') return { text:'New text', link:'', animation:{type:'none',duration:600,delay:0} };
         if(t==='image') return { image:null, alt:'', width:80, align:'center', filter:{name:'none',value:0}, caption:'', link:'', animation:{type:'fade',duration:600,delay:0} };
-        if(t==='video') return { video:null, srcUrl:'', provider:'file', autoplay:false, loop:false, muted:false, controls:true, poster:'', caption:'', animation:{type:'fade',duration:600,delay:0} };
+        if(t==='video') return { video:null, srcUrl:'', provider:'file', autoplay:false, loop:false, muted:false, controls:true, poster:'', caption:'', overlayCTA:{show:false,label:'Watch Now',url:'',position:'center'}, animation:{type:'fade',duration:600,delay:0} };
         if(t==='two-col') return { left:'Left', right:'Right', animation:{type:'none',duration:600,delay:0} };
+        if(t==='button') return { label:'Click Me', url:'', style:'primary', newTab:true };
         return {};
       })(type);
       const b = { id:id(), type, data: defaultData };
@@ -269,7 +252,6 @@ function saveCurrentProject() {
     }
 
     function setBlockData(bid, keyPath, value){
-      // keyPath can be like 'filter.name' or 'animation.type'
       const b = state.blocks.find(x=>x.id===bid);
       if(!b) return;
       const parts = keyPath.split('.');
@@ -309,11 +291,12 @@ function saveCurrentProject() {
     }
 
     function blockSummary(b){
-      if(b.type==='hero') return escapeHtml(b.data.title||'');
-      if(b.type==='text') return (String(b.data.text||'').slice(0,40) + ((b.data.text||'').length>40?'…':''));
+      if(b.type==='hero') return escapeHtml(b.data.title||'') + (b.data.link? ' → link':'');
+      if(b.type==='text') return (String(b.data.text||'').slice(0,40) + ((b.data.text||'').length>40?'…':'')) + (b.data.link? ' → link':'');
       if(b.type==='image') return b.data.image ? b.data.image.name : '[empty image]';
       if(b.type==='video') return b.data.video ? b.data.video.name || b.data.srcUrl : (b.data.srcUrl||'[video]');
       if(b.type==='two-col') return escapeHtml(String(b.data.left||'').slice(0,20)) + ' / ' + escapeHtml(String(b.data.right||'').slice(0,20));
+      if(b.type==='button') return escapeHtml(b.data.label||'Button') + (b.data.url? ' → ' + escapeHtml(b.data.url):'');
       return '';
     }
 
@@ -333,7 +316,7 @@ function saveCurrentProject() {
       state.blocks.push(copy); renderBlocksList(); renderPreview();
     }
 
-    /* --------- Editor UI --------- */
+    /* --------- Editor UI (extended) --------- */
     function openEditor(bid){
       const b = state.blocks.find(x=>x.id===bid); if(!b) return;
       state.selected = bid;
@@ -368,9 +351,13 @@ function saveCurrentProject() {
       if(b.type==='hero'){
         addField('Title', b.data.title||'', v=> updateBlock(bid,{ title:v }));
         addField('Subtitle', b.data.subtitle||'', v=> updateBlock(bid,{ subtitle:v }));
+        addField('Title / Hero Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
       }
       if(b.type==='text'){
         addTextarea('Text', b.data.text||'', v=> updateBlock(bid,{ text:v }));
+        addField('Block Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        const hint = document.createElement('div'); hint.className='small'; hint.textContent='Tip: link will wrap the whole block (for inline links, add HTML <a> in text).';
+        editorFields.appendChild(hint);
       }
       if(b.type==='two-col'){
         addTextarea('Left column', b.data.left||'', v=> updateBlock(bid,{ left:v }));
@@ -382,7 +369,7 @@ function saveCurrentProject() {
         addSelect('Alignment', ['left','center','right'], b.data.align||'center', v=> updateBlock(bid,{ align:v }));
         addFilterControls(bid, b.data.filter || {name:'none',value:0});
         addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
-        addField('Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
+        addField('Image Link (optional)', b.data.link||'', v=> updateBlock(bid,{ link:v }));
         // image upload / replace / remove
         const wrap = document.createElement('div'); wrap.style.marginTop='10px';
         const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent = b.data.image ? 'Replace image' : 'Upload image';
@@ -408,16 +395,27 @@ function saveCurrentProject() {
         addCheckbox('Show controls', b.data.controls===undefined?true:b.data.controls, v=> updateBlock(bid,{ controls:v }));
         addField('Poster image URL (optional)', b.data.poster||'', v=> updateBlock(bid,{ poster:v }));
         addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
+        // overlay CTA controls
+        addCheckbox('Show CTA overlay on video', b.data.overlayCTA?.show||false, v=> setBlockData(bid,'overlayCTA.show',v));
+        addField('CTA label', b.data.overlayCTA?.label||'Watch Now', v=> setBlockData(bid,'overlayCTA.label',v));
+        addField('CTA URL', b.data.overlayCTA?.url||'', v=> setBlockData(bid,'overlayCTA.url',v));
+        addSelect('CTA position', ['left','center','right'], b.data.overlayCTA?.position||'center', v=> setBlockData(bid,'overlayCTA.position',v));
         // upload file button
-        const wrap = document.createElement('div'); wrap.style.marginTop='8px';
+        const wrapV = document.createElement('div'); wrapV.style.marginTop='8px';
         const uploadBtn = document.createElement('button'); uploadBtn.className='btn'; uploadBtn.textContent='Upload video file';
         uploadBtn.addEventListener('click', ()=> { fileInput.accept='video/*'; fileInput.onchange = handleFileForVideo(bid); fileInput.click(); });
-        wrap.appendChild(uploadBtn);
+        wrapV.appendChild(uploadBtn);
         if(b.data.video){
           const p = document.createElement('div'); p.style.marginTop='8px'; p.innerHTML = `<div class="small">Uploaded: ${escapeHtml(b.data.video.name||'video')}</div>`;
-          wrap.appendChild(p);
+          wrapV.appendChild(p);
         }
-        editorFields.appendChild(wrap);
+        editorFields.appendChild(wrapV);
+      }
+      if(b.type==='button'){
+        addField('Button label', b.data.label||'Click Me', v=> updateBlock(bid,{ label:v }));
+        addField('Button URL', b.data.url||'', v=> updateBlock(bid,{ url:v }));
+        addSelect('Style', ['primary','outline'], b.data.style||'primary', v=> updateBlock(bid,{ style:v }));
+        addCheckbox('Open in new tab', b.data.newTab!==false, v=> updateBlock(bid,{ newTab:v }));
       }
 
       removeBlockBtn.onclick = ()=> { if(confirm('Remove this block?')) removeBlock(bid) };
@@ -425,6 +423,7 @@ function saveCurrentProject() {
 
     function closeEditor(){ editorWrap.style.display='none'; state.selected=null; }
 
+    /* --------- small UI helpers --------- */
     function addField(labelText, value, onChange){
       const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
       const input = document.createElement('input'); input.type='text'; input.value = value||''; input.style.marginTop='6px';
@@ -459,13 +458,10 @@ function saveCurrentProject() {
       wrap.appendChild(input); wrap.appendChild(lbl);
       editorFields.appendChild(wrap);
     }
-
     function addFilterControls(bid, filter){
       const lbl = document.createElement('label'); lbl.textContent='Filter'; lbl.style.marginTop='8px';
       const sel = document.createElement('select'); sel.style.marginTop='6px';
-      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{
-        const opt = document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt);
-      });
+      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{ const opt=document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt); });
       const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=200; slider.value=filter.value||0; slider.style.marginTop='6px';
       const val = document.createElement('div'); val.className='small'; val.textContent = filter.value + (filter.name==='blur' ? 'px' : '%');
       sel.addEventListener('change', ()=> { setBlockData(bid,'filter.name',sel.value); updateFilterLabel(); });
@@ -474,36 +470,29 @@ function saveCurrentProject() {
       editorFields.appendChild(lbl); editorFields.appendChild(sel); editorFields.appendChild(slider); editorFields.appendChild(val);
     }
 
-    /* --------- File handlers for image/video uploads --------- */
+    /* --------- File handlers for image/video uploads (kept & reused) --------- */
     function handleFileForImage(bid){
       return function(e){
         const file = (e.target.files||[])[0];
         if(!file) return;
         const reader = new FileReader();
-        reader.onload = (ev)=> {
-          updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } });
-          openEditor(bid);
-        };
+        reader.onload = (ev)=> { updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } }); openEditor(bid); };
         reader.readAsDataURL(file);
-        fileInput.value = '';
+        fileInput.value='';
       };
     }
-
     function handleFileForVideo(bid){
       return function(e){
         const file = (e.target.files||[])[0];
         if(!file) return;
         const reader = new FileReader();
-        reader.onload = (ev)=> {
-          updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result }, provider:'file', srcUrl: '' });
-          openEditor(bid);
-        };
+        reader.onload = (ev)=> { updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result } , provider:'file', srcUrl:'' }); openEditor(bid); };
         reader.readAsDataURL(file);
-        fileInput.value = '';
+        fileInput.value='';
       };
     }
 
-    /* --------- Preview rendering (applies filters & animations inline) --------- */
+    /* --------- Preview rendering (adds video CTA & button block) --------- */
     function renderPreview(){
       previewBody.innerHTML = '';
       const root = document.createElement('div'); root.className='site-root';
@@ -526,37 +515,46 @@ function saveCurrentProject() {
         // block types
         if(b.type==='hero'){
           const header = document.createElement('div'); header.className='site-hero';
-          const h = document.createElement('h1'); h.className='site-title'; h.textContent = b.data.title||'';
-          const p = document.createElement('p'); p.className='site-sub'; p.textContent = b.data.subtitle||'';
+          const h = document.createElement('h1'); h.className='site-title';
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.style.color='inherit'; a.style.textDecoration='none';
+            a.textContent = b.data.title||'';
+            h.appendChild(a);
+          } else { h.textContent = b.data.title||''; }
+          const p = document.createElement('p'); p.className='site-sub';
+          if(b.data.link){
+            const a2 = document.createElement('a'); a2.href = b.data.link; a2.target='_blank'; a2.style.color='inherit'; a2.style.textDecoration='none';
+            a2.textContent = b.data.subtitle||'';
+            p.appendChild(a2);
+          } else { p.textContent = b.data.subtitle||''; }
           header.appendChild(h); header.appendChild(p); wrapper.appendChild(header);
         } else if(b.type==='text'){
-          const p = document.createElement('p'); p.style.whiteSpace='pre-wrap'; p.textContent = b.data.text||''; wrapper.appendChild(p);
+          const p = document.createElement('p'); p.style.whiteSpace='pre-wrap'; p.textContent = b.data.text||'';
+          if(b.data.link){
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.style.color='inherit'; a.style.textDecoration='none';
+            a.appendChild(p);
+            wrapper.appendChild(a);
+          } else wrapper.appendChild(p);
         } else if(b.type==='two-col'){
           const wrap = document.createElement('div'); wrap.className='two-col';
           const l = document.createElement('div'); l.innerHTML = '<div style="white-space:pre-wrap">' + escapeHtml(b.data.left||'') + '</div>';
           const r = document.createElement('div'); r.innerHTML = '<div style="white-space:pre-wrap">' + escapeHtml(b.data.right||'') + '</div>';
           wrap.appendChild(l); wrap.appendChild(r); wrapper.appendChild(wrap);
         } else if(b.type==='image'){
-          // image wrapper with alignment & width
           const align = b.data.align || 'center';
           const imgWidth = (b.data.width||80) + '%';
           const imgWrap = document.createElement('div'); imgWrap.style.textAlign = align;
+          const imgEl = document.createElement('img'); imgEl.className='responsive'; imgEl.style.width = imgWidth;
+          if(b.data.image && b.data.image.dataURL) imgEl.src = b.data.image.dataURL; else imgEl.alt='[empty image]';
+          applyFilterToElement(imgEl, b.data.filter);
           if(b.data.link){
-            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank';
-            const img = document.createElement('img'); img.className='responsive'; img.style.width = imgWidth;
-            if(b.data.image && b.data.image.dataURL) img.src = b.data.image.dataURL; else img.alt='[empty image]';
-            applyFilterToElement(img, b.data.filter);
-            a.appendChild(img); imgWrap.appendChild(a);
-          } else {
-            const img = document.createElement('img'); img.className='responsive'; img.style.width = imgWidth;
-            if(b.data.image && b.data.image.dataURL) img.src = b.data.image.dataURL; else img.alt='[empty image]';
-            applyFilterToElement(img, b.data.filter);
-            imgWrap.appendChild(img);
-          }
+            const a = document.createElement('a'); a.href = b.data.link; a.target='_blank'; a.appendChild(imgEl); imgWrap.appendChild(a);
+          } else imgWrap.appendChild(imgEl);
           if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; imgWrap.appendChild(cap); }
           wrapper.appendChild(imgWrap);
         } else if(b.type==='video'){
           const vidWrap = document.createElement('div'); vidWrap.style.textAlign = 'center';
+          const outer = document.createElement('div'); outer.className='video-wrap';
           if(b.data.provider === 'file' && b.data.video && b.data.video.dataURL){
             const vid = document.createElement('video'); vid.src = b.data.video.dataURL; vid.className='responsive';
             vid.style.maxWidth = '100%'; vid.style.height = 'auto';
@@ -565,23 +563,35 @@ function saveCurrentProject() {
             if(b.data.loop) vid.loop = true;
             if(b.data.muted) vid.muted = true;
             vid.controls = !!b.data.controls;
-            vidWrap.appendChild(vid);
+            outer.appendChild(vid);
           } else if(b.data.provider === 'youtube' && b.data.srcUrl){
-            // create iframe embed (simple)
             const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
             iframe.src = normalizeYoutubeEmbed(b.data.srcUrl);
             iframe.setAttribute('frameborder','0'); iframe.setAttribute('allow','accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture'); iframe.allowFullscreen = true;
-            vidWrap.appendChild(iframe);
+            outer.appendChild(iframe);
           } else if(b.data.provider === 'vimeo' && b.data.srcUrl){
             const iframe = document.createElement('iframe'); iframe.width='100%'; iframe.height='480';
             iframe.src = normalizeVimeoEmbed(b.data.srcUrl);
             iframe.setAttribute('frameborder','0'); iframe.allowFullscreen = true;
-            vidWrap.appendChild(iframe);
+            outer.appendChild(iframe);
           } else {
-            vidWrap.innerHTML = '<div class="small">No video</div>';
+            outer.innerHTML = '<div class="small">No video</div>';
           }
+          // overlay CTA
+          if(b.data.overlayCTA && b.data.overlayCTA.show){
+            const cta = document.createElement('a'); cta.className='video-cta ' + (b.data.overlayCTA.position||'center');
+            cta.href = b.data.overlayCTA.url || '#'; cta.target = '_blank';
+            cta.textContent = b.data.overlayCTA.label || 'Watch Now';
+            outer.appendChild(cta);
+          }
+          vidWrap.appendChild(outer);
           if(b.data.caption) { const cap = document.createElement('div'); cap.className='small'; cap.textContent = b.data.caption; cap.style.marginTop='8px'; vidWrap.appendChild(cap); }
           wrapper.appendChild(vidWrap);
+        } else if(b.type==='button'){
+          const btnWrap = document.createElement('div'); btnWrap.style.marginTop='8px';
+          const a = document.createElement('a'); a.className='call-to-action ' + (b.data.style==='outline' ? 'cta-outline':'cta-primary');
+          a.href = b.data.url || '#'; a.textContent = b.data.label || 'Click'; if(b.data.newTab) a.target='_blank';
+          btnWrap.appendChild(a); wrapper.appendChild(btnWrap);
         }
         container.appendChild(wrapper);
       });
@@ -604,77 +614,8 @@ function saveCurrentProject() {
       }
     }
 
-    /* --------- File handlers --------- */
-    function handleFileForImage(bid){
-      return function(e){
-        const file = (e.target.files||[])[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev)=> { updateBlock(bid, { image: { name: file.name, dataURL: ev.target.result } }); openEditor(bid); };
-        reader.readAsDataURL(file);
-        fileInput.value='';
-      };
-    }
-    function handleFileForVideo(bid){
-      return function(e){
-        const file = (e.target.files||[])[0];
-        if(!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev)=> { updateBlock(bid, { video: { name: file.name, dataURL: ev.target.result } , provider:'file', srcUrl:'' }); openEditor(bid); };
-        reader.readAsDataURL(file);
-        fileInput.value='';
-      };
-    }
-
-    /* --------- Editor helpers previously used above --------- */
-    function setBlockData(bid,keyPath,value){
-      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
-      const parts = keyPath.split('.');
-      let cur = b.data;
-      for(let i=0;i<parts.length-1;i++){ const p=parts[i]; cur[p]=cur[p]||{}; cur = cur[p]; }
-      cur[parts[parts.length-1]] = value;
-      updateBlock(bid, b.data);
-    }
-
-    /* --------- helper UI field creators reused here (redeclared for scope) --------- */
-    function addField(labelText, value, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const input = document.createElement('input'); input.type='text'; input.value = value||''; input.style.marginTop='6px';
-      input.addEventListener('input', ()=> onChange(input.value));
-      editorFields.appendChild(lbl); editorFields.appendChild(input);
-    }
-    function addTextarea(labelText, value, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const ta = document.createElement('textarea'); ta.value=value||''; ta.style.marginTop='6px';
-      ta.addEventListener('input', ()=> onChange(ta.value));
-      editorFields.appendChild(lbl); editorFields.appendChild(ta);
-    }
-    function addRange(labelText, value, min, max, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
-      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
-      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); } );
-      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
-    }
-    function addSelect(labelText, options, selectedVal, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const sel = document.createElement('select'); sel.style.marginTop='6px';
-      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
-      sel.addEventListener('change', ()=> onChange(sel.value));
-      editorFields.appendChild(lbl); editorFields.appendChild(sel);
-    }
-    function addCheckbox(labelText, checked, onChange){
-      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
-      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
-      input.addEventListener('change', ()=> onChange(input.checked));
-      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
-      wrap.appendChild(input); wrap.appendChild(lbl);
-      editorFields.appendChild(wrap);
-    }
-
     /* --------- Video helpers (normalize embed URLs) --------- */
     function normalizeYoutubeEmbed(url){
-      // accepts youtu.be or youtube.com/watch?v=ID
       try{
         const u = new URL(url);
         let id='';
@@ -693,7 +634,7 @@ function saveCurrentProject() {
       }catch(e){ return url; }
     }
 
-    /* --------- Export: generate HTML with inline CSS + embedded assets + animations/filters --------- */
+    /* --------- Export: generate HTML with inline CSS + embedded assets + CTA support --------- */
     function generateExportHtml(){
       const theme = themePresets[state.theme];
       const themeCssVars = Object.entries(theme.vars).map(([k,v])=>`${k}:${v};`).join('');
@@ -717,16 +658,34 @@ img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin
 @keyframes animSlideLeft{from{transform:translateX(18px);opacity:0}to{transform:none;opacity:1}}
 @keyframes animZoom{from{transform:scale(.94);opacity:0}to{transform:none;opacity:1}}
 @keyframes animBounce{from{transform:translateY(0)}50%{transform:translateY(-8px)}to{transform:translateY(0)}}
+.video-wrap{position:relative;display:inline-block;width:100%}
+.video-cta{position:absolute;bottom:18px;padding:8px 14px;border-radius:8px;background:rgba(37,99,235,0.95);color:#fff;text-decoration:none;font-weight:700;display:inline-block}
+.video-cta.left{left:18px}
+.video-cta.center{left:50%;transform:translateX(-50%)}
+.video-cta.right{right:18px}
+.call-to-action{display:inline-block;padding:10px 14px;border-radius:8px;text-decoration:none;font-weight:700}
+.cta-primary{background:var(--accent);color:#fff}
+.cta-outline{background:#fff;border:1px solid #eef3ff;color:#0b1220}
 `;
-      // build blocks html
       const blocksHtml = state.blocks.map(b=>{
         const anim = b.data.animation || {type:'none',duration:600,delay:0};
         const animClass = anim.type && anim.type!=='none' ? `class="anim-${anim.type}" style="animation-duration:${anim.duration}ms;animation-delay:${anim.delay}ms;"` : '';
         if(b.type==='hero'){
-          return `<header ${animClass} class="site-hero"><h1 class="site-title">${escapeHtml(b.data.title||'')}</h1><p class="site-sub">${escapeHtml(b.data.subtitle||'')}</p></header>`;
+          const title = escapeHtml(b.data.title||'');
+          const subtitle = escapeHtml(b.data.subtitle||'');
+          if(b.data.link){
+            const link = escapeHtml(b.data.link);
+            return `<header ${animClass} class="site-hero"><h1 class="site-title"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none">${title}</a></h1><p class="site-sub"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none">${subtitle}</a></p></header>`;
+          }
+          return `<header ${animClass} class="site-hero"><h1 class="site-title">${title}</h1><p class="site-sub">${subtitle}</p></header>`;
         }
         if(b.type==='text'){
-          return `<section ${animClass} class="site-body"><p style="white-space:pre-wrap">${escapeHtml(b.data.text||'')}</p></section>`;
+          const text = escapeHtml(b.data.text||'');
+          if(b.data.link){
+            const link = escapeHtml(b.data.link);
+            return `<section ${animClass} class="site-body"><a href="${link}" target="_blank" style="color:inherit;text-decoration:none"><p style="white-space:pre-wrap">${text}</p></a></section>`;
+          }
+          return `<section ${animClass} class="site-body"><p style="white-space:pre-wrap">${text}</p></section>`;
         }
         if(b.type==='two-col'){
           return `<section ${animClass} class="site-body"><div class="two-col"><div>${escapeHtml(b.data.left||'')}</div><div>${escapeHtml(b.data.right||'')}</div></div></section>`;
@@ -735,7 +694,6 @@ img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin
           const img = b.data.image && b.data.image.dataURL ? b.data.image.dataURL : '';
           const alt = escapeHtml(b.data.alt||'');
           const width = (b.data.width||80) + '%';
-          // filter CSS
           const f = b.data.filter || {name:'none',value:0};
           let filterCss = 'none';
           if(f.name && f.name!=='none'){
@@ -757,16 +715,26 @@ img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin
           const caption = escapeHtml(b.data.caption||'');
           if(b.data.provider==='file' && b.data.video && b.data.video.dataURL){
             const attrs = `${b.data.autoplay? 'autoplay':''} ${b.data.loop? 'loop':''} ${b.data.muted? 'muted':''} ${b.data.controls? 'controls':''}`;
-            return `<div ${animClass} style="text-align:center;margin:18px 0"><video src="${b.data.video.dataURL}" style="max-width:100%;height:auto;border-radius:8px" ${attrs}></video>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><video src="${b.data.video.dataURL}" style="max-width:100%;height:auto;border-radius:8px" ${attrs}></video>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
           } else if(b.data.provider==='youtube' && b.data.srcUrl){
             const embed = normalizeYoutubeEmbed(b.data.srcUrl);
-            return `<div ${animClass} style="text-align:center;margin:18px 0"><iframe src="${embed}" width="100%" height="480" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><iframe src="${embed}" width="100%" height="480" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
           } else if(b.data.provider==='vimeo' && b.data.srcUrl){
             const embed = normalizeVimeoEmbed(b.data.srcUrl);
-            return `<div ${animClass} style="text-align:center;margin:18px 0"><iframe src="${embed}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
+            const cta = (b.data.overlayCTA && b.data.overlayCTA.show) ? `<a class="video-cta ${escapeHtml(b.data.overlayCTA.position||'center')}" href="${escapeHtml(b.data.overlayCTA.url||'#')}" target="_blank">${escapeHtml(b.data.overlayCTA.label||'Watch Now')}</a>` : '';
+            return `<div ${animClass} style="text-align:center;margin:18px 0"><div class="video-wrap"><iframe src="${embed}" width="100%" height="480" frameborder="0" allowfullscreen></iframe>${cta}</div>${caption?`<div style="font-size:13px;color:var(--muted);margin-top:8px">${caption}</div>`:''}</div>`;
           } else {
             return `<div ${animClass} style="margin:18px 0"><div style="color:var(--muted)">No video</div></div>`;
           }
+        }
+        if(b.type==='button'){
+          const label = escapeHtml(b.data.label||'Click');
+          const url = escapeHtml(b.data.url||'#');
+          const cls = b.data.style==='outline' ? 'call-to-action cta-outline' : 'call-to-action cta-primary';
+          const target = b.data.newTab ? ' target="_blank" rel="noopener"' : '';
+          return `<div ${animClass} style="margin:18px 0"><a class="${cls}" href="${url}"${target}>${label}</a></div>`;
         }
         return '';
       }).join('\n');
@@ -776,7 +744,7 @@ img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin
       return html;
     }
 
-    /* --------- actions: download/copy/preview --------- */
+    /* --------- actions: download/copy/preview (unchanged) --------- */
     downloadBtn.addEventListener('click', ()=> {
       const html = generateExportHtml();
       const blob = new Blob([html], { type:'text/html;charset=utf-8' });
@@ -802,113 +770,11 @@ img.responsive{max-width:100%;height:auto;border-radius:8px;display:block;margin
     window.addEventListener('keydown', (e)=> { if((e.ctrlKey||e.metaKey) && e.key.toLowerCase()==='s'){ e.preventDefault(); downloadBtn.click(); } });
 
     function flashStatus(msg, ms=1400){ status.textContent = msg; setTimeout(()=> status.textContent='Ready', ms) }
-
     function updateThemeTag(){ themeTag.textContent = 'Theme: ' + themePresets[state.theme].name }
 
-    // normalize youtube/vimeo helpers used for export & preview
-    function normalizeYoutubeEmbed(url){
-      try{ const u=new URL(url); let id=''; if(u.hostname.includes('youtu.be')) id = u.pathname.slice(1); if(u.hostname.includes('youtube.com')) id = u.searchParams.get('v'); if(!id) return url; return 'https://www.youtube.com/embed/' + id + '?rel=0'; }catch(e){ return url; }
-    }
-    function normalizeVimeoEmbed(url){
-      try{ const u=new URL(url); const parts=u.pathname.split('/'); const id = parts.pop() || parts.pop(); if(!id) return url; return 'https://player.vimeo.com/video/' + id; }catch(e){ return url; }
-    }
-
-    // public little helpers for UI: open editor (re-usable)
-    function openEditor(bid){
-      const b = state.blocks.find(x=>x.id===bid); if(!b) return;
-      state.selected = bid; editorWrap.style.display = 'block'; editorTitle.textContent = 'Edit: ' + b.type.toUpperCase();
-      editorFields.innerHTML = '';
-      // animation controls
-      const animSec = document.createElement('div');
-      animSec.innerHTML = `<label class="inline">Animation</label>
-        <select id="animType"><option value="none">None</option><option value="fade">Fade</option><option value="slideup">Slide Up</option><option value="slideleft">Slide Left</option><option value="zoom">Zoom</option><option value="bounce">Bounce</option></select>
-        <label style="margin-top:8px">Duration (ms)</label><input id="animDur" type="number" value="${b.data.animation?.duration||600}" />
-        <label style="margin-top:8px">Delay (ms)</label><input id="animDelay" type="number" value="${b.data.animation?.delay||0}" />`;
-      editorFields.appendChild(animSec);
-      const animType = editorFields.querySelector('#animType'), animDur = editorFields.querySelector('#animDur'), animDelay = editorFields.querySelector('#animDelay');
-      animType.value = b.data.animation?.type || 'none';
-      animType.addEventListener('change', ()=> setBlockData(bid,'animation.type',animType.value));
-      animDur.addEventListener('input', ()=> setBlockData(bid,'animation.duration',Number(animDur.value||0)));
-      animDelay.addEventListener('input', ()=> setBlockData(bid,'animation.delay',Number(animDelay.value||0)));
-      // specifics per type
-      if(b.type==='hero'){ addField('Title', b.data.title||'', v=> updateBlock(bid,{ title:v })); addField('Subtitle', b.data.subtitle||'', v=> updateBlock(bid,{ subtitle:v })); }
-      if(b.type==='text'){ addTextarea('Text', b.data.text||'', v=> updateBlock(bid,{ text:v })); }
-      if(b.type==='two-col'){ addTextarea('Left', b.data.left||'', v=> updateBlock(bid,{ left:v })); addTextarea('Right', b.data.right||'', v=> updateBlock(bid,{ right:v })); }
-      if(b.type==='image'){
-        addField('Alt', b.data.alt||'', v=> updateBlock(bid,{ alt:v })); addRange('Width %', b.data.width||80,20,100, v=> updateBlock(bid,{ width:Number(v) }));
-        addSelect('Alignment',['left','center','right'], b.data.align||'center', v=> updateBlock(bid,{ align:v }));
-        addFilterControls(bid, b.data.filter || {name:'none',value:0});
-        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
-        addField('Link', b.data.link||'', v=> updateBlock(bid,{ link:v }));
-        const wrap = document.createElement('div'); wrap.style.marginTop='10px';
-        const up = document.createElement('button'); up.className='btn'; up.textContent = b.data.image ? 'Replace image' : 'Upload image'; up.addEventListener('click', ()=> { fileInput.accept='image/*'; fileInput.onchange = handleFileForImage(bid); fileInput.click(); });
-        wrap.appendChild(up);
-        if(b.data.image){ const rm=document.createElement('button'); rm.className='btn'; rm.style.marginLeft='8px'; rm.textContent='Remove'; rm.addEventListener('click', ()=> { updateBlock(bid,{ image:null }); openEditor(bid); }); wrap.appendChild(rm); const t=document.createElement('div'); t.style.marginTop='8px'; t.innerHTML=`<img src="${b.data.image.dataURL}" style="max-width:100%;border-radius:6px">`; wrap.appendChild(t); }
-        editorFields.appendChild(wrap);
-      }
-      if(b.type==='video'){
-        addSelect('Provider',['file','youtube','vimeo'], b.data.provider||'file', v=> updateBlock(bid,{ provider:v }));
-        addField('Video URL (YouTube/Vimeo)', b.data.srcUrl||'', v=> updateBlock(bid,{ srcUrl:v }));
-        addCheckbox('Autoplay', b.data.autoplay||false, v=> updateBlock(bid,{ autoplay:v }));
-        addCheckbox('Loop', b.data.loop||false, v=> updateBlock(bid,{ loop:v }));
-        addCheckbox('Muted', b.data.muted||false, v=> updateBlock(bid,{ muted:v }));
-        addCheckbox('Controls', b.data.controls===undefined?true:b.data.controls, v=> updateBlock(bid,{ controls:v }));
-        addField('Poster URL', b.data.poster||'', v=> updateBlock(bid,{ poster:v }));
-        addField('Caption', b.data.caption||'', v=> updateBlock(bid,{ caption:v }));
-        const wrap = document.createElement('div'); wrap.style.marginTop='8px';
-        const up = document.createElement('button'); up.className='btn'; up.textContent = b.data.video ? 'Replace video file' : 'Upload video file';
-        up.addEventListener('click', ()=> { fileInput.accept='video/*'; fileInput.onchange = handleFileForVideo(bid); fileInput.click(); });
-        wrap.appendChild(up);
-        if(b.data.video){ const p=document.createElement('div'); p.style.marginTop='8px'; p.innerHTML = `<div class="small">Uploaded: ${escapeHtml(b.data.video.name||'video')}</div>`; wrap.appendChild(p); }
-        editorFields.appendChild(wrap);
-      }
-      removeBlockBtn.onclick = ()=> { if(confirm('Remove this block?')) removeBlock(bid) };
-    }
-
-    /* --------- Helpers re-used in editor (declared earlier) --------- */
-    function addRange(labelText, value, min, max, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const range = document.createElement('input'); range.type='range'; range.min=min; range.max=max; range.value=value; range.style.marginTop='6px';
-      const valspan = document.createElement('div'); valspan.className='small'; valspan.textContent = value + '%';
-      range.addEventListener('input', ()=> { valspan.textContent = range.value + '%'; onChange(range.value); } );
-      editorFields.appendChild(lbl); editorFields.appendChild(range); editorFields.appendChild(valspan);
-    }
-    function addSelect(labelText, options, selectedVal, onChange){
-      const lbl = document.createElement('label'); lbl.textContent = labelText; lbl.style.marginTop='8px';
-      const sel = document.createElement('select'); sel.style.marginTop='6px';
-      options.forEach(o=> { const opt = document.createElement('option'); opt.value=o; opt.textContent=o; if(o===selectedVal) opt.selected=true; sel.appendChild(opt); });
-      sel.addEventListener('change', ()=> onChange(sel.value));
-      editorFields.appendChild(lbl); editorFields.appendChild(sel);
-    }
-    function addCheckbox(labelText, checked, onChange){
-      const wrap = document.createElement('div'); wrap.style.marginTop='8px';
-      const input = document.createElement('input'); input.type='checkbox'; input.checked = !!checked;
-      input.addEventListener('change', ()=> onChange(input.checked));
-      const lbl = document.createElement('label'); lbl.className='inline'; lbl.textContent = labelText; lbl.style.marginLeft='8px';
-      wrap.appendChild(input); wrap.appendChild(lbl);
-      editorFields.appendChild(wrap);
-    }
-    function addFilterControls(bid, filter){
-      const lbl = document.createElement('label'); lbl.textContent='Filter'; lbl.style.marginTop='8px';
-      const sel = document.createElement('select'); sel.style.marginTop='6px';
-      ['none','grayscale','sepia','blur','brightness','contrast','saturate'].forEach(f=>{ const opt=document.createElement('option'); opt.value=f; opt.textContent=f; if(filter.name===f) opt.selected=true; sel.appendChild(opt); });
-      const slider = document.createElement('input'); slider.type='range'; slider.min=0; slider.max=200; slider.value=filter.value||0; slider.style.marginTop='6px';
-      const val = document.createElement('div'); val.className='small'; val.textContent = filter.value + (filter.name==='blur' ? 'px' : '%');
-      sel.addEventListener('change', ()=> { setBlockData(bid,'filter.name',sel.value); updateLabel(); });
-      slider.addEventListener('input', ()=> { setBlockData(bid,'filter.value',Number(slider.value)); updateLabel(); });
-      function updateLabel(){ const f=sel.value; const v=slider.value; val.textContent = v + (f==='blur' ? 'px' : '%'); }
-      editorFields.appendChild(lbl); editorFields.appendChild(sel); editorFields.appendChild(slider); editorFields.appendChild(val);
-    }
-
-    /* --------- misc init stuff & UI bindings --------- */
-    renderPreview();
-    renderBlocksList();
-    updateThemeTag();
     // open first block editor for convenience
     if(state.blocks.length) openEditor(state.blocks[0].id);
 
-    // small status helper
-    function flashStatus(msg, ms=1400){ status.textContent = msg; setTimeout(()=> status.textContent='Ready', ms) }
   </script>
 </body>
 </html>
