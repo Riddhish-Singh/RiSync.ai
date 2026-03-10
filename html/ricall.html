@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -99,6 +98,270 @@
             border-radius: 10px;
             margin-left: 5px;
             vertical-align: super;
+        }
+
+        /* --- SCHEDULE CALL MODAL --- */
+        .schedule-modal {
+            display: none;
+            position: fixed;
+            z-index: 3000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .schedule-modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .schedule-modal-content {
+            background: var(--panel);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+            border: 1px solid #333;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .schedule-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #333;
+        }
+
+        .schedule-modal-header h2 {
+            margin: 0;
+            color: var(--text);
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .schedule-close {
+            background: none;
+            border: none;
+            color: #888;
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .schedule-close:hover {
+            color: var(--text);
+        }
+
+        .schedule-form-group {
+            margin-bottom: 20px;
+        }
+
+        .schedule-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #bbb;
+            font-size: 13px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-form-group input,
+        .schedule-form-group textarea,
+        .schedule-form-group select {
+            width: 100%;
+            padding: 12px;
+            background: var(--chat-bg);
+            border: 1px solid #444;
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        .schedule-form-group input:focus,
+        .schedule-form-group textarea:focus,
+        .schedule-form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(77, 144, 254, 0.1);
+        }
+
+        .schedule-form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .schedule-participants {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .schedule-participant-tag {
+            background: var(--primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .schedule-participant-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0;
+            display: flex;
+        }
+
+        .schedule-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .schedule-options {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .schedule-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #bbb;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .schedule-checkbox input {
+            width: auto;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .schedule-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .schedule-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .schedule-btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .schedule-btn-primary:hover {
+            background: #5a9bff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(77, 144, 254, 0.3);
+        }
+
+        .schedule-btn-cancel {
+            background: #333;
+            color: #bbb;
+        }
+
+        .schedule-btn-cancel:hover {
+            background: #444;
+            color: var(--text);
+        }
+
+        .schedule-success-message {
+            background: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--success);
+            font-size: 13px;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+
+        .scheduled-calls-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #333;
+        }
+
+        .scheduled-call-item {
+            background: var(--chat-bg);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+            font-size: 12px;
+        }
+
+        .scheduled-call-time {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .scheduled-call-title {
+            color: var(--text);
+            margin: 5px 0;
+            font-weight: 500;
+        }
+
+        .scheduled-call-participants {
+            color: #888;
+            font-size: 11px;
+            margin-top: 5px;
         }
 
         /* --- VIDEO GRID --- */
@@ -451,6 +714,122 @@
         }
         .file-link:hover { background: rgba(0,0,0,0.4); }
 
+        /* --- NOTIFICATION EMAIL STYLES --- */
+        .notification-email {
+            background: linear-gradient(135deg, rgba(77, 144, 254, 0.1) 0%, rgba(155, 89, 182, 0.1) 100%);
+            border: 1px solid #444;
+            border-left: 3px solid var(--primary);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .notification-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .notification-icon {
+            font-size: 16px;
+            color: var(--primary);
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--text);
+            font-size: 13px;
+            flex: 1;
+        }
+
+        .notification-from {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .notification-details {
+            font-size: 12px;
+            color: #aaa;
+            margin: 8px 0;
+            line-height: 1.4;
+        }
+
+        .notification-details-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 4px 0;
+        }
+
+        .notification-details-item i {
+            color: var(--primary);
+            width: 14px;
+            text-align: center;
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .notification-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .notification-btn-accept {
+            background: var(--success);
+            color: white;
+        }
+
+        .notification-btn-accept:hover {
+            background: #33d984;
+            transform: translateY(-2px);
+        }
+
+        .notification-btn-decline {
+            background: #444;
+            color: #bbb;
+        }
+
+        .notification-btn-decline:hover {
+            background: #555;
+            color: var(--text);
+        }
+
+        .notification-status {
+            font-size: 11px;
+            padding: 6px 10px;
+            border-radius: 4px;
+            text-align: center;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .notification-status.accepted {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .notification-status.declined {
+            background: rgba(234, 67, 53, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- WHITEBOARD STYLES --- */
@@ -624,6 +1003,85 @@
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 82, 82, 0); }
         }
     </style>
+
+    <script type="module">
+        // Import Firebase functions
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+        
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBWAwm_TDtD1qXDtjxJu0jrDP45c3p1Bxg",
+            authDomain: "risync-risync.firebaseapp.com",
+            projectId: "risync-risync",
+            storageBucket: "risync-risync.firebasestorage.app",
+            messagingSenderId: "195106250121",
+            appId: "1:195106250121:web:57b23c5b94d5771995d558",
+            measurementId: "G-D5WSLQ706Z"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Set up authentication state listener
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is logged in
+                const userEmail = user.email;
+                const displayName = user.displayName || user.email.split('@')[0];
+                
+                // Auto-populate the organizer email field when it's loaded
+                setTimeout(() => {
+                    const organizerEmailField = document.getElementById('organizer-email');
+                    if (organizerEmailField) {
+                        organizerEmailField.value = userEmail;
+                        organizerEmailField.readOnly = true;
+                        organizerEmailField.style.backgroundColor = '#2d2d2d';
+                        organizerEmailField.style.cursor = 'not-allowed';
+                        organizerEmailField.title = 'Email from Firebase account';
+                    }
+
+                    // Auto-populate username from Firebase display name
+                    const usernameInput = document.getElementById('username-input');
+                    if (usernameInput) {
+                        usernameInput.value = displayName;
+                        usernameInput.style.borderColor = 'var(--primary)';
+                        usernameInput.title = 'Name from Firebase account';
+                    }
+                }, 100);
+
+                // Store user info globally for later use
+                window.currentUser = {
+                    uid: user.uid,
+                    email: userEmail,
+                    displayName: displayName
+                };
+
+                console.log('✓ Firebase user authenticated:', {
+                    email: userEmail,
+                    displayName: displayName,
+                    uid: user.uid
+                });
+            } else {
+                // User is not logged in
+                console.log('⚠ User not authenticated with Firebase');
+                window.currentUser = null;
+                
+                // Notify the schedule form
+                setTimeout(() => {
+                    const organizerEmailField = document.getElementById('organizer-email');
+                    if (organizerEmailField) {
+                        organizerEmailField.placeholder = 'Sign in with Firebase to auto-fill';
+                        organizerEmailField.style.opacity = '0.6';
+                    }
+                }, 100);
+            }
+        });
+
+        // Export auth for use in main script if needed
+        window.firebaseAuth = auth;
+    </script>
 </head>
 <body>
 
@@ -696,6 +1154,9 @@
             </button>
             <button class="btn-copy" onclick="toggleSidebar('chat')" title="Chat">
                 <i class="fa-solid fa-comment"></i>
+            </button>
+            <button class="btn-copy" onclick="openScheduleModal()" title="Schedule Call">
+                <i class="fa-solid fa-calendar"></i>
             </button>
         </div>
     </div>
@@ -777,6 +1238,9 @@
                 <button class="tab-btn" id="tab-tasks" onclick="switchTab('tasks')"><i class="fa-solid fa-list-check"></i></button>
                 <button class="tab-btn" id="tab-polls" onclick="switchTab('polls')"><i class="fa-solid fa-square-poll-vertical"></i></button>
                 <button class="tab-btn" id="tab-chat" onclick="switchTab('chat')">Chat</button>
+                <button class="tab-btn" id="tab-notifications" onclick="switchTab('notifications')">
+                    <i class="fa-solid fa-bell"></i> <span id="count-notifications" class="count-badge" style="display:none;">0</span>
+                </button>
             </div>
 
             <div class="sidebar-content" id="content-participants">
@@ -862,6 +1326,112 @@
                     <button class="btn-blue" onclick="sendChat()" style="padding:8px;"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
+
+            <div class="sidebar-content" id="content-notifications" style="flex-direction:column;">
+                <h4 style="margin:0 0 10px 0; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-envelope"></i> Meeting Invitations
+                </h4>
+                <div id="notifications-list" style="flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px;">
+                    <div style="text-align:center; color:#666; font-size:12px;">No invitations yet</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Call Modal -->
+    <div id="schedule-modal" class="schedule-modal">
+        <div class="schedule-modal-content">
+            <div class="schedule-modal-header">
+                <h2><i class="fa-solid fa-calendar-days"></i> Schedule Call</h2>
+                <button class="schedule-close" onclick="closeScheduleModal()">&times;</button>
+            </div>
+            
+            <form id="schedule-form" onsubmit="submitScheduleForm(event)">
+                <div class="schedule-form-group">
+                    <label for="organizer-email">Your Email <span style="color: var(--primary);">(Firebase)</span></label>
+                    <input type="email" id="organizer-email" placeholder="Sign in with Firebase to auto-fill your email" readonly style="cursor: not-allowed;">
+                </div>
+
+                <div class="schedule-form-group">
+                    <label for="call-title">Meeting Title</label>
+                    <input type="text" id="call-title" placeholder="Team Sync" required>
+                </div>
+
+                <div class="schedule-form-group">
+                    <label for="call-description">Description (Optional)</label>
+                    <textarea id="call-description" placeholder="What's the meeting about?"></textarea>
+                </div>
+
+                <div class="schedule-form-row">
+                    <div class="schedule-form-group">
+                        <label for="call-date">Date</label>
+                        <input type="date" id="call-date" required>
+                    </div>
+                    <div class="schedule-form-group">
+                        <label for="call-time">Time</label>
+                        <input type="time" id="call-time" required>
+                    </div>
+                </div>
+
+                <div class="schedule-form-group">
+                    <label for="call-duration">Duration (minutes)</label>
+                    <select id="call-duration" required>
+                        <option value="">Select duration</option>
+                        <option value="15">15 minutes</option>
+                        <option value="30">30 minutes</option>
+                        <option value="60">1 hour</option>
+                        <option value="90">1.5 hours</option>
+                        <option value="120">2 hours</option>
+                        <option value="180">3 hours</option>
+                    </select>
+                </div>
+
+                <div class="schedule-form-group">
+                    <label for="call-participants">Add Participants (email)</label>
+                    <input type="email" id="call-participants" placeholder="name@example.com">
+                    <button type="button" onclick="addParticipant()" style="margin-top:8px; padding:8px 16px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px;">Add Email</button>
+                    <div class="schedule-participants" id="participants-list"></div>
+                </div>
+
+                <div class="schedule-options">
+                    <label class="schedule-checkbox">
+                        <input type="checkbox" id="call-recurring" onchange="toggleRecurringOptions()">
+                        <span>Recurring</span>
+                    </label>
+                    <label class="schedule-checkbox">
+                        <input type="checkbox" id="call-notify" checked>
+                        <span>Send Reminders</span>
+                    </label>
+                </div>
+
+                <div id="recurring-options" style="margin-top:15px; padding-top:15px; border-top:1px solid #333; display:none;">
+                    <div class="schedule-form-group">
+                        <label for="call-recurring-type">Repeat</label>
+                        <select id="call-recurring-type">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="biweekly">Every 2 Weeks</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="schedule-form-group">
+                        <label for="call-recurring-until">Until (Optional)</label>
+                        <input type="date" id="call-recurring-until">
+                    </div>
+                </div>
+
+                <div class="scheduled-calls-list" id="scheduled-calls-list" style="display:none;">
+                    <h3 style="font-size:13px; color:#bbb; margin:0 0 10px 0; text-transform:uppercase; letter-spacing:0.5px;">Scheduled Calls</h3>
+                    <div id="calls-container"></div>
+                </div>
+
+                <div class="schedule-success-message" id="schedule-success-msg">✓ Call scheduled successfully!</div>
+
+                <div class="schedule-buttons">
+                    <button type="submit" class="schedule-btn schedule-btn-primary">Schedule Call</button>
+                    <button type="button" class="schedule-btn schedule-btn-cancel" onclick="closeScheduleModal()">Cancel</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -1563,6 +2133,10 @@
                     case 'poll-vote-update': updatePollUI(data.pollId, data.optionIndex, data.count); break;
                     // NEW: Mesh Networking - Handle Peer List
                     case 'peer-list': handlePeerList(data.peers); break;
+                    // Meeting Invitations
+                    case 'meeting-invitation': addReceivedInvitation(data.invitation); break;
+                    case 'invitation-response': handleInvitationResponse(data); break;
+                    case 'email-notification': handleEmailNotification(data); break;
                 }
             });
             
@@ -2542,7 +3116,578 @@
         }
 
         // Wait for libraries to load before starting
-        window.onload = startApp;
+        // --- SCHEDULE CALL FEATURE ---
+        let scheduledCalls = [];
+        let participants = [];
+        let receivedInvitations = []; // Track invitations received by this user
+
+        function openScheduleModal() {
+            const scheduleModal = document.getElementById('schedule-modal');
+            scheduleModal.classList.add('show');
+            
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('call-date').valueAsDate = tomorrow;
+            
+            // Set default time to 10:00 AM
+            document.getElementById('call-time').value = '10:00';
+            
+            // Load scheduled calls
+            loadScheduledCalls();
+        }
+
+        function closeScheduleModal() {
+            const scheduleModal = document.getElementById('schedule-modal');
+            scheduleModal.classList.remove('show');
+            participants = [];
+            document.getElementById('participants-list').innerHTML = '';
+        }
+
+        function addParticipant() {
+            const emailInput = document.getElementById('call-participants');
+            const email = emailInput.value.trim();
+            
+            if (!email) {
+                showToast("Please enter an email address", "error");
+                return;
+            }
+            
+            // Simple email validation
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showToast("Please enter a valid email address", "error");
+                return;
+            }
+            
+            if (participants.includes(email)) {
+                showToast("This email is already added", "warning");
+                return;
+            }
+            
+            participants.push(email);
+            renderParticipants();
+            emailInput.value = '';
+        }
+
+        function renderParticipants() {
+            const list = document.getElementById('participants-list');
+            list.innerHTML = participants.map(email => `
+                <div class="schedule-participant-tag">
+                    <span>${email}</span>
+                    <button type="button" onclick="removeParticipant('${email}')">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function removeParticipant(email) {
+            participants = participants.filter(p => p !== email);
+            renderParticipants();
+        }
+
+        function toggleRecurringOptions() {
+            const recurringCheckbox = document.getElementById('call-recurring');
+            const recurringOptions = document.getElementById('recurring-options');
+            recurringOptions.style.display = recurringCheckbox.checked ? 'block' : 'none';
+        }
+
+        function submitScheduleForm(event) {
+            event.preventDefault();
+            
+            const title = document.getElementById('call-title').value;
+            const description = document.getElementById('call-description').value;
+            const date = document.getElementById('call-date').value;
+            const time = document.getElementById('call-time').value;
+            const duration = document.getElementById('call-duration').value;
+            const organizerEmail = document.getElementById('organizer-email').value;
+            const isRecurring = document.getElementById('call-recurring').checked;
+            const recurringType = document.getElementById('call-recurring-type').value;
+            const recurringUntil = document.getElementById('call-recurring-until').value;
+            const sendNotify = document.getElementById('call-notify').checked;
+            
+            // Validate
+            if (!title || !date || !time || !duration) {
+                showToast("Please fill in all required fields", "error");
+                return;
+            }
+
+            // Validate organizer email if participants are added
+            if (participants.length > 0) {
+                if (!organizerEmail) {
+                    showToast("Please sign in with Firebase or enter your email to send invitations", "error");
+                    return;
+                }
+
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(organizerEmail)) {
+                    showToast("Please enter a valid email address", "error");
+                    return;
+                }
+            }
+            
+            // Create call object
+            const callId = `call-${Date.now()}`;
+            const organizerName = usernameInput.value || "Guest User";
+            const call = {
+                id: callId,
+                title: title,
+                description: description,
+                date: date,
+                time: time,
+                duration: duration,
+                participants: [...participants],
+                isRecurring: isRecurring,
+                recurringType: recurringType,
+                recurringUntil: recurringUntil,
+                notify: sendNotify,
+                createdAt: new Date().toISOString(),
+                meetingLink: generateMeetingLink(),
+                organizer: organizerName,
+                organizerEmail: organizerEmail,
+                responses: {} // Track who accepted/declined
+            };
+            
+            scheduledCalls.push(call);
+            saveScheduledCalls();
+            
+            // Send invitations to all participants
+            if (participants.length > 0 && organizerEmail) {
+                sendInvitationsToParticipants(call);
+            }
+            
+            // Show success message
+            showScheduleSuccess();
+            
+            // Reset form
+            document.getElementById('schedule-form').reset();
+            participants = [];
+            document.getElementById('participants-list').innerHTML = '';
+            document.getElementById('recurring-options').style.display = 'none';
+            
+            // Re-populate Firebase email if available
+            if (window.currentUser && window.currentUser.email) {
+                const organizerEmailField = document.getElementById('organizer-email');
+                organizerEmailField.value = window.currentUser.email;
+            }
+            
+            // Broadcast to all connected peers
+            dataConnections.forEach(conn => {
+                if(conn.open) {
+                    conn.send({ 
+                        type: 'scheduled-call', 
+                        call: call 
+                    });
+                    
+                    // Send invitations to all participants via peers
+                    participants.forEach(email => {
+                        conn.send({
+                            type: 'meeting-invitation',
+                            invitation: {
+                                id: `inv-${callId}-${Date.now()}`,
+                                callId: call.id,
+                                title: call.title,
+                                description: call.description,
+                                date: call.date,
+                                time: call.time,
+                                duration: call.duration,
+                                organizer: organizerName,
+                                organizerId: myId,
+                                meetingLink: call.meetingLink,
+                                recipientEmail: email,
+                                status: 'pending',
+                                createdAt: new Date().toISOString()
+                            }
+                        });
+                    });
+                }
+            });
+            
+            // Load updated list
+            loadScheduledCalls();
+        }
+
+        function sendInvitationsToParticipants(call) {
+            const organizerName = call.organizer;
+            const organizerEmail = call.organizerEmail || "noreply@risync.com";
+            
+            const dateObj = new Date(`${call.date}T${call.time}`);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                month: 'long', 
+                day: 'numeric',
+                year: 'numeric'
+            });
+            const formattedTime = dateObj.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            call.participants.forEach(email => {
+                sendEmailViaFormSubmit(
+                    email,
+                    organizerName,
+                    organizerEmail,
+                    call.title,
+                    call.description,
+                    formattedDate,
+                    formattedTime,
+                    call.duration,
+                    call.meetingLink,
+                    call.id
+                );
+            });
+        }
+
+        function sendEmailViaFormSubmit(recipientEmail, organizerName, organizerEmail, title, description, date, time, duration, meetingLink, callId) {
+            const emailContent = `
+Meeting Invitation: ${title}
+
+From: ${organizerName} <${organizerEmail}>
+To: ${recipientEmail}
+
+Meeting Details:
+- Title: ${title}
+- Date: ${date}
+- Time: ${time}
+- Duration: ${duration} minutes
+${description ? `- Description: ${description}` : ''}
+
+Meeting Link: ${meetingLink}
+
+Click the link above to join the meeting or visit your RiSync dashboard to accept/decline this invitation.
+
+---
+This is an automated invitation from RiSync 2.0
+            `.trim();
+
+            // Create form data for formsubmit.co
+            const formData = new FormData();
+            formData.append('_to', recipientEmail);
+            formData.append('_from_name', organizerName);
+            formData.append('_from_email', organizerEmail);
+            formData.append('_subject', `Meeting Invitation: ${title}`);
+            formData.append('_captcha', 'false');
+            formData.append('_template', 'table');
+            
+            // Email body fields
+            formData.append('Meeting Title', title);
+            formData.append('Organizer', organizerName);
+            formData.append('Date', date);
+            formData.append('Time', time);
+            formData.append('Duration', `${duration} minutes`);
+            if (description) {
+                formData.append('Description', description);
+            }
+            formData.append('Meeting Link', meetingLink);
+            formData.append('Message', 'You have been invited to a meeting. Visit your RiSync dashboard to accept or decline.');
+
+            // Send to formsubmit.co
+            fetch('https://formsubmit.co/ajax/' + recipientEmail, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log(`✓ Email sent to ${recipientEmail}`);
+                    showToast(`📧 Invitation sent to ${recipientEmail}`, "success");
+                    
+                    // Log email delivery
+                    const emailLog = {
+                        to: recipientEmail,
+                        subject: `Meeting Invitation: ${title}`,
+                        timestamp: new Date().toISOString(),
+                        callId: callId,
+                        status: 'sent'
+                    };
+                    console.log('Email Log:', emailLog);
+                } else {
+                    console.error(`✗ Failed to send email to ${recipientEmail}`);
+                    showToast(`Failed to send invitation to ${recipientEmail}`, "error");
+                }
+            })
+            .catch(error => {
+                console.error('Email send error:', error);
+                showToast(`Error sending email to ${recipientEmail}: ${error.message}`, "error");
+            });
+        }
+
+        function generateMeetingLink() {
+            const linkId = Math.random().toString(36).substr(2, 9);
+            return `https://risync.in/RiSync-Web/html/ricall.html?meeting=${linkId}`;
+        }
+
+        function saveScheduledCalls() {
+            localStorage.setItem('scheduledCalls', JSON.stringify(scheduledCalls));
+        }
+
+        function loadScheduledCalls() {
+            const stored = localStorage.getItem('scheduledCalls');
+            if (stored) {
+                try {
+                    scheduledCalls = JSON.parse(stored);
+                    renderScheduledCalls();
+                } catch (e) {
+                    console.log("Could not load scheduled calls");
+                }
+            }
+        }
+
+        function renderScheduledCalls() {
+            const container = document.getElementById('calls-container');
+            const list = document.getElementById('scheduled-calls-list');
+            
+            if (scheduledCalls.length === 0) {
+                list.style.display = 'none';
+                return;
+            }
+            
+            list.style.display = 'block';
+            
+            // Sort by date
+            const sorted = [...scheduledCalls].sort((a, b) => {
+                const dateA = new Date(`${a.date}T${a.time}`);
+                const dateB = new Date(`${b.date}T${b.time}`);
+                return dateA - dateB;
+            });
+            
+            container.innerHTML = sorted.map(call => {
+                const dateObj = new Date(`${call.date}T${call.time}`);
+                const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                    weekday: 'short', 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+                const formattedTime = dateObj.toLocaleTimeString('en-US', { 
+                    hour: 'numeric', 
+                    minute: '2-digit',
+                    hour12: true 
+                });
+                
+                return `
+                    <div class="scheduled-call-item">
+                        <div>
+                            <div class="scheduled-call-time">${formattedDate} at ${formattedTime}</div>
+                            <div class="scheduled-call-title">${call.title}</div>
+                            ${call.participants.length > 0 ? `<div class="scheduled-call-participants"><i class="fa-solid fa-users"></i> ${call.participants.length} participant${call.participants.length !== 1 ? 's' : ''}</div>` : ''}
+                            <div style="margin-top:6px; font-size:11px; color:#666;">
+                                <button type="button" class="schedule-btn schedule-btn-primary" style="padding:4px 8px; font-size:10px; flex:none; width:auto;" onclick="copyMeetingLink('${call.meetingLink}')">Copy Link</button>
+                                <button type="button" style="padding:4px 8px; font-size:10px; background:#444; color:#bbb; border:none; border-radius:4px; margin-left:4px; cursor:pointer;" onclick="deleteScheduledCall('${call.id}')">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function copyMeetingLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast("Meeting link copied!", "success");
+            });
+        }
+
+        function deleteScheduledCall(callId) {
+            scheduledCalls = scheduledCalls.filter(c => c.id !== callId);
+            saveScheduledCalls();
+            renderScheduledCalls();
+            showToast("Call removed", "info");
+        }
+
+        function showScheduleSuccess() {
+            const msg = document.getElementById('schedule-success-msg');
+            msg.style.display = 'block';
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+
+        // --- INVITATION HANDLING ---
+        function addReceivedInvitation(invitation) {
+            receivedInvitations.push({...invitation, status: 'pending'});
+            saveReceivedInvitations();
+            updateNotificationsBadge();
+            displayInvitation(invitation);
+            
+            // Show notification toast
+            showToast(`📧 New meeting invitation from ${invitation.organizer}`, "info");
+        }
+
+        function displayInvitation(invitation) {
+            const notificationsList = document.getElementById('notifications-list');
+            
+            // Clear "no invitations" message
+            if (notificationsList.querySelector('[style*="text-align:center"]')) {
+                notificationsList.innerHTML = '';
+            }
+            
+            const dateObj = new Date(`${invitation.date}T${invitation.time}`);
+            const formattedDate = dateObj.toLocaleDateString('en-US', { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric'
+            });
+            const formattedTime = dateObj.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            
+            const invitationElement = document.createElement('div');
+            invitationElement.className = 'notification-email';
+            invitationElement.id = `inv-${invitation.id}`;
+            
+            let statusHTML = '';
+            if (invitation.status === 'accepted') {
+                statusHTML = '<div class="notification-status accepted">✓ You accepted this invitation</div>';
+            } else if (invitation.status === 'declined') {
+                statusHTML = '<div class="notification-status declined">✗ You declined this invitation</div>';
+            }
+            
+            invitationElement.innerHTML = `
+                <div class="notification-header">
+                    <i class="fa-solid fa-calendar notification-icon"></i>
+                    <span class="notification-title">${invitation.title}</span>
+                </div>
+                <div class="notification-from">From: <strong>${invitation.organizer}</strong></div>
+                <div class="notification-details">
+                    <div class="notification-details-item">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>${formattedDate} at ${formattedTime}</span>
+                    </div>
+                    <div class="notification-details-item">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>${invitation.duration} minutes</span>
+                    </div>
+                    ${invitation.description ? `
+                    <div class="notification-details-item">
+                        <i class="fa-solid fa-note-sticky"></i>
+                        <span>${invitation.description}</span>
+                    </div>
+                    ` : ''}
+                </div>
+                ${statusHTML}
+                ${invitation.status === 'pending' ? `
+                <div class="notification-actions">
+                    <button class="notification-btn notification-btn-accept" onclick="respondToInvitation('${invitation.id}', 'accepted')">
+                        <i class="fa-solid fa-check"></i> Accept
+                    </button>
+                    <button class="notification-btn notification-btn-decline" onclick="respondToInvitation('${invitation.id}', 'declined')">
+                        <i class="fa-solid fa-times"></i> Decline
+                    </button>
+                </div>
+                ` : ''}
+            `;
+            
+            notificationsList.appendChild(invitationElement);
+        }
+
+        function respondToInvitation(invitationId, response) {
+            const inv = receivedInvitations.find(i => i.id === invitationId);
+            if (!inv) return;
+            
+            inv.status = response;
+            saveReceivedInvitations();
+            displayInvitation(inv);
+            
+            // Send response back to organizer
+            dataConnections.forEach(conn => {
+                if(conn.open) {
+                    conn.send({
+                        type: 'invitation-response',
+                        invitationId: invitationId,
+                        callId: inv.callId,
+                        response: response,
+                        responderName: usernameInput.value || "Guest User",
+                        timestamp: new Date().toISOString()
+                    });
+                }
+            });
+            
+            const message = response === 'accepted' ? 'You accepted the invitation' : 'You declined the invitation';
+            showToast(message, response === 'accepted' ? 'success' : 'warning');
+        }
+
+        function saveReceivedInvitations() {
+            localStorage.setItem('receivedInvitations', JSON.stringify(receivedInvitations));
+        }
+
+        function loadReceivedInvitations() {
+            const stored = localStorage.getItem('receivedInvitations');
+            if (stored) {
+                try {
+                    receivedInvitations = JSON.parse(stored);
+                    receivedInvitations.forEach(inv => displayInvitation(inv));
+                    updateNotificationsBadge();
+                } catch (e) {
+                    console.log("Could not load received invitations");
+                }
+            }
+        }
+
+        function updateNotificationsBadge() {
+            const badge = document.getElementById('count-notifications');
+            const pendingCount = receivedInvitations.filter(i => i.status === 'pending').length;
+            
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount;
+                badge.style.display = 'inline-block';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+
+        function handleInvitationResponse(data) {
+            const call = scheduledCalls.find(c => c.id === data.callId);
+            if (!call) return;
+            
+            // Track the response
+            if (!call.responses) call.responses = {};
+            call.responses[data.responderName] = {
+                status: data.response,
+                timestamp: data.timestamp
+            };
+            
+            saveScheduledCalls();
+            
+            // Show notification
+            const message = data.response === 'accepted' 
+                ? `✓ ${data.responderName} accepted the invitation`
+                : `✗ ${data.responderName} declined the invitation`;
+            
+            showToast(message, data.response === 'accepted' ? 'success' : 'warning');
+            
+            // Log for organizer
+            console.log(`📧 Response from ${data.responderName}:`, data.response);
+        }
+
+        function handleEmailNotification(data) {
+            console.log('📧 Email Notification:', data.data);
+            // In a real implementation, this would show delivery status
+            // For now, just log it
+        }
+
+        // Load scheduled calls on startup
+        window.addEventListener('load', () => {
+            loadScheduledCalls();
+            loadReceivedInvitations();
+        });
+
+        // Auto-open schedule modal if coming from dashboard
+        function checkAndOpenScheduleModal() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('schedule') || urlParams.get('schedule') === 'true') {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    openScheduleModal();
+                }, 500);
+            }
+        }
+
+        window.onload = () => {
+            startApp();
+            checkAndOpenScheduleModal();
+        };
     </script>
 </body>
 </html>
